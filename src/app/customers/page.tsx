@@ -11,10 +11,15 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { BarChart, TrendingUp } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import type { ChartConfig } from "@/components/ui/chart"
+import type { ChartConfig } from "@/components/ui/chart";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { useToast } from '@/hooks/use-toast';
+import type { GenerateCommunicationStrategyOutput } from '@/ai/flows/generate-communication-strategy-flow';
+
 
 interface ICulturalDNA {
     music: { score: number; preferences: string[] };
@@ -48,6 +53,10 @@ export default function CustomersPage() {
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [isGenerating, setIsGenerating] = useState(false);
+    const [selectedProfile, setSelectedProfile] = useState<ICustomerProfile | null>(null);
+    const [strategy, setStrategy] = useState<GenerateCommunicationStrategyOutput | null>(null);
+    const { toast } = useToast();
 
     useEffect(() => {
         const fetchProfiles = async () => {
@@ -70,6 +79,38 @@ export default function CustomersPage() {
         fetchProfiles();
     }, []);
 
+    const handleGenerateStrategy = async (profile: ICustomerProfile) => {
+        if (!profile.culturalDNA) return;
+
+        setIsGenerating(true);
+        setSelectedProfile(profile);
+        setStrategy(null);
+
+        try {
+            const response = await fetch('/api/communication-strategy', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profile.culturalDNA),
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to generate strategy');
+            }
+
+            const data = await response.json();
+            setStrategy(data);
+        } catch (err: any) {
+            toast({
+                title: "Error",
+                description: err.message || "An unexpected error occurred.",
+                variant: "destructive"
+            });
+        } finally {
+            setIsGenerating(false);
+        }
+    };
+
     const renderSkeletons = () => (
         Array.from({ length: 5 }).map((_, index) => (
             <TableRow key={index}>
@@ -79,6 +120,7 @@ export default function CustomersPage() {
                 <TableCell><Skeleton className="h-4 w-32" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-16" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-9 w-32" /></TableCell>
             </TableRow>
         ))
     );
@@ -132,6 +174,7 @@ export default function CustomersPage() {
                                     <TableHead>Purchase Categories</TableHead>
                                     <TableHead>Interaction Freq.</TableHead>
                                     <TableHead>Cultural DNA</TableHead>
+                                    <TableHead>Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
@@ -161,7 +204,7 @@ export default function CustomersPage() {
                                                             <Popover>
                                                                 <PopoverTrigger asChild>
                                                                     <Button variant="outline" size="sm" className="flex items-center gap-2">
-                                                                        <BarChart className="h-4 w-4 text-accent" />
+                                                                        <BarChart className="h-4 w-4 text-accent-foreground" />
                                                                         View Profile
                                                                     </Button>
                                                                 </PopoverTrigger>
@@ -182,8 +225,7 @@ export default function CustomersPage() {
                                                                                         <XAxis type="number" domain={[0, 100]} hide />
                                                                                         <YAxis dataKey="category" type="category" width={80} tickLine={false} axisLine={false} />
                                                                                         <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent indicator="dot" />} />
-                                                                                        <Bar dataKey="score" radius={4}>
-                                                                                        </Bar>
+                                                                                        <Bar dataKey="score" radius={4} fill="var(--color-score)" />
                                                                                     </BarChart>
                                                                                 </ResponsiveContainer>
                                                                             </ChartContainer>
@@ -201,12 +243,96 @@ export default function CustomersPage() {
                                                             <Badge variant="outline">Not Available</Badge>
                                                         )}
                                                     </TableCell>
+                                                    <TableCell>
+                                                       {profile.culturalDNA && (
+                                                          <Dialog onOpenChange={(open) => !open && setStrategy(null)}>
+                                                            <DialogTrigger asChild>
+                                                              <Button
+                                                                size="sm"
+                                                                onClick={() => handleGenerateStrategy(profile)}
+                                                                disabled={isGenerating && selectedProfile?._id === profile._id}
+                                                              >
+                                                                {isGenerating && selectedProfile?._id === profile._id ? (
+                                                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                                                ) : (
+                                                                    <Wand2 className="mr-2 h-4 w-4" />
+                                                                )}
+                                                                Generate Strategy
+                                                              </Button>
+                                                            </DialogTrigger>
+                                                             <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
+                                                                <DialogHeader>
+                                                                    <DialogTitle>Communication Strategy</DialogTitle>
+                                                                    <DialogDescription>
+                                                                        AI-generated recommendations based on the customer's Cultural DNA.
+                                                                    </DialogDescription>
+                                                                </DialogHeader>
+                                                                {isGenerating && <div className="flex flex-col items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-4 text-muted-foreground">Generating strategy...</p></div>}
+                                                                {strategy && (
+                                                                    <div className="space-y-6 overflow-y-auto pr-6">
+                                                                        <div className="p-4 border rounded-lg bg-accent/20">
+                                                                            <h3 className="font-semibold text-lg flex items-center gap-2"><Rocket className="text-accent-foreground" /> Predicted ROI</h3>
+                                                                            <p className="text-muted-foreground">{strategy.predictedROI}</p>
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                                                            <div className="space-y-4">
+                                                                                <h3 className="font-semibold text-lg">Email Style</h3>
+                                                                                <p><strong>Tone:</strong> {strategy.emailStyle.tone}</p>
+                                                                                <p><strong>Language:</strong> {strategy.emailStyle.language}</p>
+                                                                                <h4 className="font-semibold">Subject Line Examples:</h4>
+                                                                                <ul className="list-disc list-inside text-sm text-muted-foreground">
+                                                                                    {strategy.emailStyle.subjectLineExamples.map((s, i) => <li key={i}>{s}</li>)}
+                                                                                </ul>
+                                                                            </div>
+                                                                            <div className="space-y-4">
+                                                                                <h3 className="font-semibold text-lg">Social Media Approach</h3>
+                                                                                <p><strong>Platforms:</strong> {strategy.socialMediaApproach.platforms.join(', ')}</p>
+                                                                                 <p><strong>Content Types:</strong> {strategy.socialMediaApproach.contentTypes.join(', ')}</p>
+                                                                                 <p><strong>Posting Style:</strong> {strategy.socialMediaApproach.postingStyle}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <Separator />
+                                                                         <div className="space-y-4">
+                                                                            <h3 className="font-semibold text-lg">Recommendations & Guidelines</h3>
+                                                                            <p><strong>Product Recommendation:</strong> {strategy.productRecommendationMethod}</p>
+                                                                             <p><strong>Customer Service:</strong> {strategy.customerServiceApproach}</p>
+                                                                              <div>
+                                                                                <h4 className="font-semibold">Visual Branding Elements:</h4>
+                                                                                 <div className="flex flex-wrap gap-2 mt-2">
+                                                                                    {strategy.visualBrandingElements.map((s, i) => <Badge key={i} variant="secondary">{s}</Badge>)}
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                         <Separator />
+                                                                         <div className="space-y-4">
+                                                                            <h3 className="font-semibold text-lg">Cultural Do's and Don'ts</h3>
+                                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                                <div>
+                                                                                    <h4 className="font-semibold text-green-600">Emphasize These</h4>
+                                                                                     <ul className="list-disc list-inside text-sm text-muted-foreground mt-2">
+                                                                                        {strategy.culturalInsights.referencesToEmphasize.map((s, i) => <li key={i}>{s}</li>)}
+                                                                                    </ul>
+                                                                                </div>
+                                                                                <div>
+                                                                                    <h4 className="font-semibold text-destructive">Avoid These</h4>
+                                                                                     <ul className="list-disc list-inside text-sm text-muted-foreground mt-2">
+                                                                                        {strategy.culturalInsights.approachesToAvoid.map((s, i) => <li key={i}>{s}</li>)}
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+                                                            </DialogContent>
+                                                          </Dialog>
+                                                       )}
+                                                    </TableCell>
                                                 </TableRow>
                                             )
                                         })
                                     ) : (
                                         <TableRow>
-                                            <TableCell colSpan={6} className="text-center h-24">
+                                            <TableCell colSpan={7} className="text-center h-24">
                                                 No customer profiles found. You can import data from the Customer Import page.
                                             </TableCell>
                                         </TableRow>
@@ -220,4 +346,3 @@ export default function CustomersPage() {
         </AppShell>
     );
 }
-
