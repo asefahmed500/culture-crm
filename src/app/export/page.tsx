@@ -5,11 +5,12 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart } from 'lucide-react';
+import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
 import type { GenerateContentCalendarOutput } from '@/ai/flows/generate-content-calendar-flow';
+import type { GenerateSalesScriptOutput } from '@/ai/flows/generate-sales-script-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -27,6 +28,10 @@ export default function ExportPage() {
     const [isCalendarLoading, setIsCalendarLoading] = useState(false);
     const [calendarError, setCalendarError] = useState<string | null>(null);
     const [contentCalendar, setContentCalendar] = useState<GenerateContentCalendarOutput | null>(null);
+
+    const [isScriptLoading, setIsScriptLoading] = useState(false);
+    const [scriptError, setScriptError] = useState<string | null>(null);
+    const [salesScript, setSalesScript] = useState<GenerateSalesScriptOutput | null>(null);
     
     const [isDownloading, setIsDownloading] = useState(false);
 
@@ -40,6 +45,9 @@ export default function ExportPage() {
                 if (!response.ok) throw new Error('Failed to fetch segments');
                 const data = await response.json();
                 setSegments(data.segments);
+                if (data.segments.length > 0) {
+                    setSelectedSegment(data.segments[0].segmentName);
+                }
             } catch (error) {
                 console.error(error);
                 toast({
@@ -99,6 +107,33 @@ export default function ExportPage() {
             setCalendarError(err.message);
         } finally {
             setIsCalendarLoading(false);
+        }
+    };
+
+    const handleGenerateScript = async () => {
+        if (!selectedSegment) {
+            setScriptError('Please select a customer segment first.');
+            return;
+        }
+        setIsScriptLoading(true);
+        setScriptError(null);
+        setSalesScript(null);
+        try {
+            const response = await fetch('/api/export/sales-script', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ segmentName: selectedSegment }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to generate sales script');
+            }
+            const data = await response.json();
+            setSalesScript(data);
+        } catch (err: any) {
+            setScriptError(err.message);
+        } finally {
+            setIsScriptLoading(false);
         }
     };
 
@@ -165,42 +200,16 @@ export default function ExportPage() {
             <main className="flex-1 p-4 md:p-8 space-y-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Export Center</CardTitle>
+                        <CardTitle>Export Center & Generators</CardTitle>
                         <CardDescription>
-                            Generate and download campaign materials, customer lists, and content calendars powered by AI insights.
+                            Generate and download campaign materials, sales scripts, customer lists, and content calendars powered by AI insights. Start by selecting a target segment below.
                         </CardDescription>
                     </CardHeader>
                      <CardContent>
-                        <Card className="bg-muted/30">
-                            <CardHeader className="flex flex-row items-center justify-between">
-                                <div className="space-y-1.5">
-                                    <CardTitle className="flex items-center gap-2 text-xl"><Users className="h-5 w-5"/> Customer Data Export</CardTitle>
-                                    <CardDescription>
-                                        Download a CSV of all customers with their assigned cultural segment and key traits.
-                                    </CardDescription>
-                                </div>
-                                 <Button onClick={handleDownloadCustomers} disabled={isDownloading}>
-                                    {isDownloading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
-                                    Download Customer CSV
-                                </Button>
-                            </CardHeader>
-                        </Card>
-                    </CardContent>
-                </Card>
-
-                {/* Campaign Brief Generator */}
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><FileText /> AI Campaign Brief Generator</CardTitle>
-                        <CardDescription>
-                            Select a target segment to generate a comprehensive campaign brief, including strategy, messaging, and projected ROI.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex items-end gap-4">
+                        <div className="flex items-end gap-4 max-w-md mb-6">
                             <div className="flex-grow">
                                 <label className="text-sm font-medium">Target Segment</label>
-                                 <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading || isBriefLoading} value={selectedSegment}>
+                                 <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading} value={selectedSegment}>
                                     <SelectTrigger>
                                         <SelectValue placeholder={isSegmentsLoading ? "Loading segments..." : "Select a segment"} />
                                     </SelectTrigger>
@@ -209,14 +218,88 @@ export default function ExportPage() {
                                     </SelectContent>
                                 </Select>
                             </div>
-                            <Button onClick={handleGenerateBrief} disabled={isBriefLoading || !selectedSegment}>
-                                {isBriefLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Rocket className="mr-2 h-4 w-4" />}
-                                Generate Brief
+                        </div>
+                        <Separator />
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateBrief} disabled={isBriefLoading || !selectedSegment}>
+                                <div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Campaign Brief</h3></div>
+                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a full campaign brief with strategy, messaging, and ROI.</p>
+                                {isBriefLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                            </Button>
+                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateScript} disabled={isScriptLoading || !selectedSegment}>
+                                <div className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Sales Script</h3></div>
+                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a tailored sales script with talking points and objection handling.</p>
+                                {isScriptLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                            </Button>
+                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateCalendar} disabled={isCalendarLoading}>
+                               <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Content Calendar</h3></div>
+                               <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a 30-day content calendar based on overall cultural trends.</p>
+                               {isCalendarLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                            </Button>
+                             <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleDownloadCustomers} disabled={isDownloading}>
+                                <div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Customer List</h3></div>
+                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Download a CSV of all customers with their assigned cultural segments.</p>
+                                {isDownloading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
                             </Button>
                         </div>
-                         {briefError && <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{briefError}</AlertDescription></Alert>}
+                         {briefError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{briefError}</AlertDescription></Alert>}
+                         {calendarError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{calendarError}</AlertDescription></Alert>}
+                         {scriptError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{scriptError}</AlertDescription></Alert>}
                     </CardContent>
                 </Card>
+
+                {salesScript && (
+                    <Card className="print:shadow-none print:border-none">
+                        <CardHeader className="flex flex-row justify-between items-start">
+                           <div>
+                             <CardTitle className="text-2xl">{salesScript.scriptTitle}</CardTitle>
+                             <CardDescription>Sales Script for: <Badge>{salesScript.targetSegment}</Badge></CardDescription>
+                           </div>
+                           <Button variant="outline" onClick={() => window.print()}><Download className="mr-2 h-4 w-4"/> Save as PDF</Button>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <p className="text-muted-foreground italic border-l-4 pl-4">{salesScript.scriptIntroduction}</p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="space-y-4">
+                                    <h3 className="font-semibold text-lg">Opening Lines</h3>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
+                                        {salesScript.openingLines.map((line, i) => <li key={i}>{line}</li>)}
+                                    </ul>
+                                </div>
+                                <div className="space-y-4">
+                                     <h3 className="font-semibold text-lg">Closing Techniques</h3>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-2">
+                                        {salesScript.closingTechniques.map((tech, i) => <li key={i}>{tech}</li>)}
+                                    </ul>
+                                </div>
+                            </div>
+                            <Separator />
+                             <div className="space-y-4">
+                                <h3 className="font-semibold text-lg">Key Talking Points</h3>
+                                <div className="space-y-4">
+                                    {salesScript.keyTalkingPoints.map((tp, i) => (
+                                        <div key={i} className="p-3 border rounded-lg bg-accent/20">
+                                            <p className="font-semibold">{tp.point}</p>
+                                            <p className="text-xs text-muted-foreground mt-1"><span className="font-bold">Why it works:</span> {tp.culturalJustification}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                            <Separator />
+                            <div className="space-y-4">
+                                <h3 className="font-semibold text-lg">Objection Handling</h3>
+                                <div className="space-y-4">
+                                    {salesScript.objectionHandling.map((oh, i) => (
+                                        <div key={i} className="p-3 border rounded-lg">
+                                            <p className="font-semibold text-destructive">Potential Objection: "{oh.potentialObjection}"</p>
+                                            <p className="text-sm text-muted-foreground mt-1"><span className="font-bold text-green-600">Suggested Response:</span> {oh.suggestedResponse}</p>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
                 
                 {campaignBrief && (
                     <Card className="print:shadow-none print:border-none">
@@ -295,25 +378,6 @@ export default function ExportPage() {
                     </Card>
                 )}
 
-
-                {/* Content Calendar */}
-                 <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><CalendarDays /> AI Content Calendar Generator</CardTitle>
-                        <CardDescription>
-                            Generate a 30-day content calendar with post ideas, themes, and seasonal tie-ins based on your overall customer cultural profile.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                        <div className="flex justify-start">
-                             <Button onClick={handleGenerateCalendar} disabled={isCalendarLoading}>
-                                {isCalendarLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TrendingUp className="mr-2 h-4 w-4" />}
-                                Generate Content Calendar
-                            </Button>
-                        </div>
-                         {calendarError && <Alert variant="destructive"><AlertTitle>Error</AlertTitle><AlertDescription>{calendarError}</AlertDescription></Alert>}
-                    </CardContent>
-                </Card>
 
                 {contentCalendar && (
                      <Card>
