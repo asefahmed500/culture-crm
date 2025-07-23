@@ -53,7 +53,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (status === 'unauthenticated') {
        // Allow access to login and signup pages
-      if (pathname !== '/login' && pathname !== '/signup') {
+      if (pathname !== '/login' && pathname !== '/signup' && pathname !== '/') {
         router.replace('/login');
       }
     }
@@ -81,7 +81,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           <SidebarMenu>
             {menuItems.map((item) => (
                 <SidebarMenuItem key={item.href}>
-                    <SidebarMenuButton onClick={() => router.push(item.href)} isActive={pathname === item.href}>
+                    <SidebarMenuButton onClick={() => router.push(item.href)} isActive={pathname.startsWith(item.href)}>
                         <item.icon />
                         <span>{item.label}</span>
                     </SidebarMenuButton>
