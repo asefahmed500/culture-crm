@@ -26,6 +26,13 @@ const TrendSchema = z.object({
   implication: z.string().describe("The business implication of this trend."),
 });
 
+const SeasonalForecastSchema = z.object({
+    season: z.string().describe("The season or event for the forecast (e.g., 'Summer', 'Back-to-School', 'Holiday Season')."),
+    segmentDescription: z.string().describe("The customer segment the forecast applies to."),
+    predictedBehavior: z.string().describe("The predicted behavior for this segment during the season."),
+    recommendation: z.string().describe("A marketing recommendation based on this seasonal forecast."),
+});
+
 const GenerateAnalyticsInsightsOutputSchema = z.object({
   overallSummary: z.string().describe("A high-level summary of the most important findings from the analysis."),
   keyPatterns: z.array(z.string()).describe("List of 3-5 key behavioral or cultural patterns identified across the entire customer base."),
@@ -36,6 +43,7 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
     upsellOpportunity: PredictionSchema,
   }),
   emergingTrends: z.array(TrendSchema).describe("A list of 2-3 emerging cultural or behavioral trends."),
+  seasonalForecasts: z.array(SeasonalForecastSchema).describe("2-3 seasonal behavior forecasts for key customer segments."),
   dataShiftAlert: z.string().optional().describe("An alert message if a significant shift in customer data patterns is detected. Omit if no significant shifts."),
 });
 
@@ -63,7 +71,8 @@ Based on this entire dataset, perform the following analysis:
     -   **Brand Advocacy**: Which segment has the highest potential to become strong brand advocates?
     -   **Upsell Opportunity**: Which segment is most ripe for an upsell or cross-sell campaign?
 4.  **Identify Emerging Trends**: Detect 2-3 emerging cultural or behavioral trends within the data that might not be obvious yet.
-5.  **Data Shift Alert**: Determine if there are any recent, significant shifts in the overall data patterns compared to historical norms (assume data is chronological). If so, generate a concise alert message. If not, omit this field.
+5.  **Seasonal Behavior Forecasts**: Based on cultural affinities, predict how 2-3 key segments might behave during upcoming seasons or major holidays (e.g., Summer, Holiday Season). For each, describe the segment, the predicted behavior, and a relevant marketing recommendation.
+6.  **Data Shift Alert**: Determine if there are any recent, significant shifts in the overall data patterns compared to historical norms (assume data is chronological). If so, generate a concise alert message. If not, omit this field.
 
 Synthesize all of this into the specified JSON format to power an analytics dashboard.
 `,

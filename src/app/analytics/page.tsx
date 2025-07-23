@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -152,6 +152,28 @@ export default function AnalyticsPage() {
                                 <PredictionCard title="Churn Risk" icon={HeartCrack} prediction={insights.predictions.churnRisk} />
                             </div>
                         </div>
+
+                         <Card>
+                            <CardHeader>
+                                <CardTitle className="flex items-center gap-2"><CalendarClock className="h-5 w-5" /> Seasonal Forecasts</CardTitle>
+                                <CardDescription>Predictions on how key customer segments will behave during upcoming seasons or events.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                {insights.seasonalForecasts.map((forecast, i) => (
+                                    <div key={i} className="p-4 border rounded-lg bg-accent/20">
+                                        <div className="flex items-center justify-between">
+                                            <h3 className="font-semibold text-lg">{forecast.season}</h3>
+                                            <Badge variant="secondary">{forecast.segmentDescription}</Badge>
+                                        </div>
+                                       <p className="text-muted-foreground mt-2">{forecast.predictedBehavior}</p>
+                                       <Separator className="my-3" />
+                                       <p className="text-sm">
+                                            <strong className="text-foreground">Recommendation:</strong> {forecast.recommendation}
+                                       </p>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
 
                     </div>
                 )}
