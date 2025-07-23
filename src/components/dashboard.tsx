@@ -1,12 +1,5 @@
-
 'use client';
 
-import {
-  Activity,
-  CreditCard,
-  DollarSign,
-  Users,
-} from 'lucide-react';
 import {
   Card,
   CardContent,
@@ -14,202 +7,133 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import {
-  ChartContainer,
-  ChartTooltip,
-  ChartTooltipContent,
-} from "@/components/ui/chart"
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts"
-import type { ChartConfig } from "@/components/ui/chart"
+import { Button } from '@/components/ui/button';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
+import { ArrowRight, Loader2, Upload, Users, Milestone } from 'lucide-react';
+import { Skeleton } from './ui/skeleton';
 
-const chartData = [
-  { month: "January", desktop: 186, mobile: 80 },
-  { month: "February", desktop: 305, mobile: 200 },
-  { month: "March", desktop: 237, mobile: 120 },
-  { month: "April", desktop: 73, mobile: 190 },
-  { month: "May", desktop: 209, mobile: 130 },
-  { month: "June", desktop: 214, mobile: 140 },
-];
-
-const chartConfig = {
-  desktop: {
-    label: "Desktop",
-    color: "hsl(var(--primary))",
-  },
-  mobile: {
-    label: "Mobile",
-    color: "hsl(var(--accent))",
-  },
-} satisfies ChartConfig;
+interface ICustomerProfile {
+    _id: string;
+}
 
 export default function Dashboard() {
+    const router = useRouter();
+    const { data: session } = useSession();
+    const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchProfiles = async () => {
+            try {
+                setLoading(true);
+                const response = await fetch('/api/customer-profiles');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch data');
+                }
+                const data = await response.json();
+                setProfiles(data);
+            } catch (err: any) {
+                console.error(err.message || 'An unexpected error occurred.');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchProfiles();
+    }, []);
+
+    const WelcomeCard = () => (
+         <Card className="bg-gradient-to-br from-primary/10 to-transparent">
+            <CardHeader>
+                <CardTitle className="text-3xl">
+                    Welcome back, {session?.user?.name?.split(' ')[0] || 'User'}!
+                </CardTitle>
+                <CardDescription>
+                    Ready to uncover the cultural drivers behind your customer behavior?
+                </CardDescription>
+            </CardHeader>
+        </Card>
+    );
+
+    const OnboardingCard = () => (
+        <Card>
+            <CardHeader>
+                <CardTitle className="flex items-center gap-2"><Upload className="text-primary"/> Get Started: Import Your First Batch of Customers</CardTitle>
+                <CardDescription>
+                    The first step to unlocking cultural intelligence is to import your anonymized customer data. Upload a CSV file to begin the analysis.
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <Button onClick={() => router.push('/import')}>
+                    Go to Import Page <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+            </CardContent>
+        </Card>
+    );
+
+    const NextStepsCard = () => (
+        <Card>
+             <CardHeader>
+                <div className="flex justify-between items-start">
+                    <div>
+                        <CardTitle>Your Customer Base</CardTitle>
+                        <CardDescription>You have successfully imported {profiles.length} customer profiles.</CardDescription>
+                    </div>
+                     <div className="flex items-center gap-2 text-primary font-bold">
+                        <Users />
+                        <span>{profiles.length} Profiles</span>
+                     </div>
+                </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <p>Now you're ready to dive deeper. What would you like to do next?</p>
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <Button onClick={() => router.push('/segments')} className="flex-1">
+                        <Milestone className="mr-2 h-4 w-4"/>
+                        Generate Customer Segments
+                    </Button>
+                     <Button onClick={() => router.push('/analytics')} variant="secondary" className="flex-1">
+                        <Users className="mr-2 h-4 w-4"/>
+                        Analyze Trends & Analytics
+                    </Button>
+                </div>
+            </CardContent>
+        </Card>
+    );
+    
+    const LoadingState = () => (
+         <div className="space-y-6">
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-8 w-1/2" />
+                    <Skeleton className="h-4 w-3/4" />
+                </CardHeader>
+            </Card>
+             <Card>
+                <CardHeader>
+                    <Skeleton className="h-7 w-1/3" />
+                    <Skeleton className="h-4 w-full" />
+                </CardHeader>
+                <CardContent>
+                    <Skeleton className="h-10 w-48" />
+                </CardContent>
+            </Card>
+         </div>
+    );
+
   return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Total Revenue
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">$45,231.89</div>
-              <p className="text-xs text-muted-foreground">
-                +20.1% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Subscriptions
-              </CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">+2350</div>
-              <p className="text-xs text-muted-foreground">
-                +180.1% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Sales</CardTitle>
-              <CreditCard className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">+12,234</div>
-              <p className="text-xs text-muted-foreground">
-                +19% from last month
-              </p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Now</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">+573</div>
-              <p className="text-xs text-muted-foreground">
-                +201 since last hour
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-        <div className="grid gap-4 md:gap-8 lg:grid-cols-2 xl:grid-cols-3">
-          <Card className="xl:col-span-2">
-            <CardHeader>
-              <CardTitle>Analytics</CardTitle>
-              <CardDescription>January - June 2024</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer config={chartConfig} className="min-h-[200px] w-full">
-                <BarChart accessibilityLayer data={chartData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
-                  />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar dataKey="desktop" fill="var(--color-desktop)" radius={4} />
-                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Transactions</CardTitle>
-              <CardDescription>
-                You made 265 transactions this month.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Customer</TableHead>
-                            <TableHead className="text-right">Amount</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        <TableRow>
-                            <TableCell>
-                                <div className="flex items-center gap-3">
-                                <Avatar className="h-9 w-9">
-                                    <AvatarImage src="https://placehold.co/36x36.png" alt="Avatar" data-ai-hint="person avatar"/>
-                                    <AvatarFallback>OM</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium">Olivia Martin</p>
-                                    <p className="text-sm text-muted-foreground">
-                                    olivia.martin@email.com
-                                    </p>
-                                </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                $1,999.00
-                            </TableCell>
-                        </TableRow>
-                        <TableRow>
-                            <TableCell>
-                                <div className="flex items-center gap-3">
-                                <Avatar className="h-9 w-9">
-                                    <AvatarImage src="https://placehold.co/36x36.png" alt="Avatar" data-ai-hint="person avatar"/>
-                                    <AvatarFallback>JL</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium">Jackson Lee</p>
-                                    <p className="text-sm text-muted-foreground">
-                                    jackson.lee@email.com
-                                    </p>
-                                </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                $39.00
-                            </TableCell>
-                        </TableRow>
-                         <TableRow>
-                            <TableCell>
-                                <div className="flex items-center gap-3">
-                                <Avatar className="h-9 w-9">
-                                    <AvatarImage src="https://placehold.co/36x36.png" alt="Avatar" data-ai-hint="person avatar"/>
-                                    <AvatarFallback>IN</AvatarFallback>
-                                </Avatar>
-                                <div>
-                                    <p className="font-medium">Isabella Nguyen</p>
-                                    <p className="text-sm text-muted-foreground">
-                                    isabella.nguyen@email.com
-                                    </p>
-                                </div>
-                                </div>
-                            </TableCell>
-                            <TableCell className="text-right font-medium">
-                                $299.00
-                            </TableCell>
-                        </TableRow>
-                    </TableBody>
-                </Table>
-            </CardContent>
-          </Card>
-        </div>
+        <WelcomeCard />
+        
+        {loading ? (
+            <LoadingState />
+        ) : profiles.length === 0 ? (
+            <OnboardingCard />
+        ) : (
+            <NextStepsCard />
+        )}
       </main>
   );
 }
