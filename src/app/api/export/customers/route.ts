@@ -10,10 +10,10 @@ import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 // This is computationally intensive and not ideal for production.
 // A better approach would be to save the segment assignment to the profile.
 const findSegmentForProfile = (profile: any, segments: any[]) => {
-    let bestSegment = 'Uncategorized';
+    let bestSegment: any = null;
     let highestScore = -1;
 
-    if (!profile.culturalDNA) return bestSegment;
+    if (!profile.culturalDNA) return null;
 
     segments.forEach(segment => {
         let score = 0;
@@ -21,17 +21,18 @@ const findSegmentForProfile = (profile: any, segments: any[]) => {
 
         // Simple scoring mechanism: check if segment characteristics are present in profile preferences
         segment.topCulturalCharacteristics.forEach((char: string) => {
-            if (profileDna.music.preferences.includes(char)) score++;
-            if (profileDna.entertainment.preferences.includes(char)) score++;
-            if (profileDna.dining.preferences.includes(char)) score++;
-            if (profileDna.fashion.preferences.includes(char)) score++;
-            if (profileDna.travel.preferences.includes(char)) score++;
-            if (profileDna.socialCauses.preferences.includes(char)) score++;
+            const lowerChar = char.toLowerCase();
+            if (profileDna.music.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
+            if (profileDna.entertainment.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
+            if (profileDna.dining.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
+            if (profileDna.fashion.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
+            if (profileDna.travel.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
+            if (profileDna.socialCauses.preferences.some((p: string) => p.toLowerCase().includes(lowerChar))) score++;
         });
         
         if (score > highestScore) {
             highestScore = score;
-            bestSegment = segment.segmentName;
+            bestSegment = segment;
         }
     });
 
@@ -71,6 +72,9 @@ export async function GET(req: NextRequest) {
         const headers = [
             "customerId",
             "assignedSegment",
+            "predictedLifetimeValue",
+            "bestContactMethods",
+            "communicationPreferenceTags",
             "topAffinity1",
             "topAffinity2",
             "topAffinity3",
@@ -82,12 +86,15 @@ export async function GET(req: NextRequest) {
 
         // Create CSV rows
         profiles.forEach(profile => {
-            const segmentName = findSegmentForProfile(profile, segments);
+            const assignedSegment = findSegmentForProfile(profile, segments);
             const topAffinities = getTopAffinities(profile.culturalDNA);
 
             const row = [
                 profile._id,
-                segmentName,
+                assignedSegment?.segmentName || 'Uncategorized',
+                assignedSegment?.potentialLifetimeValue || 'N/A',
+                assignedSegment?.bestMarketingChannels.join('; ') || 'N/A',
+                assignedSegment?.communicationPreferences.replace(/"/g, '""') || 'N/A',
                 topAffinities[0] || 'N/A',
                 topAffinities[1] || 'N/A',
                 topAffinities[2] || 'N/A',
