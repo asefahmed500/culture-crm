@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -33,6 +33,25 @@ const PredictionCard = ({ title, icon: Icon, prediction }: { title: string, icon
                 <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><Lightbulb className="h-4 w-4 text-amber-500" /> Actionable Recommendation</h4>
                 <p className="text-sm text-muted-foreground">{prediction.recommendation}</p>
              </div>
+        </CardContent>
+    </Card>
+);
+
+const InterestTrendCard = ({ title, icon: Icon, trends, iconColor }: { title: string, icon: React.ElementType, trends: GenerateAnalyticsInsightsOutput['topEmergingInterests'], iconColor: string }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+                <Icon className={`h-5 w-5 ${iconColor}`} />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+            {trends.map((trend, i) => (
+                <div key={i}>
+                    <p className="font-semibold text-sm">{trend.interest}</p>
+                    <p className="text-xs text-muted-foreground">{trend.changeDescription}</p>
+                </div>
+            ))}
         </CardContent>
     </Card>
 );
@@ -68,10 +87,9 @@ export default function AnalyticsPage() {
             <main className="flex-1 p-4 md:p-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Predictive Analytics Dashboard</CardTitle>
+                        <CardTitle>Cultural Trend & Analytics Dashboard</CardTitle>
                         <CardDescription>
-                            Generate high-level insights by analyzing all customer profiles in the database. 
-                            This action processes the entire dataset to identify trends and make predictions.
+                            Generate a real-time report by analyzing all customer profiles. This action processes the entire dataset to identify market trends, make predictions, and find opportunities.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -79,12 +97,12 @@ export default function AnalyticsPage() {
                             {loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating Insights...
+                                    Generating Report...
                                 </>
                             ) : (
                                  <>
                                     <Zap className="mr-2 h-4 w-4" />
-                                    Generate Predictive Insights
+                                    Generate Trend Report
                                 </>
                             )}
                         </Button>
@@ -127,20 +145,34 @@ export default function AnalyticsPage() {
                                     </ul>
                                 </CardContent>
                            </Card>
-                           <Card className="lg:col-span-2">
-                                <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><TrendingUp className="h-5 w-5" /> Emerging Trends</CardTitle>
-                                </CardHeader>
-                                <CardContent className="space-y-4">
-                                    {insights.emergingTrends.map((trend, i) => (
-                                        <div key={i} className="p-3 border rounded-lg">
-                                           <h4 className="font-semibold">{trend.trend}</h4>
-                                           <p className="text-sm text-muted-foreground mt-1"><strong className="text-foreground">Implication:</strong> {trend.implication}</p>
-                                           <p className="text-xs text-muted-foreground mt-2"><em>Supporting data: {trend.supportingData}</em></p>
-                                        </div>
-                                    ))}
-                                </CardContent>
-                           </Card>
+                           <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <InterestTrendCard title="Top 5 Emerging Interests" icon={TrendingUp} trends={insights.topEmergingInterests} iconColor="text-green-500" />
+                                <InterestTrendCard title="Top 5 Declining Interests" icon={TrendingDown} trends={insights.topDecliningInterests} iconColor="text-red-500" />
+                           </div>
+                        </div>
+
+                        <div>
+                            <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence</h2>
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><Briefcase /> Market Opportunity Gaps</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <ul className="space-y-3 list-disc list-inside text-muted-foreground">
+                                            {insights.marketOpportunityGaps.map((gap, i) => <li key={i}>{gap}</li>)}
+                                        </ul>
+                                    </CardContent>
+                                </Card>
+                                <Card>
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><Sparkles /> Competitive Intelligence</CardTitle>
+                                    </CardHeader>
+                                    <CardContent>
+                                        <p className="text-muted-foreground">{insights.competitiveIntelligence}</p>
+                                    </CardContent>
+                                </Card>
+                            </div>
                         </div>
                         
                         <div>
@@ -181,4 +213,3 @@ export default function AnalyticsPage() {
         </AppShell>
     );
 }
-
