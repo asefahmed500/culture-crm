@@ -11,7 +11,10 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { TrendingUp } from 'lucide-react';
+import { BarChart, TrendingUp } from 'lucide-react';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import type { ChartConfig } from "@/components/ui/chart"
 
 interface ICulturalDNA {
     music: { score: number; preferences: string[] };
@@ -33,6 +36,13 @@ interface ICustomerProfile {
     culturalDNA?: ICulturalDNA;
     createdAt: string;
 }
+
+const chartConfig = {
+  score: {
+    label: "Affinity Score",
+    color: "hsl(var(--primary))",
+  },
+} satisfies ChartConfig
 
 export default function CustomersPage() {
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
@@ -74,7 +84,7 @@ export default function CustomersPage() {
     );
     
     const getTopCategory = (dna: ICulturalDNA) => {
-        const categories = {
+        const categories: Record<string, number> = {
             Music: dna.music.score,
             Entertainment: dna.entertainment.score,
             Dining: dna.dining.score,
@@ -84,6 +94,17 @@ export default function CustomersPage() {
         };
         return Object.entries(categories).reduce((a, b) => a[1] > b[1] ? a : b, ['', -1]);
     };
+    
+    const getChartData = (dna: ICulturalDNA) => {
+        return [
+            { category: 'Music', score: dna.music.score },
+            { category: 'Entertainment', score: dna.entertainment.score },
+            { category: 'Dining', score: dna.dining.score },
+            { category: 'Fashion', score: dna.fashion.score },
+            { category: 'Travel', score: dna.travel.score },
+            { category: 'Social Causes', score: dna.socialCauses.score },
+        ].sort((a, b) => b.score - a.score);
+    }
 
     return (
         <AppShell>
@@ -118,6 +139,7 @@ export default function CustomersPage() {
                                     profiles.length > 0 ? (
                                         profiles.map(profile => {
                                             const [topCategory, topScore] = profile.culturalDNA ? getTopCategory(profile.culturalDNA) : ['N/A', 0];
+                                            const chartData = profile.culturalDNA ? getChartData(profile.culturalDNA) : [];
 
                                             return (
                                                 <TableRow key={profile._id}>
@@ -139,29 +161,36 @@ export default function CustomersPage() {
                                                             <Popover>
                                                                 <PopoverTrigger asChild>
                                                                     <Button variant="outline" size="sm" className="flex items-center gap-2">
-                                                                        <TrendingUp className="h-4 w-4 text-accent" />
-                                                                        {topCategory} ({topScore}%)
+                                                                        <BarChart className="h-4 w-4 text-accent" />
+                                                                        View Profile
                                                                     </Button>
                                                                 </PopoverTrigger>
-                                                                <PopoverContent className="w-80">
+                                                                <PopoverContent className="w-96">
                                                                     <div className="grid gap-4">
                                                                         <div className="space-y-2">
                                                                             <h4 className="font-medium leading-none">Cultural DNA Profile</h4>
                                                                             <p className="text-sm text-muted-foreground">
-                                                                                Confidence: {profile.culturalDNA.confidenceScore.toFixed(0)}%
+                                                                                Top Category: <span className="font-bold">{topCategory} ({topScore.toFixed(0)}%)</span> |
+                                                                                Confidence: <span className="font-bold">{profile.culturalDNA.confidenceScore.toFixed(0)}%</span>
                                                                             </p>
                                                                         </div>
-                                                                        <div className="grid gap-2 text-sm">
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Music:</span><span className="col-span-2 font-bold">{profile.culturalDNA.music.score}%</span></div>
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Entertainment:</span><span className="col-span-2 font-bold">{profile.culturalDNA.entertainment.score}%</span></div>
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Dining:</span><span className="col-span-2 font-bold">{profile.culturalDNA.dining.score}%</span></div>
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Fashion:</span><span className="col-span-2 font-bold">{profile.culturalDNA.fashion.score}%</span></div>
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Travel:</span><span className="col-span-2 font-bold">{profile.culturalDNA.travel.score}%</span></div>
-                                                                            <div className="grid grid-cols-3 items-center gap-4"><span>Social Causes:</span><span className="col-span-2 font-bold">{profile.culturalDNA.socialCauses.score}%</span></div>
+                                                                         <div className="h-[200px]">
+                                                                             <ChartContainer config={chartConfig} className="w-full h-full">
+                                                                                <ResponsiveContainer width="100%" height="100%">
+                                                                                    <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>
+                                                                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
+                                                                                        <XAxis type="number" domain={[0, 100]} hide />
+                                                                                        <YAxis dataKey="category" type="category" width={80} tickLine={false} axisLine={false} />
+                                                                                        <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent indicator="dot" />} />
+                                                                                        <Bar dataKey="score" radius={4}>
+                                                                                        </Bar>
+                                                                                    </BarChart>
+                                                                                </ResponsiveContainer>
+                                                                            </ChartContainer>
                                                                         </div>
                                                                         <div>
                                                                             <h5 className="font-medium leading-none mb-2">Surprising Connections</h5>
-                                                                            <ul className="list-disc list-inside text-xs text-muted-foreground">
+                                                                            <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
                                                                                 {profile.culturalDNA.surpriseConnections.map((conn, i) => <li key={i}>{conn}</li>)}
                                                                             </ul>
                                                                         </div>
@@ -191,3 +220,4 @@ export default function CustomersPage() {
         </AppShell>
     );
 }
+
