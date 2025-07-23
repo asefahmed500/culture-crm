@@ -6,5 +6,5 @@ import './flows/generate-analytics-insights-flow';
 import './flows/generate-customer-segments-flow';
 import './flows/generate-campaign-brief-flow';
 import './flows/generate-content-calendar-flow';
-import './flows/generate-sales-script-flow'; // Added new flow
+import './flows/generate-sales-script-flow';
 import './tools/business-metrics-tool';

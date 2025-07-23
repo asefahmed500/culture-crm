@@ -12,6 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
+import Story from '@/models/story';
 
 const PredictionSchema = z.object({
   segmentDescription: z.string().describe("A description of the customer segment this prediction applies to."),
@@ -38,6 +39,13 @@ const InterestTrendSchema = z.object({
     changeDescription: z.string().describe("A brief explanation of why this trend is emerging or declining."),
 });
 
+const CulturalShiftStorySchema = z.object({
+    title: z.string().describe("A catchy, narrative headline for the most significant cultural shift detected (e.g., 'The Rise of the Mindful Hedonist')."),
+    narrative: z.string().describe("A 2-3 paragraph story explaining this cultural shift. It should synthesize multiple data points into a cohesive narrative about what's changing in the customer base and why."),
+    keyDataPoints: z.array(z.string()).describe("A list of 3-4 specific data points or trends that support this story."),
+    recommendation: z.string().describe("A single, powerful strategic recommendation on how the business can capitalize on this cultural shift."),
+});
+
 const GenerateAnalyticsInsightsOutputSchema = z.object({
   overallSummary: z.string().describe("A high-level summary of the most important findings from the analysis."),
   keyPatterns: z.array(z.string()).describe("List of 3-5 key behavioral or cultural patterns identified across the entire customer base."),
@@ -53,6 +61,7 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   marketOpportunityGaps: z.array(z.string()).describe("A list of 2-3 potential market opportunity gaps based on unmet or underserved cultural preferences in the data."),
   competitiveIntelligence: z.string().describe("A brief analysis of how the identified trends position the business against potential competitors and where cultural gaps can be turned into a competitive advantage."),
   dataShiftAlert: z.string().optional().describe("An alert message if a significant shift in customer data patterns is detected (e.g., a trend affecting >15% of the base). Omit if no significant shifts."),
+  culturalShiftStory: CulturalShiftStorySchema.describe("A narrative story about the single most important cultural shift detected in the data."),
 });
 
 export type GenerateAnalyticsInsightsOutput = z.infer<typeof GenerateAnalyticsInsightsOutputSchema>;
@@ -82,6 +91,7 @@ Based on this entire dataset, perform the following analysis:
     - **Market Opportunity Gaps**: Identify 2-3 potential market opportunities where customer preferences appear to be underserved.
     - **Competitive Intelligence**: Provide a brief analysis of how these trends could create a competitive advantage. What cultural positioning should the business take?
 7.  **Data Shift Alert**: Determine if there are any recent, significant shifts in the overall data patterns (e.g., a single trend rapidly growing to affect >15% of the customer base). If so, generate a concise alert message. If not, omit this field.
+8.  **Cultural Shift Story**: This is the most important part. Synthesize all your findings to identify the SINGLE most significant, interesting, or surprising cultural shift occurring in the data. Create a compelling narrative story about it, complete with a title, a short narrative, the key data points supporting it, and a powerful recommendation.
 
 Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
 `,
@@ -122,6 +132,9 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
     if (!output) {
       throw new Error('The AI model did not return a valid analytics report.');
     }
+
+    // Save the story to the database for historical tracking
+    await Story.create(output.culturalShiftStory);
     
     return output;
   }

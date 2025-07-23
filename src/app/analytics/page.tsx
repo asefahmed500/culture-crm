@@ -6,10 +6,11 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, History, MessageCircle } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PredictionCard = ({ title, icon: Icon, prediction }: { title: string, icon: React.ElementType, prediction: GenerateAnalyticsInsightsOutput['predictions']['purchaseLikelihood'] }) => (
     <Card>
@@ -56,6 +57,55 @@ const InterestTrendCard = ({ title, icon: Icon, trends, iconColor }: { title: st
     </Card>
 );
 
+const LoadingSkeleton = () => (
+    <div className="mt-8 space-y-8">
+        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+            <CardHeader>
+                <Skeleton className="h-8 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+            </CardHeader>
+            <CardContent className="space-y-4">
+                <Skeleton className="h-5 w-full" />
+                <Skeleton className="h-5 w-5/6" />
+                <div className="pt-4">
+                    <Skeleton className="h-6 w-1/3 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </div>
+            </CardContent>
+        </Card>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Card className="lg:col-span-1">
+                <CardHeader>
+                    <Skeleton className="h-7 w-2/3" />
+                </CardHeader>
+                <CardContent className="space-y-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                </CardContent>
+            </Card>
+            <div className="lg:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Card>
+                    <CardHeader><Skeleton className="h-7 w-3/4" /></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><Skeleton className="h-7 w-3/4" /></CardHeader>
+                    <CardContent className="space-y-4">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-full" />
+                    </CardContent>
+                </Card>
+            </div>
+        </div>
+    </div>
+);
+
 
 export default function AnalyticsPage() {
     const [loading, setLoading] = useState(false);
@@ -68,7 +118,7 @@ export default function AnalyticsPage() {
         setInsights(null);
 
         try {
-            const response = await fetch('/api/analytics-insights');
+            const response = await fetch('/api/analytics-insights', { method: 'POST' });
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to generate insights');
@@ -87,26 +137,31 @@ export default function AnalyticsPage() {
             <main className="flex-1 p-4 md:p-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Cultural Trend & Analytics Dashboard</CardTitle>
-                        <CardDescription>
-                            Generate a real-time report by analyzing all customer profiles. This action processes the entire dataset to identify market trends, make predictions, and find opportunities.
-                        </CardDescription>
+                        <div className="flex justify-between items-start">
+                            <div>
+                                <CardTitle>Cultural Trend & Analytics Engine</CardTitle>
+                                <CardDescription>
+                                    Generate a real-time report by analyzing all customer profiles. This action processes the entire dataset to identify market trends, make predictions, and find opportunities.
+                                </CardDescription>
+                            </div>
+                            <Button onClick={handleGenerateInsights} disabled={loading} size="lg">
+                                {loading ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Generating Report...
+                                    </>
+                                ) : (
+                                     <>
+                                        <Zap className="mr-2 h-4 w-4" />
+                                        Generate Trend Report
+                                    </>
+                                )}
+                            </Button>
+                        </div>
+
                     </CardHeader>
                     <CardContent>
-                        <Button onClick={handleGenerateInsights} disabled={loading}>
-                            {loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating Report...
-                                </>
-                            ) : (
-                                 <>
-                                    <Zap className="mr-2 h-4 w-4" />
-                                    Generate Trend Report
-                                </>
-                            )}
-                        </Button>
-                         {error && (
+                        {error && (
                              <Alert variant="destructive" className="mt-4">
                                 <AlertTitle>Error</AlertTitle>
                                 <AlertDescription>{error}</AlertDescription>
@@ -114,6 +169,8 @@ export default function AnalyticsPage() {
                         )}
                     </CardContent>
                 </Card>
+
+                {loading && <LoadingSkeleton />}
 
                 {insights && (
                     <div className="mt-8 space-y-8">
@@ -125,7 +182,28 @@ export default function AnalyticsPage() {
                             </Alert>
                         )}
 
-                        <Card className="bg-primary/5 border-primary/20">
+                        <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
+                            <CardHeader>
+                                <CardTitle className="text-3xl font-bold flex items-center gap-3"><MessageCircle className="h-8 w-8"/> Cultural Shift Story</CardTitle>
+                                <CardDescription className="text-lg">{insights.culturalShiftStory.title}</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <p className="text-muted-foreground leading-relaxed">{insights.culturalShiftStory.narrative}</p>
+                                <Separator />
+                                <div>
+                                    <h4 className="font-semibold mb-2">Key Supporting Data</h4>
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
+                                        {insights.culturalShiftStory.keyDataPoints.map((point, i) => <li key={i}>{point}</li>)}
+                                    </ul>
+                                </div>
+                                <div>
+                                    <h4 className="font-semibold mb-2 flex items-center gap-2 text-primary/90"><Lightbulb className="h-4 w-4" /> Strategic Recommendation</h4>
+                                    <p className="text-sm font-medium">{insights.culturalShiftStory.recommendation}</p>
+                                </div>
+                            </CardContent>
+                        </Card>
+
+                        <Card>
                             <CardHeader>
                                 <CardTitle>Overall Summary</CardTitle>
                             </CardHeader>
@@ -138,7 +216,7 @@ export default function AnalyticsPage() {
                            <Card className="lg:col-span-1">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> Key Patterns</CardTitle>
-                                </CardHeader>
+                                </Header>
                                 <CardContent>
                                     <ul className="space-y-3 list-disc list-inside text-muted-foreground">
                                         {insights.keyPatterns.map((pattern, i) => <li key={i}>{pattern}</li>)}
