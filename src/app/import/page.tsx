@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Upload, FileText, X, CheckCircle } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle, Info } from 'lucide-react';
 import AppShell from '@/components/app-shell';
 import { processCustomerData, ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
@@ -20,6 +20,7 @@ type Mapping = {
 };
 
 const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
+const qlooField = 'purchase_categories';
 
 export default function CustomerImportPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -33,7 +34,7 @@ export default function CustomerImportPage() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
-    if (uploadedFile && uploadedFile.type === 'text/csv') {
+    if (uploadedFile && (uploadedFile.type === 'text/csv' || uploadedFile.name.endsWith('.csv'))) {
       setFile(uploadedFile);
       setError(null);
       setResult(null);
@@ -41,9 +42,9 @@ export default function CustomerImportPage() {
       const reader = new FileReader();
       reader.onload = () => {
         const text = reader.result as string;
-        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
+        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/"/g, '')));
         setHeaders(rows[0]);
-        setData(rows.slice(1).filter(row => row.length === rows[0].length)); // Ensure row has same number of columns as header
+        setData(rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell))); // Ensure row has same number of columns and is not empty
         // Reset mapping when new file is uploaded
         setMapping(rows[0].reduce((acc, header) => ({ ...acc, [header]: '' }), {}));
       };
@@ -74,7 +75,7 @@ export default function CustomerImportPage() {
     const allRequiredFieldsMapped = requiredFields.every(field => mappedColumns.includes(field));
 
     if (!allRequiredFieldsMapped) {
-        setError('Please map all required fields: ' + requiredFields.join(', '));
+        setError('Please map all required fields: ' + requiredFields.map(f => f.replace(/_/g, ' ')).join(', '));
         return;
     }
 
@@ -94,7 +95,7 @@ export default function CustomerImportPage() {
             }
             return prev + 10;
         });
-    }, 200);
+    }, 500);
 
     try {
         const response = await processCustomerData({
@@ -117,7 +118,7 @@ export default function CustomerImportPage() {
         <Card>
           <CardHeader>
             <CardTitle>Customer Data Import</CardTitle>
-            <CardDescription>Upload a CSV file to import customer data, process it with AI, and save it to the database.</CardDescription>
+            <CardDescription>Upload a CSV file to import and analyze customer data. This process will clear any existing customer profiles.</CardDescription>
           </CardHeader>
           <CardContent>
             {!file ? (
@@ -153,6 +154,13 @@ export default function CustomerImportPage() {
               <CardHeader>
                 <CardTitle>Column Mapping</CardTitle>
                 <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
+                 <Alert className="mt-4">
+                    <Info className="h-4 w-4"/>
+                    <AlertTitle>Qloo API Integration</AlertTitle>
+                    <AlertDescription>
+                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Qloo API to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
+                    </AlertDescription>
+                 </Alert>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {headers.map(header => (
@@ -165,7 +173,9 @@ export default function CustomerImportPage() {
                       <SelectContent>
                         <SelectItem value="">- Unmapped -</SelectItem>
                         {requiredFields.map(field => (
-                          <SelectItem key={field} value={field}>{field.replace(/_/g, ' ')}</SelectItem>
+                          <SelectItem key={field} value={field} className={field === qlooField ? 'font-bold' : ''}>
+                            {field.replace(/_/g, ' ')}{field === qlooField ? ' (Qloo Input)' : ''}
+                          </SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -212,8 +222,8 @@ export default function CustomerImportPage() {
         {processing && (
             <Card>
                 <CardHeader>
-                    <CardTitle>Processing Data</CardTitle>
-                    <CardDescription>The AI is analyzing, cleaning, and saving your data. Please wait.</CardDescription>
+                    <CardTitle>Processing Data...</CardTitle>
+                    <CardDescription>The AI is analyzing, cleaning, querying Qloo, and saving your data. Please wait.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Progress value={progress} className="w-full" />
@@ -252,29 +262,31 @@ export default function CustomerImportPage() {
                     <CardContent><p className="text-2xl font-bold">{result.dataQuality.completeness.toFixed(2)}%</p><span className='text-sm text-muted-foreground'>Completeness</span></CardContent>
                 </Card>
               </div>
-              <Card>
-                <CardHeader><CardTitle>Processed Data Preview</CardTitle><CardDescription>This is a preview of the first 5 records saved to the database.</CardDescription></CardHeader>
-                <CardContent>
-                    <Table>
-                        <TableHeader>
-                            <TableRow>
-                                {Object.keys(result.processedData[0] || {}).map(header => (
-                                    <TableHead key={header}>{header.replace(/_/g, ' ')}</TableHead>
-                                ))}
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {result.processedData.slice(0, 5).map((row, i) => (
-                                <TableRow key={i}>
-                                    {Object.values(row).map((cell: any, j: number) => (
-                                        <TableCell key={j}>{Array.isArray(cell) ? cell.join(', ') : cell}</TableCell>
+              {result.processedData?.length > 0 && (
+                <Card>
+                    <CardHeader><CardTitle>Processed Data Preview</CardTitle><CardDescription>This is a preview of the first 5 records saved to the database.</CardDescription></CardHeader>
+                    <CardContent>
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    {Object.keys(result.processedData[0] || {}).map(header => (
+                                        <TableHead key={header}>{header.replace(/_/g, ' ')}</TableHead>
                                     ))}
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </CardContent>
-              </Card>
+                            </TableHeader>
+                            <TableBody>
+                                {result.processedData.slice(0, 5).map((row, i) => (
+                                    <TableRow key={i}>
+                                        {Object.values(row).map((cell: any, j: number) => (
+                                            <TableCell key={j}>{Array.isArray(cell) ? cell.join(', ') : cell}</TableCell>
+                                        ))}
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </CardContent>
+                </Card>
+              )}
             </CardContent>
           </Card>
         )}

@@ -69,7 +69,7 @@ Follow these steps precisely:
 4.  **Data Standardization & Cleaning**:
     -   **age_range**: Standardize values into brackets like '18-24', '25-34', '35-44', '45-54', '55+'.
     -   **spending_level**: Standardize into 'Low', 'Medium', 'High'.
-    -   **purchase_categories**: Clean up and standardize categories. This should be an array of strings.
+    -   **purchase_categories**: Clean up and standardize categories. This should be an array of strings. If the value is a single string, try to split it by common delimiters like ';' or '|'.
     -   **interaction_frequency**: Standardize into 'Low', 'Medium', 'High', 'Very High'.
     -   For any missing or un-parseable required data, leave the field as an empty string or empty array.
 5.  **Calculate Metrics**:
@@ -110,20 +110,29 @@ const processCustomerDataFlow = ai.defineFlow(
             interactionFrequency: record.interaction_frequency as string,
         };
 
-        // Filter out completely empty records before calling the next flow
-        if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.purchaseCategories?.length || behavioralData.interactionFrequency) {
+        // Ensure we have purchase categories before generating DNA, as it's the input for Qloo
+        if (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0) {
             try {
                 const culturalDNA = await generateCulturalDna(behavioralData);
                 customerDocsToSave.push({ ...behavioralData, culturalDNA });
             } catch (e) {
                 console.error("Failed to generate cultural DNA for a record, saving without it.", e);
-                // Optionally save the record without the cultural DNA
+                // Optionally save the record without the cultural DNA, but only if it has other data
+                if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency) {
+                    customerDocsToSave.push(behavioralData);
+                }
+            }
+        } else {
+            // Save records that don't have purchase categories but have other data
+            if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency) {
                 customerDocsToSave.push(behavioralData);
             }
         }
       }
       
       if(customerDocsToSave.length > 0) {
+        // Clear existing profiles before importing new ones
+        await CustomerProfile.deleteMany({});
         const result = await CustomerProfile.insertMany(customerDocsToSave);
         recordsSaved = result.length;
       }
