@@ -1,4 +1,3 @@
-
 'use server';
 
 /**
@@ -13,6 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
+import { getBusinessMetricsTool } from '../tools/business-metrics-tool';
 
 const GenerateCampaignBriefInputSchema = z.object({
   segmentName: z.string().describe("The name of the target customer segment."),
@@ -34,6 +34,12 @@ const GenerateCampaignBriefOutputSchema = z.object({
   visualDirection: z.array(z.string()).describe("Guidelines for the campaign's visual aesthetic, including colors, imagery, and style."),
   successMetrics: z.array(z.string()).describe("Key Performance Indicators (KPIs) to measure the campaign's success."),
   budgetAllocation: z.string().describe("High-level suggestions for allocating the marketing budget across different channels or activities."),
+  projectedImpact: z.object({
+      conversionLift: z.string().describe("The predicted percentage lift in conversion rate for this campaign. Formatted as a range (e.g., '15-25%')."),
+      cpaReduction: z.string().describe("The estimated percentage reduction in Customer Acquisition Cost (CPA). Formatted as a range (e.g., '10-20%')."),
+      ltvIncrease: z.string().describe("The projected percentage increase in Lifetime Value (LTV) for customers in this segment. Formatted as a range (e.g., '5-15%')."),
+      justification: z.string().describe("A brief justification for these projections, referencing the segment's cultural profile."),
+  }).describe("The projected business impact and ROI of running this culturally-attuned campaign.")
 });
 
 export type GenerateCampaignBriefOutput = z.infer<typeof GenerateCampaignBriefOutputSchema>;
@@ -46,12 +52,15 @@ const briefPrompt = ai.definePrompt({
   name: 'campaignBriefPrompt',
   input: { schema: z.object({ segment: z.any() }) },
   output: { schema: GenerateCampaignBriefOutputSchema },
-  prompt: `You are a world-class marketing campaign strategist. Your task is to create a comprehensive campaign brief for a specific customer segment based on their detailed profile.
+  tools: [getBusinessMetricsTool],
+  prompt: `You are a world-class marketing campaign strategist and financial analyst. Your task is to create a comprehensive campaign brief for a specific customer segment based on their detailed profile.
+
+Use the provided 'getBusinessMetrics' tool to fetch the company's current baseline metrics. Use this baseline to create a 'Projected Impact' section with specific, quantifiable ROI projections for this new campaign.
 
 Target Segment Profile:
 {{{json segment}}}
 
-Based on this profile, generate a complete campaign brief with the following sections:
+Based on this profile and the baseline business metrics, generate a complete campaign brief with the following sections:
 1.  **Campaign Title**: Create a catchy, creative title for the campaign.
 2.  **Target Segment**: State the name of the segment.
 3.  **Executive Summary**: Write a brief, high-level overview of the campaign's goals, strategy, and expected outcomes.
@@ -64,6 +73,7 @@ Based on this profile, generate a complete campaign brief with the following sec
 7.  **Visual Direction**: Describe the visual aesthetic. What kind of imagery, colors, and style should be used?
 8.  **Success Metrics & KPIs**: List the key metrics to track to measure success (e.g., 'Engagement Rate', 'Conversion Rate', 'Brand Mentions').
 9.  **Budget Allocation Suggestions**: Provide high-level advice on how to allocate a hypothetical budget (e.g., '60% on digital ads targeting [platforms], 30% on influencer collaborations, 10% on content creation').
+10. **Projected Impact & ROI**: Based on the baseline metrics and the tailored nature of this campaign, project the impact on Conversion Rate, CPA, and LTV. Provide a brief justification.
 
 Format the output in the specified JSON format.
 `,

@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet } from 'lucide-react';
+import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
@@ -194,7 +193,7 @@ export default function ExportPage() {
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2"><FileText /> AI Campaign Brief Generator</CardTitle>
                         <CardDescription>
-                            Select a target segment to generate a comprehensive campaign brief, including strategy, messaging, and KPIs.
+                            Select a target segment to generate a comprehensive campaign brief, including strategy, messaging, and projected ROI.
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-4">
@@ -231,13 +230,33 @@ export default function ExportPage() {
                         <CardContent className="space-y-6">
                             <p className="text-muted-foreground italic">{campaignBrief.executiveSummary}</p>
                             <Separator />
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle className='flex items-center gap-2 text-xl'><AreaChart /> Projected Impact &amp; ROI</CardTitle>
+                                    <CardDescription>{campaignBrief.projectedImpact.justification}</CardDescription>
+                                </CardHeader>
+                                <CardContent className='grid grid-cols-3 gap-4'>
+                                    <div className='text-center p-4 border rounded-lg'>
+                                        <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.conversionLift}</p>
+                                        <p className='text-sm text-muted-foreground'>Conversion Lift</p>
+                                    </div>
+                                    <div className='text-center p-4 border rounded-lg'>
+                                        <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.cpaReduction}</p>
+                                        <p className='text-sm text-muted-foreground'>CPA Reduction</p>
+                                    </div>
+                                     <div className='text-center p-4 border rounded-lg'>
+                                        <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.ltvIncrease}</p>
+                                        <p className='text-sm text-muted-foreground'>LTV Increase</p>
+                                    </div>
+                                </CardContent>
+                            </Card>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
                                     <h3 className="font-semibold text-lg flex items-center gap-2"><Target/> Target Segment Analysis</h3>
                                     <p className="text-sm">{campaignBrief.targetSegmentAnalysis}</p>
                                 </div>
                                 <div className="space-y-4">
-                                     <h3 className="font-semibold text-lg flex items-center gap-2"><Lightbulb/> Cultural Insights & Recommendations</h3>
+                                     <h3 className="font-semibold text-lg flex items-center gap-2"><Lightbulb/> Cultural Insights &amp; Recommendations</h3>
                                     <p className="text-sm">{campaignBrief.culturalInsights}</p>
                                 </div>
                             </div>
@@ -262,7 +281,7 @@ export default function ExportPage() {
                                     </ul>
                                 </div>
                                 <div className="space-y-4">
-                                     <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle/> Success Metrics & KPIs</h3>
+                                     <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle/> Success Metrics &amp; KPIs</h3>
                                     <ul className="list-disc list-inside text-sm text-muted-foreground">
                                         {campaignBrief.successMetrics.map((m,i) => <li key={i}>{m}</li>)}
                                     </ul>
