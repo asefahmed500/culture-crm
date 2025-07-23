@@ -1,4 +1,7 @@
-import { Home, Package, Settings, Users, LineChart, Search } from 'lucide-react';
+
+'use client';
+
+import { Home, Package, Settings, Users, LineChart, Search, LogOut, LogIn } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -21,8 +24,31 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Input } from './ui/input';
+import { useSession, signOut } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+    router.push('/login');
+  };
+
+  const handleLogin = () => {
+    router.push('/login');
+  };
+
+  if (status === 'loading') {
+    return <div>Loading...</div>
+  }
+
+  if (status === 'unauthenticated') {
+    router.push('/login');
+    return null;
+  }
+  
   return (
     <div className="relative flex min-h-screen w-full">
       <Sidebar>
@@ -61,28 +87,38 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
+          {session ? (
             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+              <DropdownMenuTrigger asChild>
                 <div className="flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors hover:bg-sidebar-accent">
-                    <Avatar className="h-9 w-9">
-                        <AvatarImage src="https://placehold.co/36x36.png" alt="@user" data-ai-hint="person avatar"/>
-                        <AvatarFallback>U</AvatarFallback>
-                    </Avatar>
-                    <div className="flex flex-col text-left">
-                        <span className="font-semibold text-sidebar-foreground">Starter User</span>
-                        <span className="text-xs text-sidebar-foreground/70">user@nextgen.com</span>
-                    </div>
+                  <Avatar className="h-9 w-9">
+                    <AvatarImage src={session.user?.image ?? "https://placehold.co/36x36.png"} alt="@user" data-ai-hint="person avatar" />
+                    <AvatarFallback>{session.user?.name?.[0].toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col text-left">
+                    <span className="font-semibold text-sidebar-foreground">{session.user?.name}</span>
+                    <span className="text-xs text-sidebar-foreground/70">{session.user?.email}</span>
+                  </div>
                 </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent side="top" align="start" className="w-56">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent side="top" align="start" className="w-56">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+             <Button onClick={handleLogin} variant="ghost" className="w-full justify-start">
+                <LogIn className="mr-2 h-4 w-4" />
+                Login
+            </Button>
+          )}
         </SidebarFooter>
       </Sidebar>
       <SidebarInset>
@@ -99,29 +135,34 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
               className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[320px]"
             />
           </div>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button
-                variant="secondary"
-                size="icon"
-                className="rounded-full"
-              >
-                <Avatar className="h-8 w-8">
-                  <AvatarImage src="https://placehold.co/32x32.png" alt="@user" data-ai-hint="person avatar"/>
-                  <AvatarFallback>U</AvatarFallback>
-                </Avatar>
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          {session && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="icon"
+                  className="rounded-full"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarImage src={session.user?.image ?? "https://placehold.co/32x32.png"} alt="@user" data-ai-hint="person avatar" />
+                    <AvatarFallback>{session.user?.name?.[0].toUpperCase()}</AvatarFallback>
+                  </Avatar>
+                  <span className="sr-only">Toggle user menu</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>Support</DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </header>
         {children}
       </SidebarInset>

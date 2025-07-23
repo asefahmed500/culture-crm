@@ -1,7 +1,9 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
+import Providers from './providers';
 
 export const metadata: Metadata = {
   title: 'NextGen Starter',
@@ -21,10 +23,12 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased">
-        <SidebarProvider>
-          {children}
-        </SidebarProvider>
-        <Toaster />
+        <Providers>
+          <SidebarProvider>
+            {children}
+          </SidebarProvider>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
