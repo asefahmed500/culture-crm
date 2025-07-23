@@ -9,9 +9,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Upload, FileText, X } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle } from 'lucide-react';
 import AppShell from '@/components/app-shell';
 import { processCustomerData, ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
+import Link from 'next/link';
 
 type CsvData = string[][];
 type Mapping = {
@@ -40,9 +41,9 @@ export default function CustomerImportPage() {
       const reader = new FileReader();
       reader.onload = () => {
         const text = reader.result as string;
-        const rows = text.split('\n').map(row => row.split(','));
+        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim()));
         setHeaders(rows[0]);
-        setData(rows.slice(1));
+        setData(rows.slice(1).filter(row => row.length === rows[0].length)); // Ensure row has same number of columns as header
         // Reset mapping when new file is uploaded
         setMapping(rows[0].reduce((acc, header) => ({ ...acc, [header]: '' }), {}));
       };
@@ -116,7 +117,7 @@ export default function CustomerImportPage() {
         <Card>
           <CardHeader>
             <CardTitle>Customer Data Import</CardTitle>
-            <CardDescription>Upload a CSV file to import customer data for cultural intelligence analysis.</CardDescription>
+            <CardDescription>Upload a CSV file to import customer data, process it with AI, and save it to the database.</CardDescription>
           </CardHeader>
           <CardContent>
             {!file ? (
@@ -151,7 +152,7 @@ export default function CustomerImportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Column Mapping</CardTitle>
-                <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored.</CardDescription>
+                <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
               </CardHeader>
               <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 {headers.map(header => (
@@ -202,7 +203,7 @@ export default function CustomerImportPage() {
 
             <div className="flex justify-end">
               <Button onClick={handleProcess} disabled={processing}>
-                {processing ? 'Processing...' : 'Process Data'}
+                {processing ? 'Processing...' : 'Process & Save Data'}
               </Button>
             </div>
           </>
@@ -212,6 +213,7 @@ export default function CustomerImportPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Processing Data</CardTitle>
+                    <CardDescription>The AI is analyzing, cleaning, and saving your data. Please wait.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Progress value={progress} className="w-full" />
@@ -226,22 +228,32 @@ export default function CustomerImportPage() {
               <CardTitle>Import Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert variant="default" className="bg-accent">
+              <Alert variant="default" className="bg-accent/50 border-green-500 text-green-800">
+                <CheckCircle className="h-4 w-4 !text-green-600"/>
                 <AlertTitle>Success!</AlertTitle>
-                <AlertDescription>Your data has been processed successfully.</AlertDescription>
+                <AlertDescription>
+                    Your data has been processed and saved. You can view the results below or see all profiles on the{' '}
+                    <Link href="/customers" className="font-bold underline hover:text-green-900">
+                        Customers page
+                    </Link>.
+                </AlertDescription>
               </Alert>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <Card>
-                    <CardHeader><CardTitle>Processed Records</CardTitle></CardHeader>
+                    <CardHeader><CardTitle>Records Processed</CardTitle></CardHeader>
                     <CardContent><p className="text-2xl font-bold">{result.recordsProcessed}</p></CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader><CardTitle>Records Saved</CardTitle></CardHeader>
+                    <CardContent><p className="text-2xl font-bold">{result.recordsSaved}</p></CardContent>
                 </Card>
                 <Card>
                     <CardHeader><CardTitle>Data Quality</CardTitle></CardHeader>
-                    <CardContent><p className="text-2xl font-bold">{result.dataQuality.completeness.toFixed(2)}% complete</p></CardContent>
+                    <CardContent><p className="text-2xl font-bold">{result.dataQuality.completeness.toFixed(2)}%</p><span className='text-sm text-muted-foreground'>Completeness</span></CardContent>
                 </Card>
               </div>
               <Card>
-                <CardHeader><CardTitle>Processed Data Preview</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Processed Data Preview</CardTitle><CardDescription>This is a preview of the first 5 records saved to the database.</CardDescription></CardHeader>
                 <CardContent>
                     <Table>
                         <TableHeader>

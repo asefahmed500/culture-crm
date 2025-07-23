@@ -2,7 +2,8 @@
 'use server';
 
 /**
- * @fileOverview Processes raw customer CSV data to generate anonymous behavioral profiles.
+ * @fileOverview Processes raw customer CSV data, saves it to the database, 
+ * and generates anonymous behavioral profiles.
  *
  * - processCustomerData - The main flow function for processing customer data.
  * - ProcessCustomerDataInput - Input schema for the flow.
@@ -11,6 +12,8 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import dbConnect from '@/lib/mongoose';
+import CustomerProfile from '@/models/customer-profile';
 
 // Define Zod schema for input validation
 const ProcessCustomerDataInputSchema = z.object({
@@ -23,6 +26,7 @@ export type ProcessCustomerDataInput = z.infer<typeof ProcessCustomerDataInputSc
 // Define Zod schema for the structured output
 const ProcessCustomerDataOutputSchema = z.object({
   recordsProcessed: z.number().describe('The total number of records processed from the CSV.'),
+  recordsSaved: z.number().describe('The total number of valid records saved to the database.'),
   dataQuality: z.object({
     completeness: z.number().describe('The percentage of required fields that were successfully filled across all records.'),
     // We can add more quality metrics here later
@@ -42,7 +46,8 @@ export async function processCustomerData(input: ProcessCustomerDataInput): Prom
 const customerDataPrompt = ai.definePrompt({
   name: 'customerDataPrompt',
   input: { schema: ProcessCustomerDataInputSchema },
-  output: { schema: ProcessCustomerDataOutputSchema },
+  // The prompt's output schema is slightly different, it doesn't need the `recordsSaved` field
+  output: { schema: ProcessCustomerDataOutputSchema.omit({ recordsSaved: true }) },
   prompt: `You are a data processing expert for a Cultural Intelligence CRM. Your task is to process raw customer data from a CSV file, enrich it, and prepare it for analysis, ensuring all Personally Identifiable Information (PII) is removed.
 
 Here is the raw CSV data:
@@ -79,14 +84,36 @@ const processCustomerDataFlow = ai.defineFlow(
     outputSchema: ProcessCustomerDataOutputSchema,
   },
   async (input) => {
-    // Call the prompt with the input data
+    // 1. Call the AI model to process the data
     const { output } = await customerDataPrompt(input);
 
     if (!output) {
       throw new Error('The AI model did not return a valid output.');
     }
 
-    // The model's output is already structured according to the schema
-    return output;
+    // 2. Connect to the database
+    await dbConnect();
+
+    // 3. Save the processed data to MongoDB
+    let recordsSaved = 0;
+    if (output.processedData && output.processedData.length > 0) {
+      const customerDocs = output.processedData.map(record => ({
+        ageRange: record.age_range,
+        spendingLevel: record.spending_level,
+        purchaseCategories: record.purchase_categories,
+        interactionFrequency: record.interaction_frequency,
+      })).filter(doc => doc.ageRange || doc.spendingLevel || doc.purchaseCategories?.length || doc.interactionFrequency); // Filter out completely empty records
+      
+      if(customerDocs.length > 0) {
+        const result = await CustomerProfile.insertMany(customerDocs);
+        recordsSaved = result.length;
+      }
+    }
+    
+    // 4. Return the final output including the count of saved records
+    return {
+      ...output,
+      recordsSaved,
+    };
   }
 );
