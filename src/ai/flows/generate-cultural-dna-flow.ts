@@ -2,7 +2,8 @@
 'use server';
 
 /**
- * @fileOverview Generates a "Cultural DNA" profile based on anonymized customer behavioral data.
+ * @fileOverview Generates a "Cultural DNA" profile by querying the Qloo API 
+ * and using an LLM to analyze and summarize the results.
  *
  * - generateCulturalDna - The main flow function for generating cultural DNA.
  * - GenerateCulturalDnaInput - Input schema for the flow.
@@ -11,6 +12,7 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
+import { getCorrelationsForKeywords } from '@/lib/qloo';
 
 // Input: A subset of the processed, anonymized customer profile
 const GenerateCulturalDnaInputSchema = z.object({
@@ -58,23 +60,26 @@ export async function generateCulturalDna(input: GenerateCulturalDnaInput): Prom
 
 const culturalDnaPrompt = ai.definePrompt({
     name: 'culturalDnaPrompt',
-    input: { schema: GenerateCulturalDnaInputSchema },
+    input: { schema: z.object({ qlooData: z.any(), behavioralData: GenerateCulturalDnaInputSchema }) },
     output: { schema: GenerateCulturalDnaOutputSchema },
-    prompt: `You are a cultural intelligence expert. Your task is to analyze the following anonymized customer behavioral data and generate a "Cultural DNA" profile.
+    prompt: `You are a cultural intelligence expert. Your task is to analyze cultural correlation data from the Qloo API and synthesize it into a "Cultural DNA" profile.
 
-Infer cultural preferences based on the provided data points. For example, if purchase categories include 'organic food' and 'yoga classes', infer an interest in 'health & wellness' and 'sustainable lifestyle'.
+The primary source of truth is the Qloo data. Use the behavioral data for additional context.
 
-Behavioral Data:
-- Age Range: {{{ageRange}}}
-- Spending Level: {{{spendingLevel}}}
-- Purchase Categories: {{{json purchaseCategories}}}
-- Interaction Frequency: {{{interactionFrequency}}}
+Qloo Correlation Data:
+{{{json qlooData}}}
+
+Original Behavioral Data:
+- Age Range: {{{behavioralData.ageRange}}}
+- Spending Level: {{{behavioralData.spendingLevel}}}
+- Purchase Categories: {{{json behavioralData.purchaseCategories}}}
+- Interaction Frequency: {{{behavioralData.interactionFrequency}}}
 
 Based on this data, perform the following actions:
-1.  **Score Affinities**: For each of the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes), provide an affinity score from 0-100.
-2.  **List Preferences**: For each category, list 2-4 specific, inferred preferences (e.g., Music: 'Indie Folk', 'Live Concerts').
-3.  **Find Surprising Connections**: Identify 2-3 non-obvious connections between the preferences. For example, 'A preference for minimalist fashion often correlates with an interest in documentary films.'
-4.  **Provide a Confidence Score**: Rate your overall confidence in this generated profile on a scale of 0-100.
+1.  **Organize Preferences**: Categorize the correlated items from the Qloo data into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes).
+2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the number and strength of correlations found in the Qloo data.
+3.  **Find Surprising Connections**: Based on the Qloo data, identify 2-3 non-obvious connections between the preferences. For example, 'A preference for minimalist fashion often correlates with an interest in documentary films.'
+4.  **Provide a Confidence Score**: Rate your overall confidence in this generated profile on a scale of 0-100, based on the richness of the provided Qloo data.
 
 Generate the output in the specified JSON format.`,
 });
@@ -86,7 +91,26 @@ const generateCulturalDnaFlow = ai.defineFlow(
     outputSchema: GenerateCulturalDnaOutputSchema,
   },
   async (input) => {
-    const { output } = await culturalDnaPrompt(input);
+    // 1. Get cultural correlations from Qloo API
+    const qlooData = await getCorrelationsForKeywords(input.purchaseCategories || []);
+    
+    // 2. If Qloo returns no data, generate a fallback response.
+    if (!qlooData || qlooData.length === 0) {
+        return {
+            music: { score: 0, preferences: [] },
+            entertainment: { score: 0, preferences: [] },
+            dining: { score: 0, preferences: [] },
+            fashion: { score: 0, preferences: [] },
+            travel: { score: 0, preferences: [] },
+            socialCauses: { score: 0, preferences: [] },
+            surpriseConnections: ["Not enough data to find surprising connections."],
+            confidenceScore: 10,
+        };
+    }
+
+    // 3. Use LLM to analyze and structure the Qloo data
+    const { output } = await culturalDnaPrompt({ qlooData, behavioralData: input });
+
     if (!output) {
       throw new Error('The AI model did not return a valid cultural DNA profile.');
     }
