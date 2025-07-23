@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Home, Package, Settings, Users, LineChart, Search, LogOut, LogIn, Upload, Milestone } from 'lucide-react';
+import { Home, Package, Settings, Users, LineChart, Search, LogOut, LogIn, Upload, Milestone, Download } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -48,6 +48,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/customers', icon: Users, label: 'Customers' },
     { href: '/segments', icon: Milestone, label: 'Segments' },
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
+    { href: '/export', icon: Download, label: 'Export Center' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]
 
