@@ -4,5 +4,6 @@ import './flows/process-customer-data-flow';
 import './flows/generate-cultural-dna-flow';
 import './flows/generate-communication-strategy-flow';
 import './flows/generate-analytics-insights-flow';
+import './flows/generate-customer-segments-flow';
 
 
