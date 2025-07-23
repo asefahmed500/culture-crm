@@ -14,6 +14,8 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
+import { generateCulturalDna } from './generate-cultural-dna-flow';
+
 
 // Define Zod schema for input validation
 const ProcessCustomerDataInputSchema = z.object({
@@ -94,18 +96,35 @@ const processCustomerDataFlow = ai.defineFlow(
     // 2. Connect to the database
     await dbConnect();
 
-    // 3. Save the processed data to MongoDB
+    // 3. Enrich and save the processed data to MongoDB
     let recordsSaved = 0;
     if (output.processedData && output.processedData.length > 0) {
-      const customerDocs = output.processedData.map(record => ({
-        ageRange: record.age_range,
-        spendingLevel: record.spending_level,
-        purchaseCategories: record.purchase_categories,
-        interactionFrequency: record.interaction_frequency,
-      })).filter(doc => doc.ageRange || doc.spendingLevel || doc.purchaseCategories?.length || doc.interactionFrequency); // Filter out completely empty records
       
-      if(customerDocs.length > 0) {
-        const result = await CustomerProfile.insertMany(customerDocs);
+      const customerDocsToSave = [];
+
+      for (const record of output.processedData) {
+        const behavioralData = {
+            ageRange: record.age_range as string,
+            spendingLevel: record.spending_level as string,
+            purchaseCategories: record.purchase_categories as string[],
+            interactionFrequency: record.interaction_frequency as string,
+        };
+
+        // Filter out completely empty records before calling the next flow
+        if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.purchaseCategories?.length || behavioralData.interactionFrequency) {
+            try {
+                const culturalDNA = await generateCulturalDna(behavioralData);
+                customerDocsToSave.push({ ...behavioralData, culturalDNA });
+            } catch (e) {
+                console.error("Failed to generate cultural DNA for a record, saving without it.", e);
+                // Optionally save the record without the cultural DNA
+                customerDocsToSave.push(behavioralData);
+            }
+        }
+      }
+      
+      if(customerDocsToSave.length > 0) {
+        const result = await CustomerProfile.insertMany(customerDocsToSave);
         recordsSaved = result.length;
       }
     }
