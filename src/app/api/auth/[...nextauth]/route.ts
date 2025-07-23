@@ -1,6 +1,7 @@
 
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 import dbConnect from "@/lib/mongoose";
 import User from "@/models/user";
 import bcrypt from "bcryptjs";
@@ -8,6 +9,10 @@ import { AuthOptions } from "next-auth";
 
 export const authOptions: AuthOptions = {
     providers: [
+        GoogleProvider({
+            clientId: process.env.GOOGLE_CLIENT_ID!,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+        }),
         CredentialsProvider({
             name: "credentials",
             credentials: {
@@ -21,9 +26,9 @@ export const authOptions: AuthOptions = {
 
                 await dbConnect();
 
-                const user = await User.findOne({ email: credentials.email });
+                const user = await User.findOne({ email: credentials.email }).select('+password');
 
-                if (!user) {
+                if (!user || !user.password) {
                     return null;
                 }
 
@@ -44,6 +49,21 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
+        async signIn({ user, account, profile }) {
+            if (account?.provider === 'google') {
+                await dbConnect();
+                let dbUser = await User.findOne({ email: user.email! });
+                if (!dbUser) {
+                    dbUser = await User.create({
+                        email: user.email,
+                        name: user.name,
+                        // no password for google users
+                    });
+                }
+                user.id = dbUser._id.toString();
+            }
+            return true;
+        },
         jwt: async ({ token, user }) => {
             if (user) {
                 token.id = user.id;
