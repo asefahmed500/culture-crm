@@ -26,6 +26,7 @@ import {
 import { Input } from './ui/input';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -34,7 +35,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
-    router.push('/login');
+    router.push('/');
   };
 
   const handleLogin = () => {
@@ -42,20 +43,29 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   };
   
   const menuItems = [
-    { href: '/', icon: Home, label: 'Dashboard' },
+    { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/import', icon: Upload, label: 'Customer Import' },
     { href: '/customers', icon: Users, label: 'Customers' },
     { href: '/analytics', icon: LineChart, label: 'Analytics' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]
 
-  if (status === 'loading') {
-    return <div>Loading...</div>
-  }
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+       // Allow access to login and signup pages
+      if (pathname !== '/login' && pathname !== '/signup') {
+        router.replace('/login');
+      }
+    }
+  }, [status, pathname, router]);
 
-  if (status === 'unauthenticated' && pathname !== '/login' && pathname !== '/signup') {
-    router.push('/login');
-    return null;
+  if (status === 'loading') {
+    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+  }
+  
+  // Don't render shell for public pages
+  if (status === 'unauthenticated' && (pathname === '/login' || pathname === '/signup' || pathname === '/')) {
+      return <>{children}</>;
   }
   
   return (
