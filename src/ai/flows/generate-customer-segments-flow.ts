@@ -12,6 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
+import Segment from '@/models/segment';
 
 
 const SegmentSchema = z.object({
@@ -113,8 +114,12 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
       throw new Error('The AI model did not return a valid segmentation report.');
     }
     
-    // Sort segments by rank
+    // Sort segments by rank before saving
     output.segments.sort((a, b) => a.businessOpportunityRank - b.businessOpportunityRank);
+
+    // Clear existing segments and save the new ones
+    await Segment.deleteMany({});
+    await Segment.insertMany(output.segments);
     
     return output;
   }

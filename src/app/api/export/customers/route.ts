@@ -1,7 +1,7 @@
 
 import dbConnect from "@/lib/mongoose";
 import CustomerProfile from "@/models/customer-profile";
-import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-flow";
+import Segment from "@/models/segment";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
@@ -65,8 +65,7 @@ export async function GET(req: NextRequest) {
         
         // Fetch profiles and generated segments
         const profiles = await CustomerProfile.find({}).lean();
-        const segmentationResult = await generateCustomerSegments();
-        const segments = segmentationResult.segments;
+        const segments = await Segment.find({}).lean();
 
         // Create CSV header
         const headers = [

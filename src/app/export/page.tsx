@@ -11,13 +11,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
 import type { GenerateContentCalendarOutput } from '@/ai/flows/generate-content-calendar-flow';
-import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ISegment } from '@/models/segment';
 
 export default function ExportPage() {
-    const [segments, setSegments] = useState<GenerateCustomerSegmentsOutput['segments']>([]);
+    const [segments, setSegments] = useState<ISegment[]>([]);
     const [selectedSegment, setSelectedSegment] = useState<string>('');
     const [isSegmentsLoading, setIsSegmentsLoading] = useState(true);
 
@@ -36,9 +36,10 @@ export default function ExportPage() {
     useEffect(() => {
         async function fetchSegments() {
             try {
+                // The API now returns a different structure
                 const response = await fetch('/api/customer-segments');
                 if (!response.ok) throw new Error('Failed to fetch segments');
-                const data: GenerateCustomerSegmentsOutput = await response.json();
+                const data = await response.json();
                 setSegments(data.segments);
             } catch (error) {
                 console.error(error);

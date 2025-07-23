@@ -1,28 +1,48 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, FileText } from 'lucide-react';
+import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, FileText, RefreshCw } from 'lucide-react';
 import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 
 export default function SegmentsPage() {
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<GenerateCustomerSegmentsOutput | null>(null);
+    
+    useEffect(() => {
+        async function fetchSegments() {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch('/api/customer-segments');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch existing segments');
+                }
+                const data = await response.json();
+                setResult(data);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+        fetchSegments();
+    }, []);
 
     const handleGenerateSegments = async () => {
-        setLoading(true);
+        setIsGenerating(true);
         setError(null);
-        setResult(null);
 
         try {
-            const response = await fetch('/api/customer-segments');
+            const response = await fetch('/api/customer-segments', { method: 'POST' });
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to generate segments');
@@ -32,7 +52,7 @@ export default function SegmentsPage() {
         } catch (err: any) {
             setError(err.message);
         } finally {
-            setLoading(false);
+            setIsGenerating(false);
         }
     };
     
@@ -41,35 +61,40 @@ export default function SegmentsPage() {
             <main className="flex-1 p-4 md:p-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Smart Segmentation & Targeting</CardTitle>
-                        <CardDescription>
-                            Automatically analyze all customer profiles to create distinct cultural segments, develop personas, and get actionable targeting recommendations.
-                        </CardDescription>
+                        <div className="flex justify-between items-start">
+                             <div>
+                                <CardTitle>Smart Segmentation & Targeting</CardTitle>
+                                <CardDescription>
+                                    Analyze customer profiles to create distinct cultural segments, develop personas, and get targeting recommendations. Segments are saved to the database.
+                                </CardDescription>
+                            </div>
+                             <Button onClick={handleGenerateSegments} disabled={isGenerating || loading}>
+                                {isGenerating ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                        Generating...
+                                    </>
+                                ) : (
+                                     <>
+                                        <RefreshCw className="mr-2 h-4 w-4" />
+                                        {result && result.segments.length > 0 ? 'Re-generate Segments' : 'Generate Segments'}
+                                    </>
+                                )}
+                            </Button>
+                        </div>
                     </CardHeader>
                     <CardContent>
-                        <Button onClick={handleGenerateSegments} disabled={loading}>
-                            {loading ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating Segments...
-                                </>
-                            ) : (
-                                 <>
-                                    <Zap className="mr-2 h-4 w-4" />
-                                    Generate Cultural Segments
-                                </>
-                            )}
-                        </Button>
                          {error && (
                              <Alert variant="destructive" className="mt-4">
                                 <AlertTitle>Error</AlertTitle>
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
                         )}
+                        {loading && !result && <p>Loading saved segments...</p>}
                     </CardContent>
                 </Card>
 
-                {result && (
+                {result && result.segments.length > 0 && (
                     <div className="mt-8 space-y-8">
                         
                         <Card className="bg-primary/5 border-primary/20">
@@ -123,35 +148,47 @@ export default function SegmentsPage() {
                             </div>
                         </div>
 
-                         <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-amber-500" /> Top Campaign Ideas</CardTitle>
-                                <CardDescription>Actionable campaign strategies for the highest-opportunity segments.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-6">
-                                {result.topCampaignIdeas.map((idea, i) => (
-                                    <div key={i} className="p-4 border rounded-lg bg-accent/20">
-                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-                                            <h3 className="font-semibold text-lg">{idea.campaignTitle}</h3>
-                                            <Badge>
-                                                <Target className="h-3 w-3 mr-1.5" />
-                                                For: {idea.targetSegment}
-                                            </Badge>
-                                        </div>
-                                       <p className="text-muted-foreground mt-2">{idea.description}</p>
-                                       <Separator className="my-3" />
-                                       <div className="flex items-center gap-4">
-                                            <h4 className="text-sm font-semibold">Suggested Channels:</h4>
-                                             <div className="flex flex-wrap gap-2">
-                                                {idea.suggestedChannels.map((channel, idx) => <Badge key={idx} variant="outline">{channel}</Badge>)}
+                        {result.topCampaignIdeas && result.topCampaignIdeas.length > 0 && (
+                             <Card>
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><Lightbulb className="h-5 w-5 text-amber-500" /> Top Campaign Ideas</CardTitle>
+                                    <CardDescription>Actionable campaign strategies for the highest-opportunity segments.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="space-y-6">
+                                    {result.topCampaignIdeas.map((idea, i) => (
+                                        <div key={i} className="p-4 border rounded-lg bg-accent/20">
+                                            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                                                <h3 className="font-semibold text-lg">{idea.campaignTitle}</h3>
+                                                <Badge>
+                                                    <Target className="h-3 w-3 mr-1.5" />
+                                                    For: {idea.targetSegment}
+                                                </Badge>
                                             </div>
-                                       </div>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
+                                           <p className="text-muted-foreground mt-2">{idea.description}</p>
+                                           <Separator className="my-3" />
+                                           <div className="flex items-center gap-4">
+                                                <h4 className="text-sm font-semibold">Suggested Channels:</h4>
+                                                 <div className="flex flex-wrap gap-2">
+                                                    {idea.suggestedChannels.map((channel, idx) => <Badge key={idx} variant="outline">{channel}</Badge>)}
+                                                </div>
+                                           </div>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        )}
+
 
                     </div>
+                )}
+                 { !loading && result && result.segments.length === 0 && (
+                     <Alert className="mt-4">
+                        <Zap className="h-4 w-4" />
+                        <AlertTitle>No Segments Found</AlertTitle>
+                        <AlertDescription>
+                            No segments are currently saved in the database. Click the "Generate Segments" button to analyze your customers and create new segments.
+                        </AlertDescription>
+                    </Alert>
                 )}
             </main>
         </AppShell>
