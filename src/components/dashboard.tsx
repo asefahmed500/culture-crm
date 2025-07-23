@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
-import { ArrowRight, Loader2, Upload, Users, Milestone } from 'lucide-react';
+import { ArrowRight, Loader2, Upload, Users, Milestone, LineChart } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 interface ICustomerProfile {
@@ -95,7 +95,7 @@ export default function Dashboard() {
                         Generate Customer Segments
                     </Button>
                      <Button onClick={() => router.push('/analytics')} variant="secondary" className="flex-1">
-                        <Users className="mr-2 h-4 w-4"/>
+                        <LineChart className="mr-2 h-4 w-4"/>
                         Analyze Trends & Analytics
                     </Button>
                 </div>
