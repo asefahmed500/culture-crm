@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Home, Package, Settings, Users, LineChart, Search, LogOut, LogIn } from 'lucide-react';
+import { Home, Package, Settings, Users, LineChart, Search, LogOut, LogIn, Upload } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -25,11 +25,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from './ui/input';
 import { useSession, signOut } from 'next-auth/react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const pathname = usePathname();
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -39,12 +40,20 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const handleLogin = () => {
     router.push('/login');
   };
+  
+  const menuItems = [
+    { href: '/', icon: Home, label: 'Dashboard' },
+    { href: '/import', icon: Upload, label: 'Customer Import' },
+    { href: '/customers', icon: Users, label: 'Customers' },
+    { href: '/analytics', icon: LineChart, label: 'Analytics' },
+    { href: '/settings', icon: Settings, label: 'Settings' },
+  ]
 
   if (status === 'loading') {
     return <div>Loading...</div>
   }
 
-  if (status === 'unauthenticated') {
+  if (status === 'unauthenticated' && pathname !== '/login' && pathname !== '/signup') {
     router.push('/login');
     return null;
   }
@@ -55,35 +64,19 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
         <SidebarHeader>
           <div className="flex items-center gap-2">
             <Package className="h-6 w-6 text-primary" />
-            <h1 className="text-xl font-bold text-foreground">NextGen Starter</h1>
+            <h1 className="text-xl font-bold text-foreground">Cultural CRM</h1>
           </div>
         </SidebarHeader>
         <SidebarContent>
           <SidebarMenu>
-            <SidebarMenuItem>
-              <SidebarMenuButton isActive>
-                <Home />
-                <span>Dashboard</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Users />
-                <span>Customers</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <LineChart />
-                <span>Analytics</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
-            <SidebarMenuItem>
-              <SidebarMenuButton>
-                <Settings />
-                <span>Settings</span>
-              </SidebarMenuButton>
-            </SidebarMenuItem>
+            {menuItems.map((item) => (
+                <SidebarMenuItem key={item.href}>
+                    <SidebarMenuButton onClick={() => router.push(item.href)} isActive={pathname === item.href}>
+                        <item.icon />
+                        <span>{item.label}</span>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            ))}
           </SidebarMenu>
         </SidebarContent>
         <SidebarFooter>
