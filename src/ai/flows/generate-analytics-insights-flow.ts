@@ -82,15 +82,15 @@ Analyze the following customer profiles, inferring multi-modal context (e.g., re
 Based on this entire dataset, perform the following self-learning analysis:
 1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
 2.  **Cultural Pattern Discovery**: Find 3-5 of the most significant recurring cultural patterns, synthesizing behavioral data with cultural affinities. This is a core self-learning task.
-3.  **Predictive Cultural Journey Mapping**: This is crucial. Analyze the customer base to model cultural evolution.
-    -   **Purchase Likelihood**: Who is most likely to buy soon?
-    -   **Cultural Churn Risk**: Identify segments whose cultural tastes are evolving away from our current offerings.
+3.  **Predictive Cultural Journey Mapping**: This is crucial. Analyze the customer base to model cultural evolution. This involves predicting lifecycle transitions and identifying intervention points.
+    -   **Purchase Likelihood**: Who is most likely to buy soon? What's the recommended action?
+    -   **Cultural Churn Risk**: Identify segments whose cultural tastes are evolving away from our current offerings. This is your cultural churn risk classifier. What's the recommended intervention?
     -   **Brand Advocacy**: Who is most likely to become a vocal supporter of the brand?
-    -   **Cultural Upsell Opportunity**: Identify segments whose evolving tastes make them prime candidates for new or different product categories.
+    -   **Cultural Upsell Opportunity**: Identify segments whose evolving tastes make them prime candidates for new or different product categories. This is your culture-aligned upsell product matcher. What is the recommended product or service to offer?
 4.  **Cultural Trend Monitoring**:
     -   **Top 5 Emerging Interests**: Identify the top 5 cultural interests that are gaining popularity. Consider what external trends might be influencing this.
     -   **Top 5 Declining Interests**: Identify the top 5 cultural interests that are losing engagement.
-5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons, considering how their cultural tastes might influence holiday or event-based purchasing.
+5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons, considering how their cultural tastes might influence holiday or event-based purchasing. This helps identify intervention points.
 6.  **Market Intelligence & Product Development Insights**:
     -   **Market Opportunity Gaps**: Based on the analysis, perform a cultural gap analysis to identify 2-3 potential market opportunities where customer preferences appear to be underserved. This should guide future product development.
     -   **Competitive Intelligence**: Provide a brief analysis of how these trends could create a competitive advantage. What cultural positioning should the business take?
