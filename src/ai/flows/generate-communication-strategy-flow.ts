@@ -77,7 +77,7 @@ const strategyPrompt = ai.definePrompt({
     name: 'communicationStrategyPrompt',
     input: { schema: CulturalDnaInputSchema },
     output: { schema: GenerateCommunicationStrategyOutputSchema },
-    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile and generate a complete, actionable communication playbook for them.
+    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
 
 Cultural DNA Profile:
 - Music Affinity: {{music.score}}% (Preferences: {{json music.preferences}})
@@ -94,9 +94,9 @@ Based on this profile, generate a detailed playbook with the following sections:
 4.  **Engagement & Service**: 
     -   Outline the ideal communication style for customer service.
     -   Suggest visual branding elements that will resonate.
-5.  **Cultural Guardrails**: 
-    -   List specific cultural references or values to emphasize.
-    -   Crucially, list what topics, tones, or approaches to AVOID to prevent brand-damaging missteps.
+5.  **Cultural Guardrails (To Eliminate Guesswork)**: 
+    -   **DO's**: List specific cultural references, values, or trends to emphasize in communications.
+    -   **DON'Ts**: Crucially, list what topics, tones, or approaches to AVOID to prevent brand-damaging missteps.
 6.  **Predicted ROI**: Provide a single, high-level sentence estimating the potential ROI for using this strategy (e.g., "Adopting this strategy could lead to a 15-20% increase in engagement and conversion.").
 
 Format the output as a JSON object that strictly adheres to the provided schema. This playbook should be ready for a marketing team to use immediately.
