@@ -195,11 +195,6 @@ export default function SegmentsPage() {
                                                     </div>
                                                 </>
                                             )}
-                                            <Separator />
-                                            <div>
-                                                <h4 className="font-semibold mb-2 text-sm flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Sample Messaging</h4>
-                                                <p className="text-xs text-muted-foreground italic">"{segment.sampleMessaging}"</p>
-                                            </div>
                                         </CardContent>
                                         <CardContent>
                                              <Dialog onOpenChange={(open) => !open && setSelectedSegment(null)}>

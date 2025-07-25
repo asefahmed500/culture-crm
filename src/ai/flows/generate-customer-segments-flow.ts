@@ -92,7 +92,7 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
     const MAX_PROFILES_FOR_FULL_ANALYSIS = 100;
     let profilesForPrompt;
     if (profiles.length > MAX_PROFILES_FOR_FULL_ANALYSIS) {
-        profilesForPrompt = profiles.slice(0, MAX_PROFILES_FOR_FULL_ANALYSIS).map(p => ({
+        profilesForPrompt = profiles.slice(0, MAX_PROFILES_for_FULL_ANALYSIS).map(p => ({
             ageRange: p.ageRange,
             spendingLevel: p.spendingLevel,
             interactionFrequency: p.interactionFrequency,
