@@ -87,8 +87,8 @@ Based on this entire dataset, perform the following analysis:
     - **Top 5 Emerging Interests**: Identify the top 5 cultural interests that are gaining popularity. Consider what external trends might be influencing this.
     - **Top 5 Declining Interests**: Identify the top 5 cultural interests that are losing engagement.
 5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons, considering how their cultural tastes might influence holiday or event-based purchasing.
-6.  **Market Intelligence**:
-    - **Market Opportunity Gaps**: Identify 2-3 potential market opportunities where customer preferences appear to be underserved.
+6.  **Market Intelligence & Product Development Insights**:
+    - **Market Opportunity Gaps**: Based on the analysis, perform a cultural gap analysis to identify 2-3 potential market opportunities where customer preferences appear to be underserved. This should guide future product development.
     - **Competitive Intelligence**: Provide a brief analysis of how these trends could create a competitive advantage. What cultural positioning should the business take?
 7.  **Data Shift Alert**: Determine if there are any recent, significant shifts in the overall data patterns (e.g., a single trend rapidly growing to affect >15% of the customer base). If so, generate a concise alert message. If not, omit this field.
 8.  **Cultural Shift Story**: This is the most important part. Synthesize all your findings to identify the SINGLE most significant, interesting, or surprising cultural shift occurring in the data. Create a compelling narrative story about it, complete with a title, a short narrative, the key data points supporting it, and a powerful recommendation.

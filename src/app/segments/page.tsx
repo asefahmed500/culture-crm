@@ -181,7 +181,7 @@ export default function SegmentsPage() {
                                             </div>
                                              <Separator />
                                             <div>
-                                                <h4 className="font-semibold mb-2 text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> Loved Product Categories</h4>
+                                                <h4 className="font-semibold mb-2 text-sm flex items-center gap-2"><ShoppingBag className="h-4 w-4" /> Loved Product Categories & Features</h4>
                                                 <div className="flex flex-wrap gap-1.5">
                                                     {segment.lovedProductCategories.map((cat, idx) => <Badge key={idx} variant="secondary">{cat}</Badge>)}
                                                 </div>

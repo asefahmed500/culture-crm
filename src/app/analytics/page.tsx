@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -230,7 +230,7 @@ export default function AnalyticsPage() {
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence</h2>
+                            <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence & Product Insights</h2>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <Card>
                                     <CardHeader>
