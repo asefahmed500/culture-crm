@@ -47,6 +47,12 @@ An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and
     -   **Equity Audit Dashboard**: The **Dashboard** displays a real-time "Cultural DNA Accuracy" score, providing transparency into the AI's performance.
 -   [x] **Metaverse & Emotional Intelligence**: **Conceptually Done.** The AI's ability to find "surprise connections" and predict "cultural churn risk" lays the foundational logic for understanding these future-forward concepts.
 
+## Testing & Quality Assurance
+
+A comprehensive end-to-end testing suite has been created to validate all features of the application. Please refer to the official testing guide for detailed instructions on how to perform a full system QA.
+
+**[➡️ View the Full QA & Testing Guide](./TESTING.md)**
+
 ## Ethical Guardrails
 
 -   **Transparency**: This README and the application UI clearly state when and how the Qloo API and LLMs are used to generate insights.
