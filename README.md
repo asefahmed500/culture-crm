@@ -36,6 +36,8 @@ Our Cultural Intelligence CRM platform moves beyond outdated demographics to rev
     - **Content Calendar**: Create a 30-day content calendar based on the overall cultural trends of the customer base.
 - **Settings & ROI Simulation**: Input baseline business metrics (LTV, CPA, Conversion Rate) which the AI uses to provide more accurate ROI projections in its generated strategies.
 - **Performance Tracking**: Input actual campaign ROI for a cultural segment to track and prove the value of cultural targeting over time.
+- **Conversational Cultural Intelligence**: A natural language interface that allows users to ask questions about their customer data and receive narrative answers from an AI co-pilot.
+- **Cultural Intelligence for the Metaverse**: A forward-looking capability where the AI is primed to analyze cultural expressions in virtual spaces (e.g., avatars, virtual goods) to provide insights for brands engaging in the metaverse.
 
 ## Ethical Guardrails
 
