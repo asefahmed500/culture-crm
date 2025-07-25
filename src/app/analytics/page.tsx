@@ -216,7 +216,7 @@ export default function AnalyticsPage() {
                            <Card className="lg:col-span-1">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> Key Patterns</CardTitle>
-                                </Header>
+                                </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-3 list-disc list-inside text-muted-foreground">
                                         {insights.keyPatterns.map((pattern, i) => <li key={i}>{pattern}</li>)}
@@ -291,5 +291,3 @@ export default function AnalyticsPage() {
         </AppShell>
     );
 }
-
-    

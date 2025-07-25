@@ -3,6 +3,7 @@
 
 import { usePathname } from 'next/navigation';
 import { SidebarProvider } from '@/components/ui/sidebar';
+import AppShell from './app-shell';
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -14,7 +15,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
     return (
         <SidebarProvider>
-            {children}
+            <AppShell>
+                {children}
+            </AppShell>
         </SidebarProvider>
     );
 }

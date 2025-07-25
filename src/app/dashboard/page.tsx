@@ -7,5 +7,5 @@ export default function DashboardPage() {
         <AppShell>
             <Dashboard />
         </AppShell>
-    )
+    );
 }

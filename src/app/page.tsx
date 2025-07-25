@@ -5,8 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import LandingPage from '@/components/landing-page';
-import Dashboard from '@/components/dashboard';
-import AppShell from '@/components/app-shell';
+import DashboardPage from './dashboard/page';
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -31,9 +30,7 @@ export default function Home() {
   // We can show a loader or the dashboard as a fallback.
   if (status === 'authenticated') {
      return (
-        <AppShell>
-            <Dashboard />
-        </AppShell>
+        <DashboardPage />
     );
   }
 
