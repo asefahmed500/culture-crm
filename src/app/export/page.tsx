@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare } from 'lucide-react';
+import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
@@ -172,7 +172,7 @@ export default function ExportPage() {
     const downloadCalendarCsv = () => {
         if (!contentCalendar) return;
 
-        const headers = ['Day', 'Theme', 'Platform', 'PostSuggestion', 'SeasonalTieIn'];
+        const headers = ['Day', 'Theme', 'Platform', 'PostSuggestion', 'CulturalTieIn'];
         const csvRows = [
             headers.join(','),
             ...contentCalendar.calendar.map(day => 
@@ -181,7 +181,7 @@ export default function ExportPage() {
                     `"${day.theme.replace(/"/g, '""')}"`,
                     `"${day.platform.replace(/"/g, '""')}"`,
                     `"${day.postSuggestion.replace(/"/g, '""')}"`,
-                    `"${(day.seasonalTieIn || '').replace(/"/g, '""')}"`
+                    `"${(day.culturalTieIn || '').replace(/"/g, '""')}"`
                 ].join(',')
             )
         ];
@@ -312,7 +312,7 @@ export default function ExportPage() {
                            <Button variant="outline" onClick={() => window.print()}><Download className="mr-2 h-4 w-4"/> Save as PDF</Button>
                         </CardHeader>
                         <CardContent className="space-y-6">
-                            <p className="text-muted-foreground italic">{campaignBrief.executiveSummary}</p>
+                            <p className="text-muted-foreground italic border-l-4 pl-4">{campaignBrief.executiveSummary}</p>
                             <Separator />
                             <Card>
                                 <CardHeader>
@@ -340,40 +340,45 @@ export default function ExportPage() {
                                     <p className="text-sm">{campaignBrief.targetSegmentAnalysis}</p>
                                 </div>
                                 <div className="space-y-4">
-                                     <h3 className="font-semibold text-lg flex items-center gap-2"><Lightbulb/> Cultural Insights &amp; Recommendations</h3>
+                                     <h3 className="font-semibold text-lg flex items-center gap-2"><Lightbulb/> Cultural Insights</h3>
                                     <p className="text-sm">{campaignBrief.culturalInsights}</p>
                                 </div>
                             </div>
                             <div className="space-y-4">
                                 <h3 className="font-semibold text-lg">Messaging Strategy</h3>
                                 <div className="p-4 border rounded-lg bg-accent/20">
-                                    <p className="text-sm"><strong className="text-foreground">Core Message:</strong> {campaignBrief.messagingStrategy.coreMessage}</p>
+                                    <p className="text-base font-medium"><strong className="text-foreground">Core Message:</strong> {campaignBrief.messagingStrategy.coreMessage}</p>
                                     <p className="text-sm mt-2"><strong className="text-foreground">Key Themes:</strong> {campaignBrief.messagingStrategy.keyThemes.join(', ')}</p>
-                                    <div className="mt-2">
-                                        <h4 className="font-semibold text-sm">Sample Snippets:</h4>
-                                        <ul className="list-disc list-inside text-sm text-muted-foreground mt-1">
-                                            {campaignBrief.messagingStrategy.sampleSnippets.map((s,i) => <li key={i}>{s}</li>)}
-                                        </ul>
+                                    <Separator className="my-4" />
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <h4 className="font-semibold text-sm flex items-center gap-2 mb-1"><Mail /> Sample Email Copy</h4>
+                                            <p className="text-sm text-muted-foreground italic">"{campaignBrief.messagingStrategy.sampleEmailCopy}"</p>
+                                        </div>
+                                        <div>
+                                            <h4 className="font-semibold text-sm flex items-center gap-2 mb-1"><Video /> Sample Social Media Copy</h4>
+                                            <p className="text-sm text-muted-foreground italic">"{campaignBrief.messagingStrategy.sampleSocialCopy}"</p>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-4">
                                     <h3 className="font-semibold text-lg">Visual Direction</h3>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground">
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                         {campaignBrief.visualDirection.map((v,i) => <li key={i}>{v}</li>)}
                                     </ul>
                                 </div>
                                 <div className="space-y-4">
                                      <h3 className="font-semibold text-lg flex items-center gap-2"><CheckCircle/> Success Metrics &amp; KPIs</h3>
-                                    <ul className="list-disc list-inside text-sm text-muted-foreground">
+                                    <ul className="list-disc list-inside text-sm text-muted-foreground space-y-1">
                                         {campaignBrief.successMetrics.map((m,i) => <li key={i}>{m}</li>)}
                                     </ul>
                                 </div>
                             </div>
                              <div className="space-y-4">
                                  <h3 className="font-semibold text-lg flex items-center gap-2"><Wallet/> Budget Allocation Suggestions</h3>
-                                <p className="text-sm">{campaignBrief.budgetAllocation}</p>
+                                <p className="text-sm text-muted-foreground">{campaignBrief.budgetAllocation}</p>
                             </div>
                         </CardContent>
                     </Card>
@@ -383,11 +388,13 @@ export default function ExportPage() {
                 {contentCalendar && (
                      <Card>
                         <CardHeader className="flex-row justify-between items-center">
-                            <CardTitle>30-Day Content Plan</CardTitle>
+                           <div>
+                             <CardTitle>30-Day Social Media Content Calendar</CardTitle>
+                             <CardDescription>{contentCalendar.summary}</CardDescription>
+                           </div>
                             <Button variant="outline" onClick={downloadCalendarCsv}><Download className="mr-2 h-4 w-4"/> Download as CSV</Button>
                         </CardHeader>
                         <CardContent>
-                             <p className="text-muted-foreground mb-4">{contentCalendar.summary}</p>
                              <Table>
                                 <TableHeader>
                                     <TableRow>
@@ -395,7 +402,7 @@ export default function ExportPage() {
                                         <TableHead>Theme</TableHead>
                                         <TableHead>Platform</TableHead>
                                         <TableHead>Suggestion</TableHead>
-                                        <TableHead>Seasonal Tie-In</TableHead>
+                                        <TableHead>Cultural Tie-In</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
@@ -404,8 +411,8 @@ export default function ExportPage() {
                                             <TableCell className="font-bold">{day.day}</TableCell>
                                             <TableCell>{day.theme}</TableCell>
                                             <TableCell><Badge variant="secondary">{day.platform}</Badge></TableCell>
-                                            <TableCell className="text-sm text-muted-foreground">{day.postSuggestion}</TableCell>
-                                            <TableCell>{day.seasonalTieIn || 'N/A'}</TableCell>
+                                            <TableCell className="text-sm text-muted-foreground max-w-sm">{day.postSuggestion}</TableCell>
+                                            <TableCell className="text-xs text-muted-foreground max-w-xs">{day.culturalTieIn || 'N/A'}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>

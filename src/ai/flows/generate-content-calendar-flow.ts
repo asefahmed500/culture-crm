@@ -17,12 +17,12 @@ const CalendarDaySchema = z.object({
   day: z.number().describe("The day of the month (1-30)."),
   theme: z.string().describe("The content theme for the day (e.g., 'Wellness Wednesday', 'Throwback Thursday')."),
   platform: z.string().describe("The primary social media platform for this post (e.g., 'Instagram', 'TikTok', 'Email Newsletter')."),
-  postSuggestion: z.string().describe("A specific and creative post idea for the day."),
-  seasonalTieIn: z.string().optional().describe("Any relevant seasonal, holiday, or cultural event tie-in."),
+  postSuggestion: z.string().describe("A specific and creative post idea for the day that aligns with the customer base's cultural interests."),
+  culturalTieIn: z.string().optional().describe("Explain how this post ties into a specific cultural trend identified in the data."),
 });
 
 const GenerateContentCalendarOutputSchema = z.object({
-  summary: z.string().describe("A high-level summary of the content strategy for the month."),
+  summary: z.string().describe("A high-level summary of the content strategy for the month, including which cultural trends it leans into."),
   calendar: z.array(CalendarDaySchema).length(30).describe("An array of 30 days of content ideas."),
 });
 
@@ -36,20 +36,20 @@ const calendarPrompt = ai.definePrompt({
   name: 'contentCalendarPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateContentCalendarOutputSchema },
-  prompt: `You are a creative and strategic social media manager. Your task is to generate a 30-day content calendar based on an analysis of a customer base's cultural DNA.
+  prompt: `You are a creative and strategic social media manager with a deep understanding of cultural trends. Your task is to generate a 30-day content calendar for an e-commerce brand based on an analysis of its customer base's cultural DNA. The goal is to create content that resonates deeply and avoids cultural missteps.
 
 Analyze the key cultural trends from the following sample of customer profiles:
 {{{json profiles}}}
 
 Based on this data, create a content calendar for the next 30 days.
-1.  **Summarize the Strategy**: Write a short summary of the overarching content strategy for the month. What are the main goals?
+1.  **Summarize the Strategy**: Write a short summary of the overarching content strategy. What are the main cultural trends to focus on and why?
 2.  **Generate 30 Days of Content**: For each day from 1 to 30, provide:
-    *   A creative content **theme** for the day.
+    *   A creative content **theme**.
     *   The best **platform** for the post.
-    *   A specific **post suggestion** or idea.
-    *   An optional **seasonal tie-in** if relevant (e.g., 'Start of Summer', 'National Coffee Day').
+    *   A specific **post suggestion** that feels authentic and engaging.
+    *   A **cultural tie-in** explaining how the post connects to the data.
 
-Make the content ideas engaging, creative, and tailored to the cultural interests revealed in the customer data. Ensure there is a good mix of content types and platforms.
+Make the content ideas engaging, creative, and tailored to the cultural interests revealed in the customer data. Ensure there is a good mix of content types and platforms. Avoid generic ideas.
 
 Format the output in the specified JSON format.
 `,
@@ -92,5 +92,3 @@ const generateContentCalendarFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

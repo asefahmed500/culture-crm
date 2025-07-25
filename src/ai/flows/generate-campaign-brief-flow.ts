@@ -30,7 +30,8 @@ const GenerateCampaignBriefOutputSchema = z.object({
   messagingStrategy: z.object({
     coreMessage: z.string().describe("The single, most important message to convey to the target audience."),
     keyThemes: z.array(z.string()).describe("A list of key themes or pillars that support the core message."),
-    sampleSnippets: z.array(z.string()).describe("A few examples of ad copy or social media captions that resonate with the segment."),
+    sampleEmailCopy: z.string().describe("A sample email marketing snippet that would resonate with this segment."),
+    sampleSocialCopy: z.string().describe("A sample social media caption that would resonate with this segment."),
   }),
   visualDirection: z.array(z.string()).describe("Guidelines for the campaign's visual aesthetic, including colors, imagery, and style."),
   successMetrics: z.array(z.string()).describe("Key Performance Indicators (KPIs) to measure the campaign's success."),
@@ -70,7 +71,8 @@ Based on this profile and the baseline business metrics, generate a complete cam
 6.  **Messaging Strategy**:
     *   **Core Message**: What is the single most important message we want to convey?
     *   **Key Themes**: What are the key themes that support this message?
-    *   **Sample Snippets**: Provide 2-3 examples of ad copy or social media captions.
+    *   **Sample Email Copy**: Provide a short, effective copy snippet for an email marketing campaign.
+    *   **Sample Social Media Copy**: Provide a short, engaging caption for a social media post.
 7.  **Visual Direction**: Describe the visual aesthetic. What kind of imagery, colors, and style should be used?
 8.  **Success Metrics & KPIs**: List the key metrics to track to measure success (e.g., 'Engagement Rate', 'Conversion Rate', 'Brand Mentions').
 9.  **Budget Allocation Suggestions**: Provide high-level advice on how to allocate a hypothetical budget (e.g., '60% on digital ads targeting [platforms], 30% on influencer collaborations, 10% on content creation').
@@ -118,5 +120,3 @@ const generateCampaignBriefFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle, ShoppingCart, Send, Tv, Lightbulb, Shield } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer } from 'recharts';
 import type { ChartConfig } from "@/components/ui/chart";
@@ -253,7 +253,7 @@ export default function CustomersPage() {
                                                                                             <PolarAngleAxis dataKey="subject" />
                                                                                             <PolarRadiusAxis angle={30} domain={[0, 100]} />
                                                                                             <Radar name="Score" dataKey="score" stroke="var(--color-score)" fill="var(--color-score)" fillOpacity={0.6} />
-                                                                                            <Tooltip content={<ChartTooltipContent />} />
+                                                                                            <ChartTooltip content={<ChartTooltipContent />} />
                                                                                         </RadarChart>
                                                                                     </ResponsiveContainer>
                                                                                 </ChartContainer>
@@ -327,7 +327,7 @@ export default function CustomersPage() {
                                                                 ) : (
                                                                     <Wand2 className="mr-2 h-4 w-4" />
                                                                 )}
-                                                                Generate Strategy
+                                                                Generate Playbook
                                                               </Button>
                                                             </DialogTrigger>
                                                              <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
@@ -339,53 +339,53 @@ export default function CustomersPage() {
                                                                 </DialogHeader>
                                                                 {isGenerating && <div className="flex flex-col items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-4 text-muted-foreground">Generating playbook...</p></div>}
                                                                 {strategy && (
-                                                                    <div className="space-y-6 overflow-y-auto pr-6">
+                                                                    <div className="space-y-6 overflow-y-auto pr-6 text-sm">
                                                                         <div className="p-4 border rounded-lg bg-primary/10">
-                                                                            <h3 className="font-semibold text-lg flex items-center gap-2"><Rocket className="text-primary" /> Predicted ROI</h3>
-                                                                            <p className="text-muted-foreground">{strategy.predictedROI}</p>
+                                                                            <h3 className="font-semibold flex items-center gap-2"><Rocket className="text-primary" /> Predicted ROI</h3>
+                                                                            <p className="text-muted-foreground mt-1">{strategy.predictedROI}</p>
                                                                         </div>
-                                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                                            <div className="space-y-4">
-                                                                                <h3 className="font-semibold text-lg">Email Style</h3>
-                                                                                <p><strong>Tone:</strong> {strategy.emailStyle.tone}</p>
-                                                                                <p><strong>Language:</strong> {strategy.emailStyle.language}</p>
-                                                                                <h4 className="font-semibold">Subject Line Examples:</h4>
-                                                                                <ul className="list-disc list-inside text-sm text-muted-foreground">
-                                                                                    {strategy.emailStyle.subjectLineExamples.map((s, i) => <li key={i}>{s}</li>)}
-                                                                                </ul>
-                                                                            </div>
-                                                                            <div className="space-y-4">
-                                                                                <h3 className="font-semibold text-lg">Social Media Approach</h3>
-                                                                                <p><strong>Platforms:</strong> {strategy.socialMediaApproach.platforms.join(', ')}</p>
-                                                                                 <p><strong>Content Types:</strong> {strategy.socialMediaApproach.contentTypes.join(', ')}</p>
-                                                                                 <p><strong>Posting Style:</strong> {strategy.socialMediaApproach.postingStyle}</p>
-                                                                            </div>
+
+                                                                        <div className="space-y-4">
+                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><Send /> Email Marketing Optimization</h3>
+                                                                            <p><strong>Tone:</strong> {strategy.emailMarketing.tone}</p>
+                                                                            <p><strong>Language:</strong> {strategy.emailMarketing.language}</p>
+                                                                            <h4 className="font-semibold">Subject Line Examples:</h4>
+                                                                            <ul className="list-disc list-inside text-muted-foreground">
+                                                                                {strategy.emailMarketing.subjectLineExamples.map((s, i) => <li key={i}>{s}</li>)}
+                                                                            </ul>
+                                                                        </div>
+                                                                        <Separator />
+                                                                        <div className="space-y-4">
+                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><Tv /> Social Media Content Strategy</h3>
+                                                                            <p><strong>Platforms:</strong> {strategy.socialMediaApproach.platforms.join(', ')}</p>
+                                                                            <p><strong>Content Types:</strong> {strategy.socialMediaApproach.contentTypes.join(', ')}</p>
+                                                                            <p><strong>Posting Style:</strong> {strategy.socialMediaApproach.postingStyle}</p>
                                                                         </div>
                                                                         <Separator />
                                                                          <div className="space-y-4">
-                                                                            <h3 className="font-semibold text-lg">Engagement Strategy</h3>
-                                                                            <p><strong>Product Recommendation Method:</strong> {strategy.productRecommendationMethod}</p>
-                                                                             <p><strong>Customer Service Approach:</strong> {strategy.customerServiceApproach}</p>
-                                                                              <div>
+                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><ShoppingCart /> E-commerce & Product Recommendations</h3>
+                                                                            <p><strong>Recommendation Strategy:</strong> {strategy.productRecommendationStrategy}</p>
+                                                                            <p><strong>Customer Service Approach:</strong> {strategy.customerServiceApproach}</p>
+                                                                            <div>
                                                                                 <h4 className="font-semibold">Visual Branding Elements:</h4>
-                                                                                 <div className="flex flex-wrap gap-2 mt-2">
+                                                                                <div className="flex flex-wrap gap-2 mt-2">
                                                                                     {strategy.visualBrandingElements.map((s, i) => <Badge key={i} variant="secondary">{s}</Badge>)}
                                                                                 </div>
                                                                             </div>
                                                                         </div>
                                                                          <Separator />
                                                                          <div className="space-y-4">
-                                                                            <h3 className="font-semibold text-lg">Cultural Do's and Don'ts</h3>
+                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><Shield /> Cultural Guardrails</h3>
                                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                 <div>
-                                                                                    <h4 className="font-semibold text-green-600">Emphasize These</h4>
-                                                                                     <ul className="list-disc list-inside text-sm text-muted-foreground mt-2">
+                                                                                    <h4 className="font-semibold text-green-600 flex items-center gap-2"><Lightbulb /> Do's: Emphasize These</h4>
+                                                                                     <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
                                                                                         {strategy.culturalInsights.referencesToEmphasize.map((s, i) => <li key={i}>{s}</li>)}
                                                                                     </ul>
                                                                                 </div>
                                                                                 <div>
-                                                                                    <h4 className="font-semibold text-destructive">Avoid These</h4>
-                                                                                     <ul className="list-disc list-inside text-sm text-muted-foreground mt-2">
+                                                                                    <h4 className="font-semibold text-destructive flex items-center gap-2"><XCircle /> Don'ts: Avoid These</h4>
+                                                                                     <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
                                                                                         {strategy.culturalInsights.approachesToAvoid.map((s, i) => <li key={i}>{s}</li>)}
                                                                                     </ul>
                                                                                 </div>
