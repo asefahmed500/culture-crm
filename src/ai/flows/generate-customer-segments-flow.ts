@@ -53,19 +53,19 @@ const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateCustomerSegmentsOutputSchema },
-  prompt: `You are a world-class market research analyst and segmentation strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" score, and create 8-12 distinct cultural segments.
+  prompt: `You are a world-class market research analyst and segmentation strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" score, and create 8-12 distinct cultural segments. Act as a multi-modal analysis engine, considering the cultural DNA as a proxy for richer data like sentiment and browsing behavior.
 
 Analyze the following customer profiles:
 {{{json profiles}}}
 
-Based on similarities in their Cultural DNA, perform the following actions:
-1.  **Cluster Customers**: Group the customers into 8-12 meaningful, distinct segments.
+Based on similarities in their Cultural DNA and inferred multi-modal behaviors, perform the following actions:
+1.  **Cluster Customers**: Group the customers into 8-12 meaningful, distinct segments. Go beyond simple taste clusters; create personas that feel real. For example, instead of "Likes Rock Music", create "The Weekend Warrior" who buys durable outdoor gear and listens to classic rock.
 2.  **Name Each Segment**: Give each segment a descriptive and memorable name.
 3.  **Create Detailed Personas**: For each segment, provide a detailed profile including:
     *   The size of the segment (count of customers).
     *   A qualitative average customer value ('Low', 'Medium', 'High').
     *   The top 5 most prominent cultural characteristics.
-    *   Their communication preferences.
+    *   Their communication preferences (inferred from their likely media consumption habits).
     *   Product categories they show a high affinity for.
     *   The best marketing channels to reach them.
     *   A sample messaging snippet that would resonate with them.

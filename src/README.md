@@ -23,7 +23,9 @@ Our Cultural Intelligence CRM platform moves beyond outdated demographics to rev
 ## Core Features
 
 - **Customer Data Import**: Upload anonymized customer data via CSV. The system processes, cleans, and standardizes the data for analysis.
-- **Cultural DNA Generation (Qloo + LLM)**: Leverages the Qloo API to fetch cultural affinity data based on customer purchase history and interests. An LLM then analyzes this data to generate a rich "Cultural DNA" profile for each customer, including surprising connections.
+- **Multi-Modal Cultural Analysis Engine**:
+    - **Cultural DNA Generation (Qloo + LLM)**: Leverages the Qloo API to fetch cultural affinity data. An LLM then analyzes this data alongside simulated multi-modal signals (like sentiment from product reviews, seasonal purchase timing, and brand engagement patterns) to generate a rich "Cultural DNA" profile for each customer, including surprising connections.
+    - **Computer Vision, NLP, and Behavioral Analytics**: The AI is prompted to act as a sophisticated engine that synthesizes these varied data points into a unified cultural score, providing a holistic view of the customer.
 - **Customer Profile Explorer**: View a list of all processed customer profiles, each enriched with their unique Cultural DNA. Features an interactive visualization and accuracy feedback mechanism.
 - **AI-Powered Segmentation**: Automatically group customers into 8-12 distinct cultural segments based on their shared affinities. Each segment is presented as a detailed persona card, ranked by business opportunity. Includes bias detection warnings.
 - **Predictive Analytics Dashboard**: Generate a real-time report that analyzes all customer profiles to identify market trends, make predictions, and uncover opportunities. Features the "Cultural Shift Story Generator" which crafts a narrative around the most significant trend.

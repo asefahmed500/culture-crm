@@ -74,19 +74,19 @@ const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
-  prompt: `You are a world-class cultural sociologist and market intelligence analyst. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological.
+  prompt: `You are a world-class cultural sociologist and market intelligence analyst, acting as a multi-modal analysis engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological.
 
-Analyze the following customer profiles:
+Analyze the following customer profiles, inferring multi-modal context (e.g., review sentiment, browsing behavior) where appropriate:
 {{{json profiles}}}
 
 Based on this entire dataset, perform the following analysis:
 1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
-2.  **Identify Key Patterns**: Find 3-5 of the most significant recurring cultural patterns.
-3.  **Generate Predictions**: Create specific predictions for Purchase Likelihood, Churn Risk, Brand Advocacy, and Upsell Opportunities.
+2.  **Identify Key Patterns**: Find 3-5 of the most significant recurring cultural patterns, synthesizing behavioral data with cultural affinities.
+3.  **Generate Predictions**: Create specific predictions for Purchase Likelihood, Churn Risk, Brand Advocacy, and Upsell Opportunities. Base these on a holistic view of the customer.
 4.  **Cultural Trend Monitoring**:
-    - **Top 5 Emerging Interests**: Identify the top 5 cultural interests that are gaining popularity among the customer base.
+    - **Top 5 Emerging Interests**: Identify the top 5 cultural interests that are gaining popularity. Consider what external trends might be influencing this.
     - **Top 5 Declining Interests**: Identify the top 5 cultural interests that are losing engagement.
-5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons or major holidays.
+5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons, considering how their cultural tastes might influence holiday or event-based purchasing.
 6.  **Market Intelligence**:
     - **Market Opportunity Gaps**: Identify 2-3 potential market opportunities where customer preferences appear to be underserved.
     - **Competitive Intelligence**: Provide a brief analysis of how these trends could create a competitive advantage. What cultural positioning should the business take?
