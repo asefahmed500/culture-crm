@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video } from 'lucide-react';
+import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
@@ -16,6 +16,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { ISegment } from '@/models/segment';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function ExportPage() {
     const [segments, setSegments] = useState<ISegment[]>([]);
@@ -35,6 +36,11 @@ export default function ExportPage() {
     const [salesScript, setSalesScript] = useState<GenerateSalesScriptOutput | null>(null);
     
     const [isDownloading, setIsDownloading] = useState(false);
+
+    const [isCoPilotLoading, setIsCoPilotLoading] = useState(false);
+    const [coPilotError, setCoPilotError] = useState<string | null>(null);
+    const [coPilotQuery, setCoPilotQuery] = useState('');
+    const [coPilotResponse, setCoPilotResponse] = useState<string | null>(null);
 
     const { toast } = useToast();
 
@@ -169,6 +175,34 @@ export default function ExportPage() {
         }
     };
 
+    const handleCoPilotQuery = async () => {
+        if (!coPilotQuery) {
+            setCoPilotError('Please enter a question.');
+            return;
+        }
+        setIsCoPilotLoading(true);
+        setCoPilotError(null);
+        setCoPilotResponse(null);
+        try {
+            const response = await fetch('/api/conversational-insights', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ query: coPilotQuery }),
+            });
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to get insight from Co-pilot');
+            }
+            const data = await response.json();
+            setCoPilotResponse(data.response);
+        } catch (err: any) {
+            setCoPilotError(err.message);
+        } finally {
+            setIsCoPilotLoading(false);
+        }
+    };
+
+
     const downloadCalendarCsv = () => {
         if (!contentCalendar) return;
 
@@ -201,53 +235,98 @@ export default function ExportPage() {
             <main className="flex-1 p-4 md:p-8 space-y-8">
                 <Card>
                     <CardHeader>
-                        <CardTitle>Export Center & Generators</CardTitle>
+                        <CardTitle>Export Center & AI Co-pilot</CardTitle>
                         <CardDescription>
-                            Generate and download campaign materials, sales scripts, customer lists, and content calendars powered by AI insights. Start by selecting a target segment below.
+                            Generate campaign materials, download lists, or ask our AI Co-pilot a question to get natural language insights. Start by selecting a target segment for the generators.
                         </CardDescription>
                     </CardHeader>
                      <CardContent>
-                        <div className="flex items-end gap-4 max-w-md mb-6">
-                            <div className="flex-grow">
-                                <label className="text-sm font-medium">Target Segment</label>
-                                 <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading} value={selectedSegment}>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder={isSegmentsLoading ? "Loading segments..." : "Select a segment"} />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {segments.map(s => <SelectItem key={s.segmentName} value={s.segmentName}>{s.segmentName}</SelectItem>)}
-                                    </SelectContent>
-                                </Select>
+                        <div className="mb-6">
+                            <h3 className="text-lg font-semibold mb-2">Generators</h3>
+                            <div className="flex items-end gap-4 max-w-md mb-4">
+                                <div className="flex-grow">
+                                    <label className="text-sm font-medium">Target Segment</label>
+                                    <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading} value={selectedSegment}>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder={isSegmentsLoading ? "Loading segments..." : "Select a segment"} />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                            {segments.map(s => <SelectItem key={s.segmentName} value={s.segmentName}>{s.segmentName}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateBrief} disabled={isBriefLoading || !selectedSegment}>
+                                    <div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Campaign Brief</h3></div>
+                                    <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a full campaign brief with strategy, messaging, and ROI.</p>
+                                    {isBriefLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                                </Button>
+                                <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateScript} disabled={isScriptLoading || !selectedSegment}>
+                                    <div className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Sales Script</h3></div>
+                                    <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a tailored sales script with talking points and objection handling.</p>
+                                    {isScriptLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                                </Button>
+                                <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateCalendar} disabled={isCalendarLoading}>
+                                <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Content Calendar</h3></div>
+                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a 30-day content calendar based on overall cultural trends.</p>
+                                {isCalendarLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                                </Button>
+                                <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleDownloadCustomers} disabled={isDownloading}>
+                                    <div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Customer List</h3></div>
+                                    <p className="text-xs text-muted-foreground text-left whitespace-normal">Download a CSV of all customers with their assigned cultural segments.</p>
+                                    {isDownloading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
+                                </Button>
                             </div>
                         </div>
+
                         <Separator />
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateBrief} disabled={isBriefLoading || !selectedSegment}>
-                                <div className="flex items-center gap-2"><Rocket className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Campaign Brief</h3></div>
-                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a full campaign brief with strategy, messaging, and ROI.</p>
-                                {isBriefLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
-                            </Button>
-                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateScript} disabled={isScriptLoading || !selectedSegment}>
-                                <div className="flex items-center gap-2"><MessageSquare className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Sales Script</h3></div>
-                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a tailored sales script with talking points and objection handling.</p>
-                                {isScriptLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
-                            </Button>
-                            <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleGenerateCalendar} disabled={isCalendarLoading}>
-                               <div className="flex items-center gap-2"><CalendarDays className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Content Calendar</h3></div>
-                               <p className="text-xs text-muted-foreground text-left whitespace-normal">Generate a 30-day content calendar based on overall cultural trends.</p>
-                               {isCalendarLoading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
-                            </Button>
-                             <Button variant="outline" className="h-auto py-4 flex flex-col items-start justify-start gap-2" onClick={handleDownloadCustomers} disabled={isDownloading}>
-                                <div className="flex items-center gap-2"><Users className="h-5 w-5 text-primary"/> <h3 className="font-semibold text-lg">Customer List</h3></div>
-                                <p className="text-xs text-muted-foreground text-left whitespace-normal">Download a CSV of all customers with their assigned cultural segments.</p>
-                                {isDownloading && <Loader2 className="h-4 w-4 animate-spin self-center" />}
-                            </Button>
+                        
+                        <div className="mt-6">
+                            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Bot /> AI Strategy Co-pilot</h3>
+                             <div className="space-y-4">
+                                <Textarea 
+                                    placeholder="Ask a question about your customers... e.g., 'What music do my high-value customers like?' or 'Why do my eco-conscious customers prefer email?'"
+                                    value={coPilotQuery}
+                                    onChange={(e) => setCoPilotQuery(e.target.value)}
+                                />
+                                <Button onClick={handleCoPilotQuery} disabled={isCoPilotLoading}>
+                                    {isCoPilotLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Get Insight
+                                </Button>
+                            </div>
                         </div>
+
+
                          {briefError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{briefError}</AlertDescription></Alert>}
                          {calendarError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{calendarError}</AlertDescription></Alert>}
                          {scriptError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{scriptError}</AlertDescription></Alert>}
+                         {coPilotError && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{coPilotError}</AlertDescription></Alert>}
                     </CardContent>
                 </Card>
+
+                {isCoPilotLoading && (
+                    <Card>
+                        <CardContent className="p-6 flex items-center justify-center">
+                            <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                            <p>Our AI Co-pilot is thinking...</p>
+                        </CardContent>
+                    </Card>
+                )}
+
+                {coPilotResponse && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Co-pilot Response</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
+                                {coPilotResponse}
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+
 
                 {salesScript && (
                     <Card className="print:shadow-none print:border-none">

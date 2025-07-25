@@ -8,6 +8,8 @@ import './flows/generate-customer-segments-flow';
 import './flows/generate-campaign-brief-flow';
 import './flows/generate-content-calendar-flow';
 import './flows/generate-sales-script-flow';
+import './flows/conversational-insights-flow';
 import './tools/business-metrics-tool';
-
+import './tools/customer-profiles-tool';
+import './tools/customer-segments-tool';
     
