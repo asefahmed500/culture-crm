@@ -292,16 +292,16 @@ export default function CustomersPage() {
                                                             </DialogTrigger>
                                                              <DialogContent className="max-w-3xl h-[90vh] flex flex-col">
                                                                 <DialogHeader>
-                                                                    <DialogTitle>Communication Strategy</DialogTitle>
+                                                                    <DialogTitle>AI-Generated Communication Playbook</DialogTitle>
                                                                     <DialogDescription>
-                                                                        AI-generated recommendations based on the customer's Cultural DNA.
+                                                                        A tailored communication strategy based on the customer's cultural DNA.
                                                                     </DialogDescription>
                                                                 </DialogHeader>
-                                                                {isGenerating && <div className="flex flex-col items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-4 text-muted-foreground">Generating strategy...</p></div>}
+                                                                {isGenerating && <div className="flex flex-col items-center justify-center h-full"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p className="mt-4 text-muted-foreground">Generating playbook...</p></div>}
                                                                 {strategy && (
                                                                     <div className="space-y-6 overflow-y-auto pr-6">
-                                                                        <div className="p-4 border rounded-lg bg-accent/20">
-                                                                            <h3 className="font-semibold text-lg flex items-center gap-2"><Rocket className="text-accent-foreground" /> Predicted ROI</h3>
+                                                                        <div className="p-4 border rounded-lg bg-primary/10">
+                                                                            <h3 className="font-semibold text-lg flex items-center gap-2"><Rocket className="text-primary" /> Predicted ROI</h3>
                                                                             <p className="text-muted-foreground">{strategy.predictedROI}</p>
                                                                         </div>
                                                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -323,9 +323,9 @@ export default function CustomersPage() {
                                                                         </div>
                                                                         <Separator />
                                                                          <div className="space-y-4">
-                                                                            <h3 className="font-semibold text-lg">Recommendations & Guidelines</h3>
-                                                                            <p><strong>Product Recommendation:</strong> {strategy.productRecommendationMethod}</p>
-                                                                             <p><strong>Customer Service:</strong> {strategy.customerServiceApproach}</p>
+                                                                            <h3 className="font-semibold text-lg">Engagement Strategy</h3>
+                                                                            <p><strong>Product Recommendation Method:</strong> {strategy.productRecommendationMethod}</p>
+                                                                             <p><strong>Customer Service Approach:</strong> {strategy.customerServiceApproach}</p>
                                                                               <div>
                                                                                 <h4 className="font-semibold">Visual Branding Elements:</h4>
                                                                                  <div className="flex flex-wrap gap-2 mt-2">
@@ -376,3 +376,5 @@ export default function CustomersPage() {
         </AppShell>
     );
 }
+
+    

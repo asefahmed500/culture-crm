@@ -63,7 +63,7 @@ const GenerateCommunicationStrategyOutputSchema = z.object({
       referencesToEmphasize: z.array(z.string()).describe('Cultural references and values to emphasize in communications.'),
       approachesToAvoid: z.array(z.string()).describe('Communication approaches, topics, or tones to avoid.'),
   }),
-  predictedROI: z.string().describe('A brief, high-level prediction of the potential ROI improvement from using this tailored strategy.'),
+  predictedROI: z.string().describe('A brief, high-level prediction of the potential ROI improvement from using this tailored strategy, expressed as a sentence (e.g., "Adopting this strategy could lead to a 15-20% increase in engagement.").'),
 });
 
 export type GenerateCommunicationStrategyOutput = z.infer<typeof GenerateCommunicationStrategyOutputSchema>;
@@ -77,7 +77,7 @@ const strategyPrompt = ai.definePrompt({
     name: 'communicationStrategyPrompt',
     input: { schema: CulturalDnaInputSchema },
     output: { schema: GenerateCommunicationStrategyOutputSchema },
-    prompt: `You are an expert marketing strategist. Analyze the following customer's "Cultural DNA" profile and generate a comprehensive, actionable communication strategy.
+    prompt: `You are an expert marketing strategist and cultural analyst. Your task is to analyze a customer's "Cultural DNA" profile and generate a complete, actionable communication playbook for them.
 
 Cultural DNA Profile:
 - Music Affinity: {{music.score}}% (Preferences: {{json music.preferences}})
@@ -87,16 +87,19 @@ Cultural DNA Profile:
 - Travel Affinity: {{travel.score}}% (Preferences: {{json travel.preferences}})
 - Social Causes Affinity: {{socialCauses.score}}% (Preferences: {{json socialCauses.preferences}})
 
-Based on this profile, generate the following for the marketing team:
-1.  **Email Communication Style**: Define the tone, language, and provide three compelling subject line examples.
+Based on this profile, generate a detailed playbook with the following sections:
+1.  **Email Style**: Define the tone, language, and provide three compelling subject line examples.
 2.  **Social Media Approach**: Recommend the best platforms, content types, and posting style.
-3.  **Product Recommendation Method**: Describe the most effective way to present product options.
-4.  **Customer Service Approach**: Outline the ideal communication style for support interactions.
-5.  **Visual Branding Elements**: Suggest visual aesthetics and branding elements that would resonate.
-6.  **Cultural Insights & Guidelines**: List cultural references/values to emphasize and, crucially, what to avoid.
-7.  **Predicted ROI**: Provide a high-level, estimated ROI prediction for using this strategy (e.g., "15-20% increase in engagement").
+3.  **Engagement Strategy**: 
+    -   Describe the most effective method for recommending products.
+    -   Outline the ideal communication style for customer service interactions.
+    -   Suggest visual branding elements that will resonate.
+4.  **Cultural Do's and Don'ts**: 
+    -   List specific cultural references or values to emphasize.
+    -   Crucially, list what topics, tones, or approaches to avoid.
+5.  **Predicted ROI**: Provide a single, high-level sentence estimating the potential ROI for using this strategy (e.g., "Adopting this strategy could lead to a 15-20% increase in engagement.").
 
-Format the output as actionable guidelines in the specified JSON format.
+Format the output as a JSON object that strictly adheres to the provided schema. This playbook should be ready for a marketing team to use immediately.
 `,
 });
 
@@ -114,3 +117,5 @@ const generateCommunicationStrategyFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
