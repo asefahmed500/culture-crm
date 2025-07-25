@@ -26,7 +26,7 @@ const SegmentSchema = z.object({
     sampleMessaging: z.string().describe("A sample messaging snippet that would resonate with this segment."),
     potentialLifetimeValue: z.string().describe("A qualitative assessment of the potential lifetime value (e.g., 'Very High', 'Moderate')."),
     businessOpportunityRank: z.number().describe("A rank from 1 to 12 indicating the business opportunity, where 1 is the highest."),
-    biasWarning: z.string().optional().describe("If the segment relies on correlations that could be interpreted as stereotypical or biased, include a brief warning message here. For example, 'This segment correlates fashion preferences with age, which could be a stereotype.' Omit this field if no bias is detected."),
+    biasWarning: z.string().optional().describe("If the segment relies on correlations that could be interpreted as stereotypical or biased (e.g., based on age, gender), include a brief, actionable warning message here. Frame it as a constructive alert. For example, 'This segment correlates fashion preferences with age, which could be a stereotype. Validate this with other data points.' Omit this field entirely if no potential bias is detected."),
 });
 
 const CampaignIdeaSchema = z.object({
@@ -70,7 +70,7 @@ Based on similarities in their Cultural DNA, perform the following actions:
     *   The best marketing channels to reach them.
     *   A sample messaging snippet that would resonate with them.
     *   A qualitative assessment of their potential lifetime value ('Low', 'Moderate', 'High', 'Very High').
-4.  **Ethical Review (Bias Check)**: For each segment, critically evaluate if the defining characteristics could be based on harmful stereotypes (e.g., related to age, gender, location). If a potential bias is detected, populate the 'biasWarning' field with a concise explanation. If not, omit the field.
+4.  **Ethical Review (Bias Check)**: This is critical. For each segment, critically evaluate if the defining characteristics could be based on harmful or reductive stereotypes (e.g., related to age, gender, location). If a potential bias is detected, populate the 'biasWarning' field with a concise, constructive explanation. For instance: 'Warning: This segment links specific music tastes to an age range. This could be a stereotype, so consider validating this insight before acting on it.' If no bias is detected, omit the field completely.
 5.  **Rank Segments**: Rank each segment by business opportunity, from 1 (highest) to 12 (lowest).
 6.  **Suggest Campaigns**: Based on your analysis, devise 3 innovative campaign ideas for the top 3 highest-opportunity segments. Each idea should have a target segment, a title, a brief description, and suggested channels.
 7.  **Summarize**: Provide a high-level summary of your findings.

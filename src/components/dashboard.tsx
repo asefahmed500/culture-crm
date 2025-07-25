@@ -11,30 +11,47 @@ import {
 import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
-import { useEffect, useState } from 'react';
-import { ArrowRight, Loader2, Upload, Users, Milestone, LineChart } from 'lucide-react';
+import { useEffect, useState, useMemo } from 'react';
+import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent, CheckCircle, XCircle } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
+import { Separator } from './ui/separator';
 
 interface ICustomerProfile {
     _id: string;
+    accuracyFeedback: number;
 }
+
+interface ISegment {
+    _id: string;
+    actualROI?: number;
+}
+
 
 export default function Dashboard() {
     const router = useRouter();
     const { data: session } = useSession();
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
+    const [segments, setSegments] = useState<ISegment[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        const fetchProfiles = async () => {
+        const fetchData = async () => {
             try {
                 setLoading(true);
-                const response = await fetch('/api/customer-profiles');
-                if (!response.ok) {
+                const [profilesRes, segmentsRes] = await Promise.all([
+                    fetch('/api/customer-profiles'),
+                    fetch('/api/customer-segments'),
+                ]);
+                
+                if (!profilesRes.ok || !segmentsRes.ok) {
                     throw new Error('Failed to fetch data');
                 }
-                const data = await response.json();
-                setProfiles(data);
+                const profilesData = await profilesRes.json();
+                const segmentsData = await segmentsRes.json();
+                
+                setProfiles(profilesData);
+                setSegments(segmentsData.segments || []);
+
             } catch (err: any) {
                 console.error(err.message || 'An unexpected error occurred.');
             } finally {
@@ -42,8 +59,25 @@ export default function Dashboard() {
             }
         };
 
-        fetchProfiles();
+        fetchData();
     }, []);
+    
+    const accuracyScore = useMemo(() => {
+        const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0);
+        if (feedbackGiven.length === 0) return null;
+
+        const accurateCount = feedbackGiven.filter(p => p.accuracyFeedback === 1).length;
+        return (accurateCount / feedbackGiven.length) * 100;
+    }, [profiles]);
+
+    const averageROI = useMemo(() => {
+        const segmentsWithRoi = segments.filter(s => typeof s.actualROI === 'number');
+        if (segmentsWithRoi.length === 0) return null;
+
+        const totalRoi = segmentsWithRoi.reduce((acc, s) => acc + s.actualROI!, 0);
+        return totalRoi / segmentsWithRoi.length;
+    }, [segments]);
+
 
     const WelcomeCard = () => (
          <Card className="bg-gradient-to-br from-primary/10 to-transparent">
@@ -55,6 +89,21 @@ export default function Dashboard() {
                     Ready to uncover the cultural drivers behind your customer behavior?
                 </CardDescription>
             </CardHeader>
+        </Card>
+    );
+    
+    const KpiCard = ({ title, value, unit, icon: Icon }: { title: string, value: number | null, unit: string, icon: React.ElementType }) => (
+        <Card>
+            <CardHeader>
+                <CardDescription className="flex items-center gap-2"><Icon className="h-4 w-4" />{title}</CardDescription>
+            </CardHeader>
+            <CardContent>
+                 {value !== null ? (
+                     <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
+                ) : (
+                    <p className="text-sm text-muted-foreground">No data yet</p>
+                )}
+            </CardContent>
         </Card>
     );
 
@@ -130,10 +179,27 @@ export default function Dashboard() {
         
         {loading ? (
             <LoadingState />
-        ) : profiles.length === 0 ? (
-            <OnboardingCard />
         ) : (
-            <NextStepsCard />
+            <>
+                {profiles.length > 0 && (
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Performance Overview</CardTitle>
+                             <CardDescription>High-level metrics on AI accuracy and campaign performance.</CardDescription>
+                        </CardHeader>
+                        <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                             <KpiCard title="Cultural DNA Accuracy" value={accuracyScore} unit="%" icon={Target} />
+                             <KpiCard title="Avg. Campaign ROI" value={averageROI} unit="%" icon={Percent} />
+                        </CardContent>
+                    </Card>
+                )}
+
+                {profiles.length === 0 ? (
+                    <OnboardingCard />
+                ) : (
+                    <NextStepsCard />
+                )}
+            </>
         )}
       </main>
   );
