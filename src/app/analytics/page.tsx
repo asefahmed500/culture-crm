@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, History, MessageCircle } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Users, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -291,3 +291,5 @@ export default function AnalyticsPage() {
         </AppShell>
     );
 }
+
+    
