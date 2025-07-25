@@ -52,7 +52,7 @@ export default function LandingPage() {
             Stop Guessing. Understand the <span className="text-primary">Why</span> Behind the Buy.
           </h1>
           <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
-            Your CRM is stuck in the 1950s. Go beyond outdated demographics and enrich your customer data with cultural intelligence, powered by Qloo's Taste AI™ and Gemini.
+            Your CRM is stuck in the 1950s. While 76% of consumers get frustrated by impersonal experiences, most CRMs still use outdated demographics. It's time to go deeper.
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button asChild size="lg">
@@ -72,7 +72,7 @@ export default function LandingPage() {
                   <div className="inline-block rounded-lg bg-primary/10 px-3 py-1 text-sm text-primary">The Problem</div>
                   <h2 className="text-3xl font-bold tracking-tighter sm:text-5xl">You're Marketing in the Dark</h2>
                   <p className="max-w-[600px] text-muted-foreground md:text-xl/relaxed lg:text-base/relaxed xl:text-xl/relaxed">
-                    95% of new products fail because they target the wrong market. Most CRMs segment by age and location—data that tells you *who* your customers are, but not *why* they buy. In an era where 76% of consumers get frustrated by impersonal experiences, this isn't just outdated—it's costing you revenue.
+                    95% of new consumer products fail, often due to a failure to understand consumer needs. Most CRMs segment by age, location, and income—demographic models based on 1950s thinking. This tells you *who* is buying, but not *why*. An insight like <strong className="text-foreground">"Eco-conscious indie enthusiasts"</strong> is far more actionable and predictive than <strong className="text-foreground">"25-35 year olds in NYC."</strong>
                   </p>
                 </div>
               </div>
@@ -80,7 +80,7 @@ export default function LandingPage() {
                 src="https://placehold.co/600x400.png"
                 width={600}
                 height={400}
-                alt="Frustrated user"
+                alt="Frustrated user with generic ads"
                 className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
                 data-ai-hint="data charts graphs"
               />

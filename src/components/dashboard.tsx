@@ -12,9 +12,8 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useMemo } from 'react';
-import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent, CheckCircle, XCircle } from 'lucide-react';
+import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
-import { Separator } from './ui/separator';
 
 interface ICustomerProfile {
     _id: string;
