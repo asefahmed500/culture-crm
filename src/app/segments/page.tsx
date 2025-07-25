@@ -186,7 +186,7 @@ export default function SegmentsPage() {
                                                     {segment.lovedProductCategories.map((cat, idx) => <Badge key={idx} variant="secondary">{cat}</Badge>)}
                                                 </div>
                                             </div>
-                                             {segment.actualROI && (
+                                             {segment.actualROI !== undefined && segment.actualROI !== null && (
                                                 <>
                                                     <Separator />
                                                     <div>
@@ -223,7 +223,7 @@ export default function SegmentsPage() {
                                                                 type="number" 
                                                                 className="col-span-3"
                                                                 value={actualROI}
-                                                                onChange={(e) => setActualROI(Number(e.target.value))}
+                                                                onChange={(e) => setActualROI(e.target.value === '' ? '' : Number(e.target.value))}
                                                             />
                                                         </div>
                                                     </div>

@@ -62,7 +62,7 @@ export default function Dashboard() {
     }, []);
     
     const accuracyScore = useMemo(() => {
-        const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0);
+        const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0 && p.accuracyFeedback !== undefined && p.accuracyFeedback !== null);
         if (feedbackGiven.length === 0) return null;
 
         const accurateCount = feedbackGiven.filter(p => p.accuracyFeedback === 1).length;
