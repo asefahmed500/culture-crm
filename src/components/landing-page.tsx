@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Package, BarChart, Users, Filter } from 'lucide-react';
+import { Package, BarChart, Users, Filter, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -12,7 +12,7 @@ export default function LandingPage() {
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-14 items-center">
           <Link href="/" className="mr-6 flex items-center space-x-2">
-            <Package className="h-6 w-6 text-primary" />
+            <Zap className="h-6 w-6 text-primary" />
             <span className="font-bold">Cultural CRM</span>
           </Link>
           <nav className="hidden flex-1 items-center justify-center space-x-6 text-sm font-medium md:flex">
@@ -29,7 +29,10 @@ export default function LandingPage() {
               How It Works
             </Link>
           </nav>
-          <div className="flex flex-1 items-center justify-end space-x-4">
+          <div className="flex flex-1 items-center justify-end space-x-2">
+             <Button asChild variant="ghost">
+                <Link href="/login">Login</Link>
+            </Button>
             <Button asChild>
               <Link href="/signup">Sign Up</Link>
             </Button>
@@ -39,15 +42,15 @@ export default function LandingPage() {
 
       <main className="flex-1">
         <section className="container py-12 text-center md:py-24 lg:py-32">
-          <h1 className="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl">
+          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl md:text-6xl lg:text-7xl">
             Understand the <span className="text-primary">Why</span> Behind the Buy
           </h1>
           <p className="mx-auto mt-4 max-w-[700px] text-muted-foreground md:text-xl">
-            Go beyond demographics. Our Cultural Intelligence CRM enriches your data to reveal the cultural drivers behind customer behavior.
+            Go beyond demographics. Our Cultural Intelligence CRM enriches your data to reveal the cultural drivers behind customer behavior, powered by Qloo's Taste AI™ and Gemini.
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button asChild size="lg">
-              <Link href="/login">Get Started</Link>
+              <Link href="/signup">Get Started Free</Link>
             </Button>
             <Button asChild variant="outline" size="lg">
               <Link href="#how-it-works">Learn More</Link>
@@ -108,7 +111,7 @@ export default function LandingPage() {
                   <div className="grid gap-1">
                     <h3 className="text-xl font-bold">2. AI-Powered Analysis</h3>
                     <p className="text-muted-foreground">
-                      Our AI engine analyzes behavioral patterns to build a detailed Cultural DNA profile for each customer segment.
+                      We query the Qloo API to get cultural correlation data, then use an LLM to analyze the results and build a detailed Cultural DNA profile for each customer.
                     </p>
                   </div>
                 </li>
@@ -137,11 +140,14 @@ export default function LandingPage() {
       <footer className="border-t">
         <div className="container flex flex-col items-center justify-between gap-4 py-10 md:h-24 md:flex-row md:py-0">
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
-            <Package className="h-6 w-6 text-primary" />
+            <Zap className="h-6 w-6 text-primary" />
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              Built by Your Company. All rights reserved.
+              A Qloo LLM Hackathon Project. All rights reserved.
             </p>
           </div>
+           <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
+              Code available on GitHub.
+            </p>
         </div>
       </footer>
     </div>

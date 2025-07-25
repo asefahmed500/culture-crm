@@ -6,13 +6,14 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import LandingPage from '@/components/landing-page';
 import Dashboard from '@/components/dashboard';
+import AppShell from '@/components/app-shell';
 
 export default function Home() {
   const { data: session, status } = useSession();
   const router = useRouter();
 
   useEffect(() => {
-    // This will be handled by AppShell now, but as a fallback
+    // Redirect authenticated users to the dashboard if they land on the root page
     if (status === 'authenticated') {
       router.replace('/dashboard');
     }
@@ -26,10 +27,16 @@ export default function Home() {
     );
   }
 
+  // If the user is authenticated, we redirect them via useEffect.
+  // We can show a loader or the dashboard as a fallback.
   if (status === 'authenticated') {
-    // This will redirect, but as a fallback render the dashboard
-    return <Dashboard />;
+     return (
+        <AppShell>
+            <Dashboard />
+        </AppShell>
+    );
   }
 
+  // If unauthenticated, show the landing page.
   return <LandingPage />;
 }

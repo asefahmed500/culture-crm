@@ -15,6 +15,8 @@ import { useToast } from "@/hooks/use-toast";
 import { signIn } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Zap } from "lucide-react";
+
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -43,6 +45,10 @@ export default function SignupPage() {
         });
 
         if (res.ok) {
+            toast({
+                title: "Account Created",
+                description: "You can now log in with your credentials.",
+            });
             router.push("/login");
         } else {
             const data = await res.json();
@@ -66,7 +72,11 @@ export default function SignupPage() {
     };
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-background">
+        <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
+             <div className="flex items-center gap-2 mb-8">
+                 <Zap className="h-8 w-8 text-primary" />
+                 <h1 className="text-2xl font-bold">Cultural CRM</h1>
+            </div>
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-xl">Sign Up</CardTitle>
@@ -86,7 +96,7 @@ export default function SignupPage() {
                                 <span className="w-full border-t" />
                             </div>
                             <div className="relative flex justify-center text-xs uppercase">
-                                <span className="bg-background px-2 text-muted-foreground">
+                                <span className="bg-card px-2 text-muted-foreground">
                                     Or continue with
                                 </span>
                             </div>
