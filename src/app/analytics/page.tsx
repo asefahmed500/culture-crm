@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                            <Card className="lg:col-span-1">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><BarChart className="h-5 w-5" /> Key Patterns</CardTitle>
+                                    <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Key Patterns</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-3 list-disc list-inside text-muted-foreground">
@@ -254,12 +254,12 @@ export default function AnalyticsPage() {
                         </div>
                         
                         <div>
-                             <h2 className="text-2xl font-bold tracking-tight mb-4">Predictions</h2>
+                             <h2 className="text-2xl font-bold tracking-tight mb-4">Predictive Cultural Journey Mapping</h2>
                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                                 <PredictionCard title="Upsell Opportunity" icon={ArrowUpRight} prediction={insights.predictions.upsellOpportunity} />
                                 <PredictionCard title="Brand Advocacy" icon={Star} prediction={insights.predictions.brandAdvocacy} />
                                 <PredictionCard title="Purchase Likelihood" icon={Users} prediction={insights.predictions.purchaseLikelihood} />
-                                <PredictionCard title="Churn Risk" icon={HeartCrack} prediction={insights.predictions.churnRisk} />
+                                <PredictionCard title="Cultural Churn Risk" icon={HeartCrack} prediction={insights.predictions.churnRisk} />
                             </div>
                         </div>
 
