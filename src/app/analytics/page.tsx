@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity, AlertTriangle } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity, AlertTriangle, BrainCircuit } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -184,7 +184,7 @@ export default function AnalyticsPage() {
 
                         <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
                             <CardHeader>
-                                <CardTitle className="text-3xl font-bold flex items-center gap-3"><MessageCircle className="h-8 w-8"/> AI-Generated Cultural Shift Story</CardTitle>
+                                <CardTitle className="text-3xl font-bold flex items-center gap-3"><BrainCircuit className="h-8 w-8 text-primary"/> AI-Generated Cultural Shift Story</CardTitle>
                                 <CardDescription className="text-lg">{insights.culturalShiftStory.title}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">

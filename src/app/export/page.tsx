@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot } from 'lucide-react';
+import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot, Mic } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
@@ -283,13 +283,20 @@ export default function ExportPage() {
                         <Separator />
                         
                         <div className="mt-6">
-                            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Bot /> AI Strategy Co-pilot</h3>
+                            <h3 className="text-lg font-semibold mb-2 flex items-center gap-2"><Bot /> AI Strategy Co-pilot <span className="text-xs font-normal text-muted-foreground">(Powered by Cultura™)</span></h3>
                              <div className="space-y-4">
-                                <Textarea 
-                                    placeholder="Ask a question about your customers... e.g., 'What music do my high-value customers like?' or 'Why do my eco-conscious customers prefer email?'"
-                                    value={coPilotQuery}
-                                    onChange={(e) => setCoPilotQuery(e.target.value)}
-                                />
+                                <div className="relative">
+                                    <Textarea 
+                                        placeholder="Ask a question... e.g., 'What music do my high-value customers like?' or 'How do I create a campaign for the Globetrotting Foodies segment?'"
+                                        value={coPilotQuery}
+                                        onChange={(e) => setCoPilotQuery(e.target.value)}
+                                        className="pr-10"
+                                    />
+                                    <Button size="icon" variant="ghost" className="absolute right-2 top-1/2 -translate-y-1/2 h-7 w-7 text-muted-foreground" disabled>
+                                        <Mic className="h-4 w-4" />
+                                        <span className="sr-only">Use Voice</span>
+                                    </Button>
+                                </div>
                                 <Button onClick={handleCoPilotQuery} disabled={isCoPilotLoading}>
                                     {isCoPilotLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                                     Get Insight
@@ -317,7 +324,7 @@ export default function ExportPage() {
                 {coPilotResponse && (
                     <Card>
                         <CardHeader>
-                            <CardTitle>Co-pilot Response</CardTitle>
+                            <CardTitle>Cultura's Response</CardTitle>
                         </CardHeader>
                         <CardContent>
                              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
