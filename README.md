@@ -4,11 +4,21 @@ A web-based Customer Relationship Management system that enriches traditional cu
 
 This project was built for the Qloo LLM Hackathon.
 
+## The Problem: Marketing in the Dark
+
+- **95% of new consumer products fail**, often due to a failure to understand consumer needs and targeting the wrong market.
+- **Most CRMs still segment by age, location, and income**—demographic models based on 1950s thinking. This tells you *who* is buying, but not *why*.
+- **76% of consumers get frustrated** when they don't receive personalized interactions.
+
+## The Solution: Understand the "Why" Behind the Buy
+
+Our Cultural Intelligence CRM platform moves beyond outdated demographics to reveal the cultural drivers behind customer behavior. An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and predictive than **"25-35 year olds in NYC."**
+
 ## Core Features
 
 - **Customer Data Import**: Upload anonymized customer data via CSV. The system processes, cleans, and standardizes the data for analysis.
 - **Cultural DNA Generation (Qloo + LLM)**: Leverages the Qloo API to fetch cultural affinity data based on customer purchase history and interests. An LLM then analyzes this data to generate a rich "Cultural DNA" profile for each customer, including surprising connections.
-- **Customer Profile Explorer**: View a list of all processed customer profiles, each enriched with their unique Cultural DNA.
+- **Customer Profile Explorer**: View a list of all processed customer profiles, each enriched with their unique Cultural DNA. Features an interactive visualization and accuracy feedback mechanism.
 - **AI-Powered Segmentation**: Automatically group customers into 8-12 distinct cultural segments based on their shared affinities. Each segment is presented as a detailed persona card, ranked by business opportunity.
 - **Predictive Analytics Dashboard**: Generate a real-time report that analyzes all customer profiles to identify market trends, make predictions, and uncover opportunities. Features the "Cultural Shift Story Generator" which crafts a narrative around the most significant trend.
 - **Actionable Strategy Generation**:

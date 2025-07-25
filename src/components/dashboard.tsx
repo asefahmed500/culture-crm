@@ -86,7 +86,7 @@ export default function Dashboard() {
                     Welcome back, {session?.user?.name?.split(' ')[0] || 'User'}!
                 </CardTitle>
                 <CardDescription>
-                    Ready to uncover the cultural drivers behind your customer behavior?
+                    Ready to stop guessing and start understanding the cultural drivers behind your customer behavior?
                 </CardDescription>
             </CardHeader>
         </Card>
@@ -110,9 +110,9 @@ export default function Dashboard() {
     const OnboardingCard = () => (
         <Card>
             <CardHeader>
-                <CardTitle className="flex items-center gap-2"><Upload className="text-primary"/> Get Started: Import Your First Batch of Customers</CardTitle>
+                <CardTitle className="flex items-center gap-2"><Upload className="text-primary"/> Get Started: Import Your Anonymized Customer Data</CardTitle>
                 <CardDescription>
-                    The first step to unlocking cultural intelligence is to import your anonymized customer data. Upload a CSV file to begin the analysis.
+                    Stop marketing with outdated demographics. The first step to unlocking real cultural intelligence is to import your anonymized customer data. Upload a CSV file to begin the analysis.
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -128,7 +128,7 @@ export default function Dashboard() {
              <CardHeader>
                 <div className="flex justify-between items-start">
                     <div>
-                        <CardTitle>Your Customer Base</CardTitle>
+                        <CardTitle>Your Customer Base at a Glance</CardTitle>
                         <CardDescription>You have successfully imported {profiles.length} customer profiles.</CardDescription>
                     </div>
                      <div className="flex items-center gap-2 text-primary font-bold">
@@ -138,7 +138,7 @@ export default function Dashboard() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p className="text-muted-foreground">Now you're ready to dive deeper. What would you like to do next?</p>
+                <p className="text-muted-foreground">Now you're ready to dive deeper. Generate cultural segments or analyze market trends.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <Button onClick={() => router.push('/segments')} className="flex-1">
                         <Milestone className="mr-2 h-4 w-4"/>
@@ -146,7 +146,7 @@ export default function Dashboard() {
                     </Button>
                      <Button onClick={() => router.push('/analytics')} variant="secondary" className="flex-1">
                         <LineChart className="mr-2 h-4 w-4"/>
-                        Analyze Trends & Analytics
+                        Analyze Market-Wide Trends
                     </Button>
                 </div>
             </CardContent>

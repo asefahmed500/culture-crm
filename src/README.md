@@ -4,6 +4,16 @@ A web-based Customer Relationship Management system that enriches traditional cu
 
 This project was built for the Qloo LLM Hackathon.
 
+## The Problem: Marketing in the Dark
+
+- **95% of new consumer products fail**, often due to a failure to understand consumer needs and targeting the wrong market.
+- **Most CRMs still segment by age, location, and income**—demographic models based on 1950s thinking. This tells you *who* is buying, but not *why*.
+- **76% of consumers get frustrated** when they don't receive personalized interactions.
+
+## The Solution: Understand the "Why" Behind the Buy
+
+Our Cultural Intelligence CRM platform moves beyond outdated demographics to reveal the cultural drivers behind customer behavior. An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and predictive than **"25-35 year olds in NYC."**
+
 ## Core Features
 
 - **Customer Data Import**: Upload anonymized customer data via CSV. The system processes, cleans, and standardizes the data for analysis.
