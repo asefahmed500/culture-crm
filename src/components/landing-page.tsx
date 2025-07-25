@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Package, BarChart, Users, Filter, Zap } from 'lucide-react';
+import { BarChart, Filter, Zap, Users } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -34,7 +34,7 @@ export default function LandingPage() {
                 <Link href="/login">Login</Link>
             </Button>
             <Button asChild>
-              <Link href="/signup">Sign Up</Link>
+              <Link href="/signup">Get Started</Link>
             </Button>
           </div>
         </div>
@@ -142,11 +142,11 @@ export default function LandingPage() {
           <div className="flex flex-col items-center gap-4 px-8 md:flex-row md:gap-2 md:px-0">
             <Zap className="h-6 w-6 text-primary" />
             <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              A Qloo LLM Hackathon Project. All rights reserved.
+             © {new Date().getFullYear()} Cultural CRM. A Qloo LLM Hackathon Project.
             </p>
           </div>
            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              Code available on GitHub.
+              Built with Next.js, Gemini, and Qloo.
             </p>
         </div>
       </footer>

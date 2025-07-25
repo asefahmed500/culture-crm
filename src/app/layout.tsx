@@ -4,10 +4,13 @@ import './globals.css';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { Toaster } from '@/components/ui/toaster';
 import Providers from './providers';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'NextGen Starter',
-  description: 'A Next.js starter with Shadcn UI and MongoDB.',
+  title: 'Cultural Intelligence CRM',
+  description: 'A CRM that enriches customer data with cultural intelligence, powered by Qloo and Gemini.',
 };
 
 export default function RootLayout({
@@ -17,12 +20,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet" />
-      </head>
-      <body className="font-body antialiased">
+      <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
           <SidebarProvider>
             {children}

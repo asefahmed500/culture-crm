@@ -17,6 +17,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Separator } from "@/components/ui/separator";
 import { Zap } from "lucide-react";
+import Link from "next/link";
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" width="24px" height="24px" {...props}>
@@ -65,10 +66,10 @@ export default function LoginPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-            <div className="flex items-center gap-2 mb-8">
+             <Link href="/" className="flex items-center gap-2 mb-8">
                  <Zap className="h-8 w-8 text-primary" />
                  <h1 className="text-2xl font-bold">Cultural CRM</h1>
-            </div>
+            </Link>
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-2xl">Login</CardTitle>
@@ -123,13 +124,12 @@ export default function LoginPage() {
                     </div>
                     <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}
-                        <button onClick={() => router.push("/signup")} className="underline">
+                        <Link href="/signup" className="underline">
                             Sign up
-                        </button>
+                        </Link>
                     </div>
                 </CardContent>
             </Card>
         </div>
     );
 }
-

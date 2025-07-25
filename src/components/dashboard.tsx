@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -88,7 +89,7 @@ export default function Dashboard() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p>Now you're ready to dive deeper. What would you like to do next?</p>
+                <p className="text-muted-foreground">Now you're ready to dive deeper. What would you like to do next?</p>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <Button onClick={() => router.push('/segments')} className="flex-1">
                         <Milestone className="mr-2 h-4 w-4"/>
@@ -113,7 +114,7 @@ export default function Dashboard() {
             </Card>
              <Card>
                 <CardHeader>
-                    <Skeleton className="h-7 w-1/3" />
+                    <Skeleton className="h-7 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-full" />
                 </CardHeader>
                 <CardContent>

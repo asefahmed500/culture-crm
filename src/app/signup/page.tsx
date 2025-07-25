@@ -16,6 +16,7 @@ import { signIn } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Zap } from "lucide-react";
+import Link from "next/link";
 
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -73,10 +74,10 @@ export default function SignupPage() {
 
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-background p-4">
-             <div className="flex items-center gap-2 mb-8">
+             <Link href="/" className="flex items-center gap-2 mb-8">
                  <Zap className="h-8 w-8 text-primary" />
                  <h1 className="text-2xl font-bold">Cultural CRM</h1>
-            </div>
+            </Link>
             <Card className="w-full max-w-sm">
                 <CardHeader>
                     <CardTitle className="text-xl">Sign Up</CardTitle>
@@ -140,9 +141,9 @@ export default function SignupPage() {
                     </div>
                     <div className="mt-4 text-center text-sm">
                         Already have an account?{" "}
-                        <button onClick={() => router.push("/login")} className="underline">
+                        <Link href="/login" className="underline">
                             Sign in
-                        </button>
+                        </Link>
                     </div>
                 </CardContent>
             </Card>
