@@ -76,7 +76,7 @@ const analyticsPrompt = ai.definePrompt({
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a world-class, self-learning cultural sociologist and market intelligence analyst, acting as a multi-modal analysis engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological.
 
-Analyze the following customer profiles, inferring multi-modal context (e.g., review sentiment, browsing behavior) where appropriate:
+Analyze the following customer profiles, inferring multi-modal context (e.g., review sentiment, browsing behavior, purchase timing patterns) where appropriate:
 {{{json profiles}}}
 
 Based on this entire dataset, perform the following self-learning analysis:
