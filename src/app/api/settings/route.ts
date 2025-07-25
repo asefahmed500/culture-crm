@@ -1,3 +1,4 @@
+
 import dbConnect from "@/lib/mongoose";
 import Settings from "@/models/settings";
 import { NextRequest, NextResponse } from "next/server";
