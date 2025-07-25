@@ -18,6 +18,7 @@ export interface ICustomerProfile extends Document {
   purchaseCategories: string[];
   interactionFrequency: string;
   culturalDNA?: ICulturalDNA;
+  accuracyFeedback: number; // -1: inaccurate, 0: no feedback, 1: accurate
   createdAt: Date;
   updatedAt: Date;
 }
@@ -58,6 +59,7 @@ const CustomerProfileSchema: Schema<ICustomerProfile> = new Schema({
   purchaseCategories: { type: [String], required: false },
   interactionFrequency: { type: String, required: false },
   culturalDNA: { type: CulturalDNASchema, required: false },
+  accuracyFeedback: { type: Number, enum: [-1, 0, 1], default: 0 },
 }, {
     timestamps: true // This will add createdAt and updatedAt fields
 });

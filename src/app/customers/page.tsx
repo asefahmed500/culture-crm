@@ -9,11 +9,10 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { BarChart, Wand2, Loader2, Rocket, Share2 } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
+import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer } from 'recharts';
 import type { ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -39,6 +38,7 @@ interface ICustomerProfile {
     purchaseCategories: string[];
     interactionFrequency: string;
     culturalDNA?: ICulturalDNA;
+    accuracyFeedback: number;
     createdAt: string;
 }
 
@@ -69,24 +69,24 @@ export default function CustomersPage() {
     const [strategy, setStrategy] = useState<GenerateCommunicationStrategyOutput | null>(null);
     const { toast } = useToast();
 
-    useEffect(() => {
-        const fetchProfiles = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const response = await fetch('/api/customer-profiles');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch data');
-                }
-                const data = await response.json();
-                setProfiles(data);
-            } catch (err: any) {
-                setError(err.message || 'An unexpected error occurred.');
-            } finally {
-                setLoading(false);
+    const fetchProfiles = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch('/api/customer-profiles');
+            if (!response.ok) {
+                throw new Error('Failed to fetch data');
             }
-        };
+            const data = await response.json();
+            setProfiles(data);
+        } catch (err: any) {
+            setError(err.message || 'An unexpected error occurred.');
+        } finally {
+            setLoading(false);
+        }
+    };
 
+    useEffect(() => {
         fetchProfiles();
     }, []);
 
@@ -121,6 +121,34 @@ export default function CustomersPage() {
             setIsGenerating(false);
         }
     };
+    
+     const handleFeedback = async (profileId: string, feedback: number) => {
+        try {
+            const response = await fetch(`/api/customer-profiles/${profileId}/feedback`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ feedback }),
+            });
+            if (!response.ok) throw new Error('Failed to submit feedback');
+            
+            // Optimistically update UI
+            setProfiles(prevProfiles =>
+                prevProfiles.map(p =>
+                    p._id === profileId ? { ...p, accuracyFeedback: feedback } : p
+                )
+            );
+            toast({
+                title: 'Feedback Submitted',
+                description: 'Thank you for helping us improve!',
+            });
+        } catch (err) {
+            toast({
+                title: 'Error',
+                description: 'Could not submit feedback.',
+                variant: 'destructive',
+            });
+        }
+    };
 
     const renderSkeletons = () => (
         Array.from({ length: 5 }).map((_, index) => (
@@ -135,18 +163,6 @@ export default function CustomersPage() {
             </TableRow>
         ))
     );
-    
-    const getTopCategory = (dna: ICulturalDNA) => {
-        const categories: Record<string, number> = {
-            Music: dna.music.score,
-            Entertainment: dna.entertainment.score,
-            Dining: dna.dining.score,
-            Fashion: dna.fashion.score,
-            Travel: dna.travel.score,
-            'Social Causes': dna.socialCauses.score,
-        };
-        return Object.entries(categories).reduce((a, b) => a[1] > b[1] ? a : b, ['', -1]);
-    };
     
     return (
         <AppShell>
@@ -181,7 +197,6 @@ export default function CustomersPage() {
                                 {loading ? renderSkeletons() : (
                                     profiles.length > 0 ? (
                                         profiles.map(profile => {
-                                            const [topCategory, topScore] = profile.culturalDNA ? getTopCategory(profile.culturalDNA) : ['N/A', 0];
                                             const radarChartData = profile.culturalDNA ? getRadarChartData(profile.culturalDNA) : [];
                                             const allPreferences = profile.culturalDNA ? [
                                                 ...profile.culturalDNA.music.preferences.map(p => ({ category: 'Music', preference: p })),
@@ -244,28 +259,53 @@ export default function CustomersPage() {
                                                                                 </ChartContainer>
                                                                             </CardContent>
                                                                         </Card>
-                                                                        <Card>
-                                                                            <CardHeader>
-                                                                                <CardTitle>Preferences & Connections</CardTitle>
-                                                                            </CardHeader>
-                                                                            <CardContent className="space-y-4">
-                                                                                 <div>
-                                                                                    <h3 className="font-semibold text-sm mb-2">Top Preferences</h3>
-                                                                                    <div className="flex flex-wrap gap-2">
-                                                                                        {allPreferences.slice(0,15).map((pref, i) => (
-                                                                                            <Badge key={i} variant="secondary">{pref.preference}</Badge>
-                                                                                        ))}
+                                                                        <div className="flex flex-col gap-6">
+                                                                            <Card>
+                                                                                <CardHeader>
+                                                                                    <CardTitle>Preferences & Connections</CardTitle>
+                                                                                </CardHeader>
+                                                                                <CardContent className="space-y-4">
+                                                                                    <div>
+                                                                                        <h3 className="font-semibold text-sm mb-2">Top Preferences</h3>
+                                                                                        <div className="flex flex-wrap gap-2">
+                                                                                            {allPreferences.slice(0,15).map((pref, i) => (
+                                                                                                <Badge key={i} variant="secondary">{pref.preference}</Badge>
+                                                                                            ))}
+                                                                                        </div>
                                                                                     </div>
-                                                                                 </div>
-                                                                                 <Separator />
-                                                                                 <div>
-                                                                                    <h3 className="font-semibold text-sm mb-2">Surprising Connections</h3>
-                                                                                    <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
-                                                                                        {profile.culturalDNA.surpriseConnections.map((conn, i) => <li key={i}>{conn}</li>)}
-                                                                                    </ul>
-                                                                                </div>
-                                                                            </CardContent>
-                                                                        </Card>
+                                                                                    <Separator />
+                                                                                    <div>
+                                                                                        <h3 className="font-semibold text-sm mb-2">Surprising Connections</h3>
+                                                                                        <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
+                                                                                            {profile.culturalDNA.surpriseConnections.map((conn, i) => <li key={i}>{conn}</li>)}
+                                                                                        </ul>
+                                                                                    </div>
+                                                                                </CardContent>
+                                                                            </Card>
+                                                                             <Card>
+                                                                                <CardHeader>
+                                                                                    <CardTitle className="text-base">Was this profile accurate?</CardTitle>
+                                                                                </CardHeader>
+                                                                                 <CardContent className="flex items-center gap-4">
+                                                                                    <Button 
+                                                                                        size="sm" 
+                                                                                        variant={profile.accuracyFeedback === 1 ? 'default' : 'outline'}
+                                                                                        onClick={() => handleFeedback(profile._id, 1)}
+                                                                                    >
+                                                                                        <ThumbsUp className="mr-2 h-4 w-4"/> Accurate
+                                                                                    </Button>
+                                                                                     <Button 
+                                                                                        size="sm" 
+                                                                                        variant={profile.accuracyFeedback === -1 ? 'destructive' : 'outline'}
+                                                                                        onClick={() => handleFeedback(profile._id, -1)}
+                                                                                    >
+                                                                                        <ThumbsDown className="mr-2 h-4 w-4"/> Inaccurate
+                                                                                    </Button>
+                                                                                    {profile.accuracyFeedback === 1 && <CheckCircle className="h-5 w-5 text-green-500" />}
+                                                                                    {profile.accuracyFeedback === -1 && <XCircle className="h-5 w-5 text-red-500" />}
+                                                                                </CardContent>
+                                                                            </Card>
+                                                                        </div>
                                                                     </div>
                                                                 </DialogContent>
                                                             </Dialog>
@@ -376,5 +416,3 @@ export default function CustomersPage() {
         </AppShell>
     );
 }
-
-    

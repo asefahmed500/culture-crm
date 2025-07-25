@@ -2,6 +2,7 @@
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
 export interface ISegment extends Document {
+  _id: string;
   segmentName: string;
   segmentSize: number;
   averageCustomerValue: string;
@@ -12,6 +13,9 @@ export interface ISegment extends Document {
   sampleMessaging: string;
   potentialLifetimeValue: string;
   businessOpportunityRank: number;
+  biasWarning?: string;
+  actualROI?: number;
+  comparisonROI?: number;
 }
 
 const SegmentSchema: Schema<ISegment> = new Schema({
@@ -25,6 +29,9 @@ const SegmentSchema: Schema<ISegment> = new Schema({
   sampleMessaging: { type: String, required: true },
   potentialLifetimeValue: { type: String, required: true },
   businessOpportunityRank: { type: Number, required: true },
+  biasWarning: { type: String, required: false },
+  actualROI: { type: Number, required: false },
+  comparisonROI: { type: Number, required: false },
 }, {
     timestamps: true
 });

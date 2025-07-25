@@ -6,34 +6,45 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, FileText, RefreshCw } from 'lucide-react';
+import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, RefreshCw, AlertTriangle, AreaChart } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger } from '@/components/ui/dialog';
 import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { ISegment } from '@/models/segment';
+import { useToast } from '@/hooks/use-toast';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 export default function SegmentsPage() {
     const [loading, setLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<GenerateCustomerSegmentsOutput | null>(null);
-    
-    useEffect(() => {
-        async function fetchSegments() {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await fetch('/api/customer-segments');
-                if (!response.ok) {
-                    throw new Error('Failed to fetch existing segments');
-                }
-                const data = await response.json();
-                setResult(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
+    const [selectedSegment, setSelectedSegment] = useState<ISegment | null>(null);
+    const [isSavingPerformance, setIsSavingPerformance] = useState(false);
+    const [actualROI, setActualROI] = useState<number | ''>('');
+    const { toast } = useToast();
+
+    async function fetchSegments() {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/customer-segments');
+            if (!response.ok) {
+                const err = await response.json();
+                throw new Error(err.message || 'Failed to fetch existing segments');
             }
+            const data = await response.json();
+            setResult(data);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
+    }
+
+    useEffect(() => {
         fetchSegments();
     }, []);
 
@@ -53,6 +64,37 @@ export default function SegmentsPage() {
             setError(err.message);
         } finally {
             setIsGenerating(false);
+        }
+    };
+    
+    const handleSavePerformance = async () => {
+        if (!selectedSegment || actualROI === '') return;
+        setIsSavingPerformance(true);
+        try {
+            const response = await fetch(`/api/customer-segments/${selectedSegment._id}/performance`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ actualROI }),
+            });
+            if (!response.ok) throw new Error('Failed to save performance');
+            
+            toast({
+                title: 'Success',
+                description: 'Campaign performance saved.',
+            });
+            // Refetch segments to show updated data
+            await fetchSegments();
+            setSelectedSegment(null); // Close dialog
+            setActualROI('');
+
+        } catch (error) {
+             toast({
+                title: 'Error',
+                description: 'Could not save performance data.',
+                variant: 'destructive',
+            });
+        } finally {
+            setIsSavingPerformance(false);
         }
     };
     
@@ -109,7 +151,7 @@ export default function SegmentsPage() {
                         <div>
                              <h2 className="text-2xl font-bold tracking-tight mb-4">Cultural Segments Overview</h2>
                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                                {result.segments.map((segment, i) => (
+                                {result.segments.map((segment: ISegment, i) => (
                                     <Card key={i} className="flex flex-col">
                                         <CardHeader>
                                             <div className="flex justify-between items-start">
@@ -122,6 +164,13 @@ export default function SegmentsPage() {
                                             <CardDescription>
                                                 <span className="font-semibold">LTV:</span> {segment.potentialLifetimeValue} | <span className="font-semibold">Value:</span> {segment.averageCustomerValue} | <span className="font-semibold">Size:</span> {segment.segmentSize} users
                                             </CardDescription>
+                                             {segment.biasWarning && (
+                                                <Alert variant="destructive" className="mt-2 text-xs p-2">
+                                                    <AlertTriangle className="h-4 w-4" />
+                                                    <AlertTitle className="font-semibold">Potential Bias</AlertTitle>
+                                                    <AlertDescription>{segment.biasWarning}</AlertDescription>
+                                                </Alert>
+                                            )}
                                         </CardHeader>
                                         <CardContent className="space-y-4 flex-grow">
                                             <div>
@@ -137,11 +186,53 @@ export default function SegmentsPage() {
                                                     {segment.lovedProductCategories.map((cat, idx) => <Badge key={idx} variant="secondary">{cat}</Badge>)}
                                                 </div>
                                             </div>
+                                             {segment.actualROI && (
+                                                <>
+                                                    <Separator />
+                                                    <div>
+                                                        <h4 className="font-semibold mb-2 text-sm flex items-center gap-2"><AreaChart className="h-4 w-4" /> Actual ROI</h4>
+                                                        <p className="text-2xl font-bold text-green-600">{segment.actualROI}%</p>
+                                                    </div>
+                                                </>
+                                            )}
                                             <Separator />
                                             <div>
                                                 <h4 className="font-semibold mb-2 text-sm flex items-center gap-2"><MessageSquare className="h-4 w-4" /> Sample Messaging</h4>
                                                 <p className="text-xs text-muted-foreground italic">"{segment.sampleMessaging}"</p>
                                             </div>
+                                        </CardContent>
+                                        <CardContent>
+                                             <Dialog onOpenChange={(open) => !open && setSelectedSegment(null)}>
+                                                <DialogTrigger asChild>
+                                                    <Button variant="outline" className="w-full" onClick={() => setSelectedSegment(segment)}>
+                                                        Track Performance
+                                                    </Button>
+                                                </DialogTrigger>
+                                                <DialogContent>
+                                                    <DialogHeader>
+                                                        <DialogTitle>Track Campaign Performance</DialogTitle>
+                                                        <DialogDescription>
+                                                            Enter the actual ROI from a campaign that targeted the "{selectedSegment?.segmentName}" segment.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="grid gap-4 py-4">
+                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                            <Label htmlFor="roi" className="text-right">Actual ROI (%)</Label>
+                                                            <Input 
+                                                                id="roi" 
+                                                                type="number" 
+                                                                className="col-span-3"
+                                                                value={actualROI}
+                                                                onChange={(e) => setActualROI(Number(e.target.value))}
+                                                            />
+                                                        </div>
+                                                    </div>
+                                                    <Button onClick={handleSavePerformance} disabled={isSavingPerformance}>
+                                                        {isSavingPerformance && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                        Save Performance
+                                                    </Button>
+                                                </DialogContent>
+                                            </Dialog>
                                         </CardContent>
                                     </Card>
                                 ))}
