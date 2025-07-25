@@ -320,15 +320,15 @@ export default function ExportPage() {
                                     <CardDescription>{campaignBrief.projectedImpact.justification}</CardDescription>
                                 </CardHeader>
                                 <CardContent className='grid grid-cols-3 gap-4'>
-                                    <div className='text-center p-4 border rounded-lg'>
+                                    <div className='text-center p-4 border rounded-lg bg-green-500/10'>
                                         <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.conversionLift}</p>
                                         <p className='text-sm text-muted-foreground'>Conversion Lift</p>
                                     </div>
-                                    <div className='text-center p-4 border rounded-lg'>
+                                    <div className='text-center p-4 border rounded-lg bg-green-500/10'>
                                         <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.cpaReduction}</p>
                                         <p className='text-sm text-muted-foreground'>CPA Reduction</p>
                                     </div>
-                                     <div className='text-center p-4 border rounded-lg'>
+                                     <div className='text-center p-4 border rounded-lg bg-green-500/10'>
                                         <p className='text-3xl font-bold text-green-600'>{campaignBrief.projectedImpact.ltvIncrease}</p>
                                         <p className='text-sm text-muted-foreground'>LTV Increase</p>
                                     </div>
