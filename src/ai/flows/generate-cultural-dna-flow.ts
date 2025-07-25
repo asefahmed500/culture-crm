@@ -49,7 +49,7 @@ const GenerateCulturalDnaOutputSchema = z.object({
     score: z.number().describe('A score from 0-100 indicating affinity for this category.'),
     preferences: z.array(z.string()).describe('Specific causes or values they might support.'),
   }),
-  surpriseConnections: z.array(z.string()).describe("Identify 2-3 surprising or non-obvious connections between the user's preferences."),
+  surpriseConnections: z.array(z.string()).describe("Identify 2-3 surprising, non-obvious, or counter-intuitive connections between the user's preferences that a human might miss. This is a key feature of the self-learning AI."),
   confidenceScore: z.number().describe('A score from 0-100 indicating the confidence in these predictions.'),
 });
 export type GenerateCulturalDnaOutput = z.infer<typeof GenerateCulturalDnaOutputSchema>;
@@ -62,7 +62,7 @@ const culturalDnaPrompt = ai.definePrompt({
     name: 'culturalDnaPrompt',
     input: { schema: z.object({ qlooData: z.any(), behavioralData: GenerateCulturalDnaInputSchema }) },
     output: { schema: GenerateCulturalDnaOutputSchema },
-    prompt: `You are a multi-modal cultural intelligence expert. Your task is to analyze cultural correlation data from the Qloo API and synthesize it with behavioral data to create a rich "Cultural DNA" profile.
+    prompt: `You are a self-learning, multi-modal cultural intelligence expert. Your task is to analyze cultural correlation data from the Qloo API and synthesize it with behavioral data to create a rich "Cultural DNA" profile.
 
 Act as if you are analyzing multiple data sources simultaneously to get a holistic view of the customer.
 - **Qloo Correlation Data**: The primary source of truth for cultural tastes.
@@ -84,7 +84,7 @@ Original Behavioral Data:
 Based on this multi-modal analysis, perform the following actions:
 1.  **Organize Preferences**: Categorize the correlated items from the Qloo data into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes). Use the simulated data to add nuance (e.g., if purchases include 'vintage clothes' and reviews mention 'unique finds', the fashion preference is not just 'clothing' but 'vintage fashion').
 2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the number and strength of correlations found in the Qloo data, tempered by the behavioral and simulated data.
-3.  **Find Surprising Connections**: Based on all available data, identify 2-3 non-obvious connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.'
+3.  **Find Surprising Connections (Self-Learning Core Task)**: This is a critical demonstration of your self-learning ability. Analyze all available data to uncover 2-3 non-obvious, counter-intuitive, or surprising connections that a human analyst might easily miss. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.' or 'An interest in competitive baking shows seems to correlate with a preference for solo travel.'
 4.  **Provide a Confidence Score**: Rate your overall confidence in this generated profile on a scale of 0-100, based on the richness and consistency of the provided data.
 
 Generate the output in the specified JSON format.`,

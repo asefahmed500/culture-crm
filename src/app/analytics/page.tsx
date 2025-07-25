@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity } from 'lucide-react';
+import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity, AlertTriangle } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -141,7 +141,7 @@ export default function AnalyticsPage() {
                             <div>
                                 <CardTitle>Cultural Trend & Analytics Engine</CardTitle>
                                 <CardDescription>
-                                    Generate a real-time report by analyzing all customer profiles. This action processes the entire dataset to identify market trends, make predictions, and find opportunities.
+                                    Generate a real-time report by analyzing all customer profiles. This self-learning AI processes the entire dataset to discover patterns, detect anomalies, and find opportunities.
                                 </CardDescription>
                             </div>
                             <Button onClick={handleGenerateInsights} disabled={loading} size="lg">
@@ -175,16 +175,16 @@ export default function AnalyticsPage() {
                 {insights && (
                     <div className="mt-8 space-y-8">
                         {insights.dataShiftAlert && (
-                            <Alert variant="destructive">
-                                <Bell className="h-4 w-4" />
-                                <AlertTitle>Significant Data Shift Detected!</AlertTitle>
+                            <Alert variant="destructive" className="border-2 border-amber-500/50">
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Cultural Anomaly Detected!</AlertTitle>
                                 <AlertDescription>{insights.dataShiftAlert}</AlertDescription>
                             </Alert>
                         )}
 
                         <Card className="bg-gradient-to-br from-primary/10 to-transparent border-primary/20">
                             <CardHeader>
-                                <CardTitle className="text-3xl font-bold flex items-center gap-3"><MessageCircle className="h-8 w-8"/> Cultural Shift Story</CardTitle>
+                                <CardTitle className="text-3xl font-bold flex items-center gap-3"><MessageCircle className="h-8 w-8"/> AI-Generated Cultural Shift Story</CardTitle>
                                 <CardDescription className="text-lg">{insights.culturalShiftStory.title}</CardDescription>
                             </CardHeader>
                             <CardContent className="space-y-4">
@@ -215,7 +215,7 @@ export default function AnalyticsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                            <Card className="lg:col-span-1">
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Key Patterns</CardTitle>
+                                    <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Key Patterns Discovered</CardTitle>
                                 </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-3 list-disc list-inside text-muted-foreground">
