@@ -11,9 +11,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
-import { BarChart, Wand2, Loader2, Rocket } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket, Share2 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
-import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend } from 'recharts';
 import type { ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
@@ -48,6 +48,17 @@ const chartConfig = {
     color: "hsl(var(--primary))",
   },
 } satisfies ChartConfig
+
+const getRadarChartData = (dna: ICulturalDNA) => {
+    return [
+        { subject: 'Music', score: dna.music.score, fullMark: 100 },
+        { subject: 'Entertainment', score: dna.entertainment.score, fullMark: 100 },
+        { subject: 'Dining', score: dna.dining.score, fullMark: 100 },
+        { subject: 'Fashion', score: dna.fashion.score, fullMark: 100 },
+        { subject: 'Travel', score: dna.travel.score, fullMark: 100 },
+        { subject: 'Social Causes', score: dna.socialCauses.score, fullMark: 100 },
+    ];
+};
 
 export default function CustomersPage() {
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
@@ -137,17 +148,6 @@ export default function CustomersPage() {
         return Object.entries(categories).reduce((a, b) => a[1] > b[1] ? a : b, ['', -1]);
     };
     
-    const getChartData = (dna: ICulturalDNA) => {
-        return [
-            { category: 'Music', score: dna.music.score },
-            { category: 'Entertainment', score: dna.entertainment.score },
-            { category: 'Dining', score: dna.dining.score },
-            { category: 'Fashion', score: dna.fashion.score },
-            { category: 'Travel', score: dna.travel.score },
-            { category: 'Social Causes', score: dna.socialCauses.score },
-        ].sort((a, b) => b.score - a.score);
-    }
-
     return (
         <AppShell>
             <main className="flex-1 p-4 md:p-8">
@@ -182,7 +182,16 @@ export default function CustomersPage() {
                                     profiles.length > 0 ? (
                                         profiles.map(profile => {
                                             const [topCategory, topScore] = profile.culturalDNA ? getTopCategory(profile.culturalDNA) : ['N/A', 0];
-                                            const chartData = profile.culturalDNA ? getChartData(profile.culturalDNA) : [];
+                                            const radarChartData = profile.culturalDNA ? getRadarChartData(profile.culturalDNA) : [];
+                                            const allPreferences = profile.culturalDNA ? [
+                                                ...profile.culturalDNA.music.preferences.map(p => ({ category: 'Music', preference: p })),
+                                                ...profile.culturalDNA.entertainment.preferences.map(p => ({ category: 'Entertainment', preference: p })),
+                                                ...profile.culturalDNA.dining.preferences.map(p => ({ category: 'Dining', preference: p })),
+                                                ...profile.culturalDNA.fashion.preferences.map(p => ({ category: 'Fashion', preference: p })),
+                                                ...profile.culturalDNA.travel.preferences.map(p => ({ category: 'Travel', preference: p })),
+                                                ...profile.culturalDNA.socialCauses.preferences.map(p => ({ category: 'Social Causes', preference: p })),
+                                            ] : [];
+
 
                                             return (
                                                 <TableRow key={profile._id}>
@@ -201,44 +210,65 @@ export default function CustomersPage() {
                                                     <TableCell><Badge variant="outline">{profile.interactionFrequency || 'N/A'}</Badge></TableCell>
                                                     <TableCell>
                                                         {profile.culturalDNA ? (
-                                                            <Popover>
-                                                                <PopoverTrigger asChild>
+                                                            <Dialog>
+                                                                <DialogTrigger asChild>
                                                                     <Button variant="outline" size="sm" className="flex items-center gap-2">
                                                                         <BarChart className="h-4 w-4 text-accent-foreground" />
-                                                                        View Profile
+                                                                        View DNA
                                                                     </Button>
-                                                                </PopoverTrigger>
-                                                                <PopoverContent className="w-96">
-                                                                    <div className="grid gap-4">
-                                                                        <div className="space-y-2">
-                                                                            <h4 className="font-medium leading-none">Cultural DNA Profile</h4>
-                                                                            <p className="text-sm text-muted-foreground">
-                                                                                Top Category: <span className="font-bold">{topCategory} ({topScore.toFixed(0)}%)</span> |
-                                                                                Confidence: <span className="font-bold">{profile.culturalDNA.confidenceScore.toFixed(0)}%</span>
-                                                                            </p>
-                                                                        </div>
-                                                                         <div className="h-[200px]">
-                                                                             <ChartContainer config={chartConfig} className="w-full h-full">
-                                                                                <ResponsiveContainer width="100%" height="100%">
-                                                                                    <BarChart data={chartData} layout="vertical" margin={{ left: 10, right: 10 }}>
-                                                                                        <CartesianGrid strokeDasharray="3 3" horizontal={false} />
-                                                                                        <XAxis type="number" domain={[0, 100]} hide />
-                                                                                        <YAxis dataKey="category" type="category" width={80} tickLine={false} axisLine={false} />
-                                                                                        <Tooltip cursor={{fill: 'hsl(var(--muted))'}} content={<ChartTooltipContent indicator="dot" />} />
-                                                                                        <Bar dataKey="score" radius={4} fill="var(--color-score)" />
-                                                                                    </BarChart>
-                                                                                </ResponsiveContainer>
-                                                                            </ChartContainer>
-                                                                        </div>
-                                                                        <div>
-                                                                            <h5 className="font-medium leading-none mb-2">Surprising Connections</h5>
-                                                                            <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
-                                                                                {profile.culturalDNA.surpriseConnections.map((conn, i) => <li key={i}>{conn}</li>)}
-                                                                            </ul>
-                                                                        </div>
+                                                                </DialogTrigger>
+                                                                <DialogContent className="max-w-4xl h-[80vh] flex flex-col">
+                                                                    <DialogHeader>
+                                                                        <DialogTitle>Cultural DNA Visualization</DialogTitle>
+                                                                        <DialogDescription>
+                                                                           An interactive visualization of the customer's cultural affinities and preferences.
+                                                                           Confidence Score: <span className="font-bold">{profile.culturalDNA.confidenceScore.toFixed(0)}%</span>
+                                                                        </DialogDescription>
+                                                                    </DialogHeader>
+                                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 flex-1 min-h-0">
+                                                                        <Card className="flex flex-col">
+                                                                            <CardHeader>
+                                                                                <CardTitle>Affinity Overview</CardTitle>
+                                                                            </CardHeader>
+                                                                            <CardContent className="flex-1">
+                                                                                <ChartContainer config={chartConfig} className="w-full h-full">
+                                                                                     <ResponsiveContainer width="100%" height="100%">
+                                                                                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={radarChartData}>
+                                                                                            <PolarGrid />
+                                                                                            <PolarAngleAxis dataKey="subject" />
+                                                                                            <PolarRadiusAxis angle={30} domain={[0, 100]} />
+                                                                                            <Radar name="Score" dataKey="score" stroke="var(--color-score)" fill="var(--color-score)" fillOpacity={0.6} />
+                                                                                            <Tooltip content={<ChartTooltipContent />} />
+                                                                                        </RadarChart>
+                                                                                    </ResponsiveContainer>
+                                                                                </ChartContainer>
+                                                                            </CardContent>
+                                                                        </Card>
+                                                                        <Card>
+                                                                            <CardHeader>
+                                                                                <CardTitle>Preferences & Connections</CardTitle>
+                                                                            </CardHeader>
+                                                                            <CardContent className="space-y-4">
+                                                                                 <div>
+                                                                                    <h3 className="font-semibold text-sm mb-2">Top Preferences</h3>
+                                                                                    <div className="flex flex-wrap gap-2">
+                                                                                        {allPreferences.slice(0,15).map((pref, i) => (
+                                                                                            <Badge key={i} variant="secondary">{pref.preference}</Badge>
+                                                                                        ))}
+                                                                                    </div>
+                                                                                 </div>
+                                                                                 <Separator />
+                                                                                 <div>
+                                                                                    <h3 className="font-semibold text-sm mb-2">Surprising Connections</h3>
+                                                                                    <ul className="list-disc list-inside text-xs text-muted-foreground space-y-1">
+                                                                                        {profile.culturalDNA.surpriseConnections.map((conn, i) => <li key={i}>{conn}</li>)}
+                                                                                    </ul>
+                                                                                </div>
+                                                                            </CardContent>
+                                                                        </Card>
                                                                     </div>
-                                                                </PopoverContent>
-                                                            </Popover>
+                                                                </DialogContent>
+                                                            </Dialog>
                                                         ) : (
                                                             <Badge variant="outline">Not Available</Badge>
                                                         )}
