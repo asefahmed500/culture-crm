@@ -14,17 +14,8 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState, useMemo } from 'react';
 import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
-
-interface ICustomerProfile {
-    _id: string;
-    accuracyFeedback: number;
-}
-
-interface ISegment {
-    _id: string;
-    actualROI?: number;
-}
-
+import type { ICustomerProfile } from '@/models/customer-profile';
+import type { ISegment } from '@/models/segment';
 
 export default function Dashboard() {
     const router = useRouter();
@@ -189,8 +180,8 @@ export default function Dashboard() {
                              <CardDescription>High-level metrics on AI accuracy and campaign performance.</CardDescription>
                         </CardHeader>
                         <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                             <KpiCard title="Cultural DNA Accuracy" value={accuracyScore} unit="%" icon={Target} />
-                             <KpiCard title="Avg. Campaign ROI" value={averageROI} unit="%" icon={Percent} />
+                             <KpiCard key="accuracy" title="Cultural DNA Accuracy" value={accuracyScore} unit="%" icon={Target} />
+                             <KpiCard key="roi" title="Avg. Campaign ROI" value={averageROI} unit="%" icon={Percent} />
                         </CardContent>
                     </Card>
                 )}

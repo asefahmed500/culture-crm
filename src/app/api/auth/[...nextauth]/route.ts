@@ -1,4 +1,3 @@
-
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -49,7 +48,7 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account, profile }) {
+        async signIn({ user, account }) {
             if (account?.provider === 'google') {
                 await dbConnect();
                 let dbUser = await User.findOne({ email: user.email! });
@@ -60,23 +59,22 @@ export const authOptions: AuthOptions = {
                         // no password for google users
                     });
                 }
+                // Assign MongoDB _id to the user object that gets passed to JWT callback
                 user.id = dbUser._id.toString();
             }
             return true;
         },
         jwt: async ({ token, user }) => {
             if (user) {
+                // Persist the user id from the authorize function or signIn callback to the token
                 token.id = user.id;
-                token.name = user.name;
-                token.email = user.email;
             }
             return token;
         },
         session: async ({ session, token }) => {
             if (session?.user) {
+                // The token now has the id, assign it to the session
                 session.user.id = token.id as string;
-                session.user.name = token.name;
-                session.user.email = token.email;
             }
             return session;
         },
