@@ -47,7 +47,7 @@ const chartConfig = {
     label: "Affinity Score",
     color: "hsl(var(--primary))",
   },
-} satisfies ChartConfig
+} satisfies ChartConfig;
 
 const getRadarChartData = (dna: ICulturalDNA) => {
     return [

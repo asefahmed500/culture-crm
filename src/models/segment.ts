@@ -1,7 +1,7 @@
 
 import mongoose, { Schema, Document, models, Model } from 'mongoose';
 
-export interface ISegment extends Document {
+export interface Segment extends Document {
   _id: string;
   segmentName: string;
   segmentSize: number;
@@ -18,7 +18,7 @@ export interface ISegment extends Document {
   comparisonROI?: number;
 }
 
-const SegmentSchema: Schema<ISegment> = new Schema({
+const SegmentSchema: Schema<Segment> = new Schema({
   segmentName: { type: String, required: true },
   segmentSize: { type: Number, required: true },
   averageCustomerValue: { type: String, required: true },
@@ -36,5 +36,5 @@ const SegmentSchema: Schema<ISegment> = new Schema({
     timestamps: true
 });
 
-const Segment = (models.Segment as Model<ISegment>) || mongoose.model<ISegment>('Segment', SegmentSchema);
-export default Segment;
+const SegmentModel = (models.Segment as Model<Segment>) || mongoose.model<Segment>('Segment', SegmentSchema);
+export default SegmentModel;

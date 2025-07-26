@@ -15,13 +15,13 @@ import { useEffect, useState, useMemo } from 'react';
 import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import type { ICustomerProfile } from '@/models/customer-profile';
-import type { ISegment } from '@/models/segment';
+import type { Segment } from '@/models/segment';
 
 export default function Dashboard() {
     const router = useRouter();
     const { data: session } = useSession();
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
-    const [segments, setSegments] = useState<ISegment[]>([]);
+    const [segments, setSegments] = useState<Segment[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {

@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { ISegment } from '@/models/segment';
+import { Segment } from '@/models/segment';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,7 +21,7 @@ export default function SegmentsPage() {
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [result, setResult] = useState<GenerateCustomerSegmentsOutput | null>(null);
-    const [selectedSegment, setSelectedSegment] = useState<ISegment | null>(null);
+    const [selectedSegment, setSelectedSegment] = useState<Segment | null>(null);
     const [isSavingPerformance, setIsSavingPerformance] = useState(false);
     const [actualROI, setActualROI] = useState<number | ''>('');
     const { toast } = useToast();
@@ -151,7 +151,7 @@ export default function SegmentsPage() {
                         <div>
                              <h2 className="text-2xl font-bold tracking-tight mb-4">Cultural Segments Overview</h2>
                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
-                                {result.segments.map((segment: ISegment, i) => (
+                                {result.segments.map((segment: Segment, i) => (
                                     <Card key={i} className="flex flex-col">
                                         <CardHeader>
                                             <div className="flex justify-between items-start">

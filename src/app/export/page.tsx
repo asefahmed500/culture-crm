@@ -15,11 +15,11 @@ import type { GenerateSalesScriptOutput } from '@/ai/flows/generate-sales-script
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { ISegment } from '@/models/segment';
+import { Segment } from '@/models/segment';
 import { Textarea } from '@/components/ui/textarea';
 
 export default function ExportPage() {
-    const [segments, setSegments] = useState<ISegment[]>([]);
+    const [segments, setSegments] = useState<Segment[]>([]);
     const [selectedSegment, setSelectedSegment] = useState<string>('');
     const [isSegmentsLoading, setIsSegmentsLoading] = useState(true);
 
