@@ -91,7 +91,6 @@ NEXTAUTH_URL="http://localhost:3000"
 # Gemini API Key
 # This is used by the Genkit Google AI plugin
 GEMINI_API_KEY="your_gemini_api_key"
-
 ```
 
 ### 2. Install Dependencies

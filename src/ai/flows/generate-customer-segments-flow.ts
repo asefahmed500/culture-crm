@@ -106,7 +106,12 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
             } : {}
         }));
     } else {
-        profilesForPrompt = profiles;
+        profilesForPrompt = profiles.map(p => ({
+            ageRange: p.ageRange,
+            spendingLevel: p.spendingLevel,
+            interactionFrequency: p.interactionFrequency,
+            culturalDNA: p.culturalDNA,
+        }));
     }
 
 
