@@ -66,7 +66,6 @@ A comprehensive end-to-end testing suite has been created to validate all featur
 -   **Framework**: Next.js (App Router)
 -   **Styling**: Tailwind CSS with shadcn/ui components
 -   **AI / LLM**: Google Gemini via Genkit
--   **Cultural Data API**: Qloo Taste AI™
 -   **Database**: MongoDB with Mongoose
 -   **Authentication**: NextAuth.js (Credentials & Google Provider)
 
@@ -79,10 +78,6 @@ Create a `.env` file in the root of the project and add the following environmen
 ```
 # MongoDB Connection String
 MONGODB_URI="your_mongodb_connection_string"
-
-# Qloo API Credentials (from your Qloo Developer account)
-QLOO_CLIENT_ID="your_qloo_client_id"
-QLOO_CLIENT_SECRET="your_qloo_client_secret"
 
 # Google OAuth Credentials (from Google Cloud Console)
 GOOGLE_CLIENT_ID="your_google_client_id"

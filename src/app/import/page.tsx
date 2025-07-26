@@ -20,7 +20,7 @@ type Mapping = {
 };
 
 const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
-const qlooField = 'purchase_categories';
+const importantField = 'purchase_categories';
 
 export default function CustomerImportPage() {
   const [file, setFile] = useState<File | null>(null);
@@ -156,9 +156,9 @@ export default function CustomerImportPage() {
                 <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
                  <Alert className="mt-4">
                     <Info className="h-4 w-4"/>
-                    <AlertTitle>Qloo API Integration</AlertTitle>
+                    <AlertTitle>Gemini AI Integration</AlertTitle>
                     <AlertDescription>
-                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Qloo API to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
+                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Gemini AI to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
                     </AlertDescription>
                  </Alert>
               </CardHeader>
@@ -173,8 +173,8 @@ export default function CustomerImportPage() {
                       <SelectContent>
                         <SelectItem value="">- Unmapped -</SelectItem>
                         {requiredFields.map(field => (
-                          <SelectItem key={field} value={field} className={field === qlooField ? 'font-bold' : ''}>
-                            {field.replace(/_/g, ' ')}{field === qlooField ? ' (Qloo Input)' : ''}
+                          <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
+                            {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -223,7 +223,7 @@ export default function CustomerImportPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Processing Data...</CardTitle>
-                    <CardDescription>The AI is analyzing, cleaning, querying Qloo, and saving your data. Please wait.</CardDescription>
+                    <CardDescription>The AI is analyzing, cleaning, and saving your data. Please wait.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Progress value={progress} className="w-full" />
