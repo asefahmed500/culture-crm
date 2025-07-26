@@ -110,7 +110,7 @@ const processCustomerDataFlow = ai.defineFlow(
             interactionFrequency: record.interaction_frequency as string,
         };
 
-        // Ensure we have purchase categories before generating DNA, as it's the input for Qloo
+        // Ensure we have purchase categories before generating DNA
         if (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0) {
             try {
                 const culturalDNA = await generateCulturalDna(behavioralData);

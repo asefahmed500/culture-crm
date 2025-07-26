@@ -89,35 +89,3 @@ export const authOptions: AuthOptions = {
 const handler = NextAuth(authOptions);
 
 export { handler as GET, handler as POST };
-
-// Signup handler
-export async function PUT(req: Request) {
-    try {
-        const { name, email, password } = await req.json();
-
-        if (!name || !email || !password) {
-            return new Response(JSON.stringify({ message: "Missing fields" }), { status: 400 });
-        }
-
-        await dbConnect();
-
-        const existingUser = await User.findOne({ email });
-        if (existingUser) {
-            return new Response(JSON.stringify({ message: "User already exists" }), { status: 400 });
-        }
-
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const newUser = new User({
-            name,
-            email,
-            password: hashedPassword,
-        });
-
-        await newUser.save();
-
-        return new Response(JSON.stringify({ message: "User created successfully" }), { status: 201 });
-    } catch (error) {
-        return new Response(JSON.stringify({ message: "Internal server error" }), { status: 500 });
-    }
-}
