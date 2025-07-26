@@ -12,7 +12,7 @@ An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and
 
 ### 🧠 AI/ML POWERHOUSE FEATURES
 
--   [x] **Multi-Modal Cultural Analysis Engine**: **Done.** The system successfully processes raw customer data, enriches it with the Qloo API, and uses an LLM to generate a detailed "Cultural DNA" profile, effectively simulating a multi-modal analysis. This is visible on the **Customers** page.
+-   [x] **Multi-Modal Cultural Analysis Engine**: **Done.** The system successfully processes raw customer data, enriches it with a Gemini LLM to generate a detailed "Cultural DNA" profile, effectively simulating a multi-modal analysis. This is visible on the **Customers** page.
 -   [x] **Dynamic Cultural Evolution Tracking**: **Done.** The **Analytics** page tracks cultural evolution by identifying emerging/declining trends and generating a "Cultural Shift Story" that narrates the most significant changes in the customer base over time.
 -   [x] **Cultural Influence Network Analysis**: **Conceptually Done.** While not a literal network graph, the platform identifies influential trends and segments, providing the strategic insights needed to understand how cultural preferences spread.
 
@@ -55,7 +55,7 @@ A comprehensive end-to-end testing suite has been created to validate all featur
 
 ## Ethical Guardrails
 
--   **Transparency**: This README and the application UI clearly state when and how the Qloo API and LLMs are used to generate insights.
+-   **Transparency**: This README and the application UI clearly state when and how the Gemini LLM is used to generate insights.
 -   **Privacy-First**: The system is designed to work with anonymized data from the start, requiring no PII for its core functionality.
 -   **Bias Detection**: The AI segmentation flow is prompted to identify and flag segments that may be based on potentially harmful stereotypes, which are then highlighted in the UI.
 -   **Human-in-the-Loop**: The Cultural Accuracy Scoring feature allows users to validate AI-generated profiles, providing a feedback loop to track and improve model accuracy over time.

@@ -61,7 +61,7 @@ const culturalDnaPrompt = ai.definePrompt({
     name: 'culturalDnaPrompt',
     input: { schema: GenerateCulturalDnaInputSchema },
     output: { schema: GenerateCulturalDnaOutputSchema },
-    prompt: `You are a self-learning, multi-modal cultural intelligence expert. Your task is to analyze anonymized behavioral data and synthesize it to create a rich "Cultural DNA" profile.
+    prompt: `You are a self-learning, multi-modal cultural intelligence expert powered by Gemini. Your task is to analyze anonymized behavioral data and synthesize it to create a rich "Cultural DNA" profile.
 
 Use your extensive world knowledge to infer cultural tastes from the provided behavioral data.
 Act as if you are analyzing multiple data sources simultaneously to get a holistic view of the customer.
@@ -107,7 +107,7 @@ const generateCulturalDnaFlow = ai.defineFlow(
         };
     }
 
-    // Use LLM to analyze and structure the data
+    // Use Gemini LLM to analyze and structure the data
     const { output } = await culturalDnaPrompt(input);
 
     if (!output) {
