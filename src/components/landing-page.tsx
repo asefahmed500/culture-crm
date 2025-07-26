@@ -1,7 +1,7 @@
 
 'use client';
 
-import { BarChart, Filter, Zap, Users, BrainCircuit } from 'lucide-react';
+import { BarChart, Filter, Zap, Users, BrainCircuit, LineChart, PieChart, Upload, Rocket } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import Image from 'next/image';
@@ -76,14 +76,11 @@ export default function LandingPage() {
                   </p>
                 </div>
               </div>
-               <Image
-                src="https://placehold.co/600x400.png"
-                width={600}
-                height={400}
-                alt="Frustrated user with generic ads"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-                data-ai-hint="data charts graphs"
-              />
+               <div className="flex items-center justify-center p-8 bg-background/50 rounded-xl relative aspect-video overflow-hidden border">
+                  <PieChart className="h-32 w-32 text-primary/30 absolute -bottom-10 -left-10" />
+                  <LineChart className="h-48 w-48 text-primary/30 absolute -top-12 -right-16" />
+                  <BarChart className="h-40 w-40 text-primary relative" />
+              </div>
             </div>
           </div>
         </section>
@@ -156,14 +153,24 @@ export default function LandingPage() {
                 </li>
               </ul>
             </div>
-             <Image
-                src="https://placehold.co/600x400.png"
-                width={600}
-                height={400}
-                alt="How it works"
-                className="mx-auto aspect-video overflow-hidden rounded-xl object-cover object-center sm:w-full"
-                data-ai-hint="abstract tech illustration"
-              />
+             <div className="flex items-center justify-center p-8 bg-background/50 rounded-xl aspect-video border">
+                <div className="flex items-center justify-center gap-8">
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="p-4 rounded-full bg-primary/10 border-2 border-dashed border-primary/20"><Upload className="h-10 w-10 text-primary" /></div>
+                    <p className="font-bold">Import</p>
+                  </div>
+                   <div className="h-1 w-10 bg-border rounded-full" />
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="p-4 rounded-full bg-primary/10 border-2 border-dashed border-primary/20"><BrainCircuit className="h-10 w-10 text-primary" /></div>
+                    <p className="font-bold">Analyze</p>
+                  </div>
+                   <div className="h-1 w-10 bg-border rounded-full" />
+                  <div className="flex flex-col items-center gap-2">
+                    <div className="p-4 rounded-full bg-primary/10 border-2 border-dashed border-primary/20"><Rocket className="h-10 w-10 text-primary" /></div>
+                    <p className="font-bold">Activate</p>
+                  </div>
+                </div>
+              </div>
           </div>
         </section>
       </main>
