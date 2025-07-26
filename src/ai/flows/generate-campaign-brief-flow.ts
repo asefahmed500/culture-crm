@@ -120,12 +120,13 @@ const generateCampaignBriefFlow = ai.defineFlow(
     const segmentContext = {
         name: segment.segmentName,
         ...segment, // Pass all segment data
-        note: `This campaign brief is for the '${segment.segmentName}' segment. The following is a sample of customer profiles that represent this segment's characteristics. Use this data to inform the analysis.`,
-        sampleProfiles: representativeSample.map(p => ({
-            ageRange: p.ageRange,
-            spendingLevel: p.spendingLevel,
-            culturalDNA: p.culturalDNA
-        })),
+        note: `This campaign brief is for the '${segment.segmentName}' segment. The following is a summary of the characteristics of customer profiles in this segment. Use this data to inform the analysis.`,
+        sampleProfileSummary: {
+            count: representativeSample.length,
+            commonAgeRanges: [...new Set(representativeSample.map(p => p.ageRange))],
+            commonSpendingLevels: [...new Set(representativeSample.map(p => p.spendingLevel))],
+            commonInteractionFrequencies: [...new Set(representativeSample.map(p => p.interactionFrequency))],
+        }
     };
 
 

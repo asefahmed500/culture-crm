@@ -97,11 +97,13 @@ export default function Dashboard() {
                 <CardDescription className="flex items-center gap-2"><Icon className="h-4 w-4" />{title}</CardDescription>
             </CardHeader>
             <CardContent>
-                 {value !== null ? (
-                     <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
-                ) : (
-                    <p className="text-sm text-muted-foreground">No data yet</p>
-                )}
+                 {loading ? <Skeleton className="h-8 w-20" /> : (
+                     value !== null ? (
+                         <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
+                    ) : (
+                        <p className="text-sm text-muted-foreground">No data yet</p>
+                    )
+                 )}
             </CardContent>
         </Card>
     );
@@ -156,7 +158,7 @@ export default function Dashboard() {
          <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <Skeleton className="h-8 w-1/2" />
+                    <Skeleton className="h-8 w-1/2 mb-2" />
                     <Skeleton className="h-4 w-3/4" />
                 </CardHeader>
             </Card>
