@@ -14,6 +14,7 @@ import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
 import { getBusinessMetricsTool } from '../tools/business-metrics-tool';
+import Segment from '@/models/segment';
 
 const GenerateCampaignBriefInputSchema = z.object({
   segmentName: z.string().describe("The name of the target customer segment."),
@@ -89,29 +90,46 @@ const generateCampaignBriefFlow = ai.defineFlow(
     outputSchema: GenerateCampaignBriefOutputSchema,
   },
   async ({ segmentName }) => {
-    // This is a simplified approach. A real app might fetch the segment definition
-    // from a database or another source. Here, we'll just find one profile
-    // from that segment to act as a representative proxy.
     await dbConnect();
     
-    // We can't directly query by a segment name that's AI-generated and not in the DB.
-    // So, we'll fetch all profiles and ask the segmentation flow to give us the definition
-    // for the one we care about. This is inefficient but demonstrates the concept.
-    // A better approach would be to save the segment definitions themselves.
-    const profiles = await CustomerProfile.find({}).lean();
+    // Find the segment definition
+    const segment = await Segment.findOne({ segmentName }).lean();
+    if (!segment) {
+        throw new Error(`Segment "${segmentName}" not found. Please generate segments first.`);
+    }
+
+    // A better approach for a real app would be to have a direct link between profiles and segments.
+    // Here, we'll find profiles that are likely members of this segment to create a representative summary.
+    // This is still a proxy but more accurate than a single profile.
+    const allProfiles = await CustomerProfile.find({}).lean();
+    const segmentProfiles = allProfiles.filter(p => {
+        // Simple matching logic: if a profile's high-scoring DNA matches the segment's characteristics.
+        if (!p.culturalDNA) return false;
+        const highScoringDna = Object.entries(p.culturalDNA)
+            .filter(([key, value]) => typeof value === 'object' && value.score > 60)
+            .flatMap(([key, value]) => value.preferences);
+        
+        return segment.topCulturalCharacteristics.some(char => 
+            highScoringDna.some(pref => pref.toLowerCase().includes(char.toLowerCase()))
+        );
+    });
+
+    const representativeSample = segmentProfiles.length > 0 ? segmentProfiles.slice(0, 10) : allProfiles.slice(0, 1);
     
-    // For now, as a proxy, we'll just pass a few profiles to the prompt
-    // and tell the AI to focus on the characteristics that would define the segment name.
-    // This is a conceptual stand-in for a more robust segment data fetching mechanism.
-     const representativeProfile = profiles.length > 0 ? profiles[0] : {};
+    // Create a summary to pass to the prompt
+    const segmentContext = {
+        name: segment.segmentName,
+        ...segment, // Pass all segment data
+        note: `This campaign brief is for the '${segment.segmentName}' segment. The following is a sample of customer profiles that represent this segment's characteristics. Use this data to inform the analysis.`,
+        sampleProfiles: representativeSample.map(p => ({
+            ageRange: p.ageRange,
+            spendingLevel: p.spendingLevel,
+            culturalDNA: p.culturalDNA
+        })),
+    };
 
 
-    const { output } = await briefPrompt({ segment: {
-        name: segmentName,
-        // The prompt will use the name and this sample profile to infer the segment's characteristics
-        sampleProfile: representativeProfile, 
-        note: "This is a representative profile. Infer the segment's broader characteristics based on its descriptive name."
-    } });
+    const { output } = await briefPrompt({ segment: segmentContext });
 
     if (!output) {
       throw new Error('The AI model did not return a valid campaign brief.');
