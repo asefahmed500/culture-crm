@@ -53,15 +53,15 @@ export async function generateCampaignBrief(input: GenerateCampaignBriefInput): 
 
 const briefPrompt = ai.definePrompt({
   name: 'campaignBriefPrompt',
-  input: { schema: z.object({ segment: z.any() }) },
+  input: { schema: z.object({ segmentContext: z.any() }) },
   output: { schema: GenerateCampaignBriefOutputSchema },
   tools: [getBusinessMetricsTool],
   prompt: `You are a world-class marketing campaign strategist and financial analyst. Your task is to create a comprehensive campaign brief for a specific customer segment based on their detailed profile.
 
 Use the provided 'getBusinessMetrics' tool to fetch the company's current baseline metrics. Use this baseline to create a 'Projected Impact' section with specific, quantifiable ROI projections for this new campaign.
 
-Target Segment Profile:
-{{{json segment}}}
+Target Segment Profile and Data Summary:
+{{{json segmentContext}}}
 
 Based on this profile and the baseline business metrics, generate a complete campaign brief with the following sections:
 1.  **Campaign Title**: Create a catchy, creative title for the campaign.
@@ -100,37 +100,38 @@ const generateCampaignBriefFlow = ai.defineFlow(
 
     // A better approach for a real app would be to have a direct link between profiles and segments.
     // Here, we'll find profiles that are likely members of this segment to create a representative summary.
-    // This is still a proxy but more accurate than a single profile.
     const allProfiles = await CustomerProfile.find({}).lean();
     const segmentProfiles = allProfiles.filter(p => {
-        // Simple matching logic: if a profile's high-scoring DNA matches the segment's characteristics.
         if (!p.culturalDNA) return false;
-        const highScoringDna = Object.entries(p.culturalDNA)
-            .filter(([key, value]) => typeof value === 'object' && value.score > 60)
-            .flatMap(([key, value]) => value.preferences);
+        const highScoringDnaPreferences = Object.values(p.culturalDNA)
+            .flatMap((category: any) => category.preferences || [])
+            .map((pref: string) => pref.toLowerCase());
         
         return segment.topCulturalCharacteristics.some(char => 
-            highScoringDna.some(pref => pref.toLowerCase().includes(char.toLowerCase()))
+            highScoringDnaPreferences.includes(char.toLowerCase())
         );
     });
 
-    const representativeSample = segmentProfiles.length > 0 ? segmentProfiles.slice(0, 10) : allProfiles.slice(0, 1);
-    
-    // Create a summary to pass to the prompt
+    // Create a rich context summary for the AI, ensuring performance with large datasets.
     const segmentContext = {
-        name: segment.segmentName,
-        ...segment, // Pass all segment data
-        note: `This campaign brief is for the '${segment.segmentName}' segment. The following is a summary of the characteristics of customer profiles in this segment. Use this data to inform the analysis.`,
-        sampleProfileSummary: {
-            count: representativeSample.length,
-            commonAgeRanges: [...new Set(representativeSample.map(p => p.ageRange))],
-            commonSpendingLevels: [...new Set(representativeSample.map(p => p.spendingLevel))],
-            commonInteractionFrequencies: [...new Set(representativeSample.map(p => p.interactionFrequency))],
-        }
+      name: segment.segmentName,
+      description: `A segment of ${segment.segmentSize} customers, ranked #${segment.businessOpportunityRank} for business opportunity. They have a ${segment.potentialLifetimeValue.toLowerCase()} potential LTV.`,
+      communicationPreferences: segment.communicationPreferences,
+      lovedProductCategories: segment.lovedProductCategories,
+      bestMarketingChannels: segment.bestMarketingChannels,
+      topCulturalCharacteristics: segment.topCulturalCharacteristics,
+      sampleMessaging: segment.sampleMessaging,
+      note: `This campaign brief is for the '${segment.segmentName}' segment. Use the provided data to inform the analysis.`,
+      profileDataSummary: {
+          count: segmentProfiles.length,
+          commonAgeRanges: [...new Set(segmentProfiles.map(p => p.ageRange))],
+          commonSpendingLevels: [...new Set(segmentProfiles.map(p => p.spendingLevel))],
+          commonInteractionFrequencies: [...new Set(segmentProfiles.map(p => p.interactionFrequency))],
+      }
     };
 
 
-    const { output } = await briefPrompt({ segment: segmentContext });
+    const { output } = await briefPrompt({ segmentContext });
 
     if (!output) {
       throw new Error('The AI model did not return a valid campaign brief.');

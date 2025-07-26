@@ -47,13 +47,13 @@ export default function ExportPage() {
     useEffect(() => {
         async function fetchSegments() {
             try {
-                // The API now returns a different structure
                 const response = await fetch('/api/customer-segments');
                 if (!response.ok) throw new Error('Failed to fetch segments');
                 const data = await response.json();
-                setSegments(data.segments);
-                if (data.segments.length > 0) {
-                    setSelectedSegment(data.segments[0].segmentName);
+                const fetchedSegments = data.segments || [];
+                setSegments(fetchedSegments);
+                if (fetchedSegments.length > 0) {
+                    setSelectedSegment(fetchedSegments[0].segmentName);
                 }
             } catch (error) {
                 console.error(error);
@@ -246,9 +246,9 @@ export default function ExportPage() {
                             <div className="flex items-end gap-4 max-w-md mb-4">
                                 <div className="flex-grow">
                                     <label className="text-sm font-medium">Target Segment</label>
-                                    <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading} value={selectedSegment}>
+                                    <Select onValueChange={setSelectedSegment} disabled={isSegmentsLoading || segments.length === 0} value={selectedSegment}>
                                         <SelectTrigger>
-                                            <SelectValue placeholder={isSegmentsLoading ? "Loading segments..." : "Select a segment"} />
+                                            <SelectValue placeholder={isSegmentsLoading ? "Loading..." : "No segments found"} />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {segments.map(s => <SelectItem key={s.segmentName} value={s.segmentName}>{s.segmentName}</SelectItem>)}

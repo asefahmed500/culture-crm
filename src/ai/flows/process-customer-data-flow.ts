@@ -109,21 +109,17 @@ const processCustomerDataFlow = ai.defineFlow(
             interactionFrequency: record.interaction_frequency as string,
         };
 
-        // Ensure we have purchase categories before generating DNA
-        if (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0) {
+        const hasAnyData = behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency || (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0);
+
+        if (hasAnyData) {
             try {
-                const culturalDNA = await generateCulturalDna(behavioralData);
+                // Generate DNA only if purchase categories are available, as it's the primary input.
+                const culturalDNA = (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0)
+                    ? await generateCulturalDna(behavioralData)
+                    : undefined;
                 customerDocsToSave.push({ ...behavioralData, culturalDNA });
             } catch (e) {
                 console.error("Failed to generate cultural DNA for a record, saving without it.", e);
-                // Optionally save the record without the cultural DNA, but only if it has other data
-                if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency) {
-                    customerDocsToSave.push(behavioralData);
-                }
-            }
-        } else {
-            // Save records that don't have purchase categories but have other data
-            if (behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency) {
                 customerDocsToSave.push(behavioralData);
             }
         }

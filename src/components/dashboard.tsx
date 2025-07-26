@@ -92,7 +92,7 @@ export default function Dashboard() {
                      value !== null ? (
                          <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
                     ) : (
-                        <p className="text-sm text-muted-foreground">No data yet</p>
+                        <p className="text-sm text-muted-foreground">Not enough data</p>
                     )
                  )}
             </CardContent>
@@ -130,7 +130,7 @@ export default function Dashboard() {
                 </div>
             </CardHeader>
             <CardContent className="space-y-4">
-                <p className="text-muted-foreground">Now you're ready to dive deeper. Generate cultural segments or analyze market trends.</p>
+                <p className="text-muted-foreground">Now you're ready to dive deeper. Generate cultural segments or analyze market-wide trends.</p>
                 <div className="flex flex-col sm:flex-row gap-4">
                     <Button onClick={() => router.push('/segments')} className="flex-1">
                         <Milestone className="mr-2 h-4 w-4"/>
@@ -152,6 +152,16 @@ export default function Dashboard() {
                     <Skeleton className="h-8 w-1/2 mb-2" />
                     <Skeleton className="h-4 w-3/4" />
                 </CardHeader>
+            </Card>
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-7 w-3/4 mb-2" />
+                    <Skeleton className="h-4 w-full" />
+                </CardHeader>
+                 <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                    <Skeleton className="h-24 w-full" />
+                    <Skeleton className="h-24 w-full" />
+                 </CardContent>
             </Card>
              <Card>
                 <CardHeader>
