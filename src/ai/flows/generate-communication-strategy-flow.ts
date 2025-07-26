@@ -99,7 +99,7 @@ Based on this profile, generate a detailed playbook with the following sections:
     -   **DON'Ts**: Crucially, list what topics, tones, or approaches to AVOID to prevent brand-damaging missteps.
 6.  **Predicted ROI**: Provide a single, high-level sentence estimating the potential ROI for using this strategy (e.g., "Adopting this strategy could lead to a 15-20% increase in engagement and conversion.").
 
-Format the output as a JSON object that strictly adheres to the provided schema. This playbook should be ready for a marketing team to use immediately.
+Format the output as a JSON object that strictly adheres to the provided schema. This playbook must be ready for a marketing team to use immediately.
 `,
 });
 

@@ -98,38 +98,17 @@ const generateCampaignBriefFlow = ai.defineFlow(
         throw new Error(`Segment "${segmentName}" not found. Please generate segments first.`);
     }
 
-    // A better approach for a real app would be to have a direct link between profiles and segments.
-    // Here, we'll find profiles that are likely members of this segment to create a representative summary.
-    const allProfiles = await CustomerProfile.find({}).lean();
-    const segmentProfiles = allProfiles.filter(p => {
-        if (!p.culturalDNA) return false;
-        const highScoringDnaPreferences = Object.values(p.culturalDNA)
-            .flatMap((category: any) => category.preferences || [])
-            .map((pref: string) => pref.toLowerCase());
-        
-        return segment.topCulturalCharacteristics.some(char => 
-            highScoringDnaPreferences.includes(char.toLowerCase())
-        );
-    });
-
-    // Create a rich context summary for the AI, ensuring performance with large datasets.
+    // Create a rich context summary for the AI from the segment data itself.
     const segmentContext = {
       name: segment.segmentName,
-      description: `A segment of ${segment.segmentSize} customers, ranked #${segment.businessOpportunityRank} for business opportunity. They have a ${segment.potentialLifetimeValue.toLowerCase()} potential LTV.`,
+      description: `A segment of ${segment.segmentSize} customers, ranked #${segment.businessOpportunityRank} for business opportunity. They have a ${segment.potentialLifetimeValue.toLowerCase()} potential LTV and an average customer value of '${segment.averageCustomerValue}'.`,
       communicationPreferences: segment.communicationPreferences,
       lovedProductCategories: segment.lovedProductCategories,
       bestMarketingChannels: segment.bestMarketingChannels,
       topCulturalCharacteristics: segment.topCulturalCharacteristics,
       sampleMessaging: segment.sampleMessaging,
       note: `This campaign brief is for the '${segment.segmentName}' segment. Use the provided data to inform the analysis.`,
-      profileDataSummary: {
-          count: segmentProfiles.length,
-          commonAgeRanges: [...new Set(segmentProfiles.map(p => p.ageRange))],
-          commonSpendingLevels: [...new Set(segmentProfiles.map(p => p.spendingLevel))],
-          commonInteractionFrequencies: [...new Set(segmentProfiles.map(p => p.interactionFrequency))],
-      }
     };
-
 
     const { output } = await briefPrompt({ segmentContext });
 

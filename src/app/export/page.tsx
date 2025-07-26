@@ -47,6 +47,7 @@ export default function ExportPage() {
     useEffect(() => {
         async function fetchSegments() {
             try {
+                setIsSegmentsLoading(true);
                 const response = await fetch('/api/customer-segments');
                 if (!response.ok) throw new Error('Failed to fetch segments');
                 const data = await response.json();
@@ -54,6 +55,8 @@ export default function ExportPage() {
                 setSegments(fetchedSegments);
                 if (fetchedSegments.length > 0) {
                     setSelectedSegment(fetchedSegments[0].segmentName);
+                } else {
+                    setSelectedSegment('');
                 }
             } catch (error) {
                 console.error(error);
