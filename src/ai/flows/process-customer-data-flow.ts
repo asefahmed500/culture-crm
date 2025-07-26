@@ -48,7 +48,6 @@ export async function processCustomerData(input: ProcessCustomerDataInput): Prom
 const customerDataPrompt = ai.definePrompt({
   name: 'customerDataPrompt',
   input: { schema: ProcessCustomerDataInputSchema },
-  // The prompt's output schema is slightly different, it doesn't need the `recordsSaved` field
   output: { schema: ProcessCustomerDataOutputSchema.omit({ recordsSaved: true }) },
   prompt: `You are a data processing expert for a Cultural Intelligence CRM. Your task is to process raw customer data from a CSV file, enrich it, and prepare it for analysis, ensuring all Personally Identifiable Information (PII) is removed.
 
