@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
   title: 'Cultural Intelligence CRM',
-  description: 'A CRM that enriches customer data with cultural intelligence, powered by Qloo and Gemini.',
+  description: 'A CRM that enriches customer data with cultural intelligence, powered by Gemini.',
 };
 
 export default function RootLayout({
