@@ -22,6 +22,11 @@ type Mapping = {
 const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
 const importantField = 'purchase_categories';
 
+// Function to normalize header names for better matching
+const normalizeHeader = (header: string) => {
+  return header.toLowerCase().replace(/[\s_-]/g, '_');
+};
+
 export default function CustomerImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<CsvData>([]);
@@ -43,11 +48,19 @@ export default function CustomerImportPage() {
       reader.onload = () => {
         const text = reader.result as string;
         const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/"/g, '')));
+        
         const validHeaders = rows[0].filter(header => header.trim() !== '');
         setHeaders(validHeaders);
-        setData(rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell))); // Ensure row has same number of columns and is not empty
-        // Reset mapping when new file is uploaded
-        setMapping(validHeaders.reduce((acc, header) => ({ ...acc, [header]: '' }), {}));
+        setData(rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell)));
+
+        // Auto-mapping logic
+        const newMapping: Mapping = {};
+        validHeaders.forEach(header => {
+            const normalized = normalizeHeader(header);
+            const match = requiredFields.find(field => normalized.includes(field) || field.includes(normalized));
+            newMapping[header] = match || '';
+        });
+        setMapping(newMapping);
       };
       reader.readAsText(uploadedFile);
     } else {
@@ -154,7 +167,7 @@ export default function CustomerImportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Column Mapping</CardTitle>
-                <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
+                <CardDescription>Map your CSV columns to the required system fields. The system will attempt to auto-map them. Unmapped columns will be ignored.</CardDescription>
                  <Alert className="mt-4">
                     <Info className="h-4 w-4"/>
                     <AlertTitle>Powered by Qloo Taste AI™ & Gemini</AlertTitle>
@@ -296,3 +309,5 @@ export default function CustomerImportPage() {
     </AppShell>
   );
 }
+
+    
