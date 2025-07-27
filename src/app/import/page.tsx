@@ -156,9 +156,9 @@ export default function CustomerImportPage() {
                 <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
                  <Alert className="mt-4">
                     <Info className="h-4 w-4"/>
-                    <AlertTitle>Gemini AI Integration</AlertTitle>
+                    <AlertTitle>Qloo Taste AI™ Integration</AlertTitle>
                     <AlertDescription>
-                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Gemini AI to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
+                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Qloo API to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
                     </AlertDescription>
                  </Alert>
               </CardHeader>
