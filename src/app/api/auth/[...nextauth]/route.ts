@@ -1,3 +1,4 @@
+
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
@@ -11,6 +12,23 @@ export const authOptions: AuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+            async profile(profile) {
+                await dbConnect();
+                let dbUser = await User.findOne({ email: profile.email });
+                if (!dbUser) {
+                    dbUser = await User.create({
+                        email: profile.email,
+                        name: profile.name,
+                        // no password for google users
+                    });
+                }
+                return {
+                    id: dbUser._id.toString(),
+                    name: dbUser.name,
+                    email: dbUser.email,
+                    image: profile.picture,
+                };
+            }
         }),
         CredentialsProvider({
             name: "credentials",
@@ -48,22 +66,6 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
-        async signIn({ user, account }) {
-            if (account?.provider === 'google') {
-                await dbConnect();
-                let dbUser = await User.findOne({ email: user.email! });
-                if (!dbUser) {
-                    dbUser = await User.create({
-                        email: user.email,
-                        name: user.name,
-                        // no password for google users
-                    });
-                }
-                // Assign MongoDB _id to the user object that gets passed to JWT callback
-                user.id = dbUser._id.toString();
-            }
-            return true;
-        },
         jwt: async ({ token, user }) => {
             if (user) {
                 // Persist the user id from the authorize function or signIn callback to the token
