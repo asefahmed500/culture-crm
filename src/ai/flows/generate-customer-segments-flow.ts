@@ -53,7 +53,7 @@ const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateCustomerSegmentsOutputSchema },
-  prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" score derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
+  prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" profile derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
 
 Analyze the following customer profiles, which now contain rich, real-world taste data:
 {{{json profiles}}}

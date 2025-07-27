@@ -58,18 +58,6 @@ export async function generateCulturalDna(input: GenerateCulturalDnaInput): Prom
   return generateCulturalDnaFlow(input);
 }
 
-const CATEGORY_MAP: { [key: string]: keyof GenerateCulturalDnaOutput } = {
-    'music': 'music',
-    'film': 'entertainment',
-    'tv': 'entertainment',
-    'podcasts': 'entertainment',
-    'books': 'entertainment',
-    'fashion': 'fashion',
-    'dining': 'dining',
-    'travel': 'travel',
-    // Qloo doesn't have a direct social causes category, so we will handle this in the summarization prompt
-};
-
 
 const dnaSummarizationPrompt = ai.definePrompt({
     name: 'dnaSummarizationPrompt',
@@ -90,8 +78,8 @@ Based on ALL this data, perform the following:
 1.  **Organize Preferences**: Group the correlated items from the Qloo data into the six cultural categories: Music, Entertainment (includes film, tv, podcasts, books), Dining, Fashion, Travel, and Social Causes.
 2.  **Score Affinities**: For each category, calculate an affinity score from 0-100. The score should be based on the number of items and their correlation scores in that category. A category with many high-correlation items should have a high score.
 3.  **Infer Social Causes**: The Qloo API does not provide data on social causes. Based on the full list of preferences (music, fashion, dining, etc.), infer 2-3 likely social causes or values this person might support. For example, a love for indie music, vintage fashion, and vegan restaurants might suggest an interest in 'Sustainability' or 'Ethical Production'. Score this category based on the strength of your inference.
-4.  **Find Surprising Connections**: This is a critical task. Analyze the full profile to uncover 2-3 non-obvious connections between the user's tastes. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.'
-5.  **Provide a Confidence Score**: Rate your confidence in this synthesized profile on a scale of 0-100, based on the richness of the Qloo data.
+4.  **Find Surprising Connections (Self-Learning Task)**: This is a critical task. Analyze the full profile to uncover 2-3 non-obvious connections between the user's tastes that a human might miss. This multi-dimensional analysis is the foundation for understanding complex emotional and virtual (metaverse) behaviors. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.'
+5.  **Provide a Confidence Score**: Rate your confidence in this synthesized profile on a scale of 0-100, based on the richness and quality of the Qloo data.
 
 Generate the output in the specified JSON format.`,
 });
@@ -127,7 +115,7 @@ const generateCulturalDnaFlow = ai.defineFlow(
             fashion: { score: 0, preferences: [] },
             travel: { score: 0, preferences: [] },
             socialCauses: { score: 0, preferences: [] },
-            surpriseConnections: ["Could not retrieve correlations from taste API."],
+            surpriseConnections: ["Could not retrieve correlations from the Qloo API. The service may be temporarily unavailable."],
             confidenceScore: 20,
         };
     }

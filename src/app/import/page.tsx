@@ -156,9 +156,9 @@ export default function CustomerImportPage() {
                 <CardDescription>Map your CSV columns to the required system fields. Unmapped columns will be ignored during processing.</CardDescription>
                  <Alert className="mt-4">
                     <Info className="h-4 w-4"/>
-                    <AlertTitle>Qloo Taste AI™ Integration</AlertTitle>
+                    <AlertTitle>Powered by Qloo Taste AI™ & Gemini</AlertTitle>
                     <AlertDescription>
-                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Qloo API to generate the Cultural DNA for each customer. Ensure this column contains keywords about products, brands, or interests.
+                        The <strong>Purchase Categories</strong> field is the most important. It will be sent to the Qloo API to get taste correlation data. Then, Gemini synthesizes this data into a rich Cultural DNA profile for each customer.
                     </AlertDescription>
                  </Alert>
               </CardHeader>

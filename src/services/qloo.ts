@@ -48,6 +48,7 @@ export async function getCorrelations(interests: string[]): Promise<any> {
 
     } catch (error) {
         console.error('Failed to fetch correlations from Qloo API:', error);
-        throw error;
+        // Return null or an empty array to allow the flow to continue gracefully
+        return null;
     }
 }
