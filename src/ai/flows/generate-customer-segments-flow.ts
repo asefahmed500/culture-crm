@@ -53,18 +53,18 @@ const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateCustomerSegmentsOutputSchema },
-  prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" score, and create 8-12 distinct cultural segments. Act as a multi-modal analysis engine, considering the cultural DNA as a proxy for richer data like sentiment and browsing behavior.
+  prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" score derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
 
-Analyze the following customer profiles:
+Analyze the following customer profiles, which now contain rich, real-world taste data:
 {{{json profiles}}}
 
-Based on similarities in their Cultural DNA and inferred multi-modal behaviors, perform the following actions:
+Based on similarities in their Cultural DNA, perform the following actions:
 1.  **Cluster Customers**: Group the customers into 8-12 meaningful, distinct segments. Go beyond simple taste clusters; create personas that feel real. For example, instead of "Likes Rock Music", create "The Weekend Warrior" who buys durable outdoor gear and listens to classic rock.
 2.  **Name Each Segment**: Give each segment a descriptive and memorable name.
 3.  **Create Detailed Personas**: For each segment, provide a detailed profile including:
     *   The size of the segment (count of customers).
     *   A qualitative average customer value ('Low', 'Medium', 'High').
-    *   The top 5 most prominent cultural characteristics.
+    *   The top 5 most prominent cultural characteristics based on the Qloo data.
     *   Their communication preferences (inferred from their likely media consumption habits).
     *   **Feature Preference Matrix**: For the 'lovedProductCategories' field, create a feature preference matrix. List the specific product categories, product features, or service attributes that this segment has a high affinity for. This should directly inform product development by highlighting what these customers want and value in a product.
     *   The best marketing channels to reach them.

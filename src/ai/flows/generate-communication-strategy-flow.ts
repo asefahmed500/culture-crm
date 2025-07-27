@@ -77,9 +77,9 @@ const strategyPrompt = ai.definePrompt({
     name: 'communicationStrategyPrompt',
     input: { schema: CulturalDnaInputSchema },
     output: { schema: GenerateCommunicationStrategyOutputSchema },
-    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
+    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile—now powered by real data from the Qloo Taste AI API—and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
 
-Cultural DNA Profile:
+Cultural DNA Profile (from Qloo API data):
 - Music Affinity: {{music.score}}% (Preferences: {{json music.preferences}})
 - Entertainment Affinity: {{entertainment.score}}% (Preferences: {{json entertainment.preferences}})
 - Dining Affinity: {{dining.score}}% (Preferences: {{json dining.preferences}})
@@ -87,7 +87,7 @@ Cultural DNA Profile:
 - Travel Affinity: {{travel.score}}% (Preferences: {{json travel.preferences}})
 - Social Causes Affinity: {{socialCauses.score}}% (Preferences: {{json socialCauses.preferences}})
 
-Based on this profile, generate a detailed playbook with the following sections:
+Based on this rich, data-driven profile, generate a detailed playbook with the following sections:
 1.  **Email Marketing Optimization**: Fully localize the approach. Define the tone, language style (e.g., formal, casual, witty), and provide three compelling subject line examples optimized for open rates.
 2.  **Social Media Content Strategy**: Recommend the best platforms, content types, and a specific posting style. How can we engage them authentically?
 3.  **Visual Content Optimization**: Describe the visual branding elements, color palettes, and imagery that will resonate most strongly with this cultural profile.
