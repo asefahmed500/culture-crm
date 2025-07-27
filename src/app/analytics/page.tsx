@@ -320,11 +320,12 @@ export default function AnalyticsPage() {
                         </div>
 
                         <div>
-                            <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence & Product Insights</h2>
+                            <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence & Product Development</h2>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <Card>
                                     <CardHeader>
-                                        <CardTitle className="flex items-center gap-2"><Briefcase /> Market Opportunity Gaps</CardTitle>
+                                        <CardTitle className="flex items-center gap-2"><Briefcase /> Cultural Gap Analysis</CardTitle>
+                                        <CardDescription>Actionable ideas for new product development based on unmet cultural needs.</CardDescription>
                                     </CardHeader>
                                     <CardContent>
                                         <ul className="space-y-3 list-disc list-inside text-muted-foreground">
@@ -381,5 +382,3 @@ export default function AnalyticsPage() {
         </AppShell>
     );
 }
-
-    

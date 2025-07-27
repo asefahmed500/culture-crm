@@ -81,7 +81,7 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   topEmergingInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 emerging cultural interests gaining popularity."),
   topDecliningInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 declining cultural interests losing engagement."),
   seasonalForecasts: z.array(SeasonalForecastSchema).describe("2-3 seasonal behavior forecasts for key customer segments."),
-  marketOpportunityGaps: z.array(z.string()).describe("A list of 2-3 potential market opportunity gaps based on unmet or underserved cultural preferences in the data."),
+  marketOpportunityGaps: z.array(z.string()).describe("A cultural gap analysis. Identify 2-3 potential market opportunity gaps based on unmet or underserved cultural preferences. These should be actionable ideas for new product development."),
   competitiveIntelligence: z.string().describe("A brief analysis of how the identified trends position the business against potential competitors and where cultural gaps can be turned into a competitive advantage."),
   dataShiftAlert: z.string().optional().describe("An alert for cultural anomaly detection. Populate this with a concise message if a significant, rapid shift in customer data patterns is detected (e.g., a trend rapidly growing to affect >15% of the base). Omit this field entirely if no significant shifts are detected."),
   culturalShiftStory: CulturalShiftStorySchema.describe("A narrative story about the single most important cultural shift detected in the data. This is the AI's automated hypothesis generation at work."),
@@ -115,7 +115,9 @@ Based on this entire dataset, perform the following analysis:
     *   **Influence Mapping**: Hypothesize how external events might be influencing the observed cultural shifts.
     *   **Micro-trend Identification**: Spot nascent, niche trends before they become mainstream.
 6.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons.
-7.  **Market Intelligence & Product Development**: Identify market opportunity gaps and provide competitive intelligence.
+7.  **Hyper-Personalized Product Development**:
+    *   **Cultural Gap Analysis**: For the 'marketOpportunityGaps' field, conduct a cultural gap analysis. Identify 2-3 specific, unmet, or underserved cultural preferences in the data that could inspire new product development.
+    *   **Competitive Intelligence**: Provide a brief analysis of how identified trends position the business against competitors.
 8.  **Cultural Anomaly Detection**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns. If so, generate a concise alert message.
 9.  **Automated Hypothesis Generation (Cultural Shift Story)**: Synthesize all findings to identify the SINGLE most significant cultural shift. Create a compelling narrative story about it.
 10. **Global Intelligence Analysis**: Using your "world knowledge," act as a geo-context engine. Even though there is no explicit location data, infer how the cultural trends in the dataset might map to different global regions.
@@ -176,5 +178,3 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

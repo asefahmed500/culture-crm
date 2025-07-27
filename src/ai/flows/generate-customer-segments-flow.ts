@@ -21,7 +21,7 @@ const SegmentSchema = z.object({
     averageCustomerValue: z.string().describe("A qualitative description of the average customer value (e.g., 'High', 'Medium', 'Low')."),
     topCulturalCharacteristics: z.array(z.string()).min(5).max(5).describe("The top 5 most defining cultural characteristics for this segment."),
     communicationPreferences: z.string().describe("A summary of how this segment prefers to be communicated with (e.g., 'Prefers witty, infrequent emails and authentic social media content.')."),
-    lovedProductCategories: z.array(z.string()).describe("A list of product categories, product features, or service types this segment has a high affinity for. This should guide product development."),
+    lovedProductCategories: z.array(z.string()).describe("A feature preference matrix. List product categories, features, or service types this segment loves. This should guide product development."),
     bestMarketingChannels: z.array(z.string()).describe("The most effective marketing channels to reach this segment (e.g., 'Instagram Stories', 'Email Newsletter', 'Podcast Sponsorships')."),
     sampleMessaging: z.string().describe("A sample messaging snippet that would resonate with this segment."),
     potentialLifetimeValue: z.string().describe("A qualitative assessment of the potential lifetime value (e.g., 'Very High', 'Moderate')."),
@@ -66,7 +66,7 @@ Based on similarities in their Cultural DNA and inferred multi-modal behaviors, 
     *   A qualitative average customer value ('Low', 'Medium', 'High').
     *   The top 5 most prominent cultural characteristics.
     *   Their communication preferences (inferred from their likely media consumption habits).
-    *   **Product & Feature Preferences**: Identify product categories, specific features, or service types they show a high affinity for. This should directly inform product development by highlighting what these customers want.
+    *   **Feature Preference Matrix**: For the 'lovedProductCategories' field, create a feature preference matrix. List the specific product categories, product features, or service attributes that this segment has a high affinity for. This should directly inform product development by highlighting what these customers want and value in a product.
     *   The best marketing channels to reach them.
     *   A sample messaging snippet that would resonate with them.
     *   A qualitative assessment of their potential lifetime value ('Low', 'Moderate', 'High', 'Very High').
