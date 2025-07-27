@@ -21,7 +21,9 @@ export type GenerateColumnMappingInput = z.infer<typeof GenerateColumnMappingInp
 
 // The output is a simple key-value mapping object.
 // The key is the original CSV header, and the value is the system field it maps to.
-export type GenerateColumnMappingOutput = z.record(z.string());
+const GenerateColumnMappingOutputSchema = z.record(z.string());
+export type GenerateColumnMappingOutput = z.infer<typeof GenerateColumnMappingOutputSchema>;
+
 
 export async function generateColumnMapping(input: GenerateColumnMappingInput): Promise<GenerateColumnMappingOutput> {
   return generateColumnMappingFlow(input);
@@ -69,7 +71,7 @@ const generateColumnMappingFlow = ai.defineFlow(
   {
     name: 'generateColumnMappingFlow',
     inputSchema: GenerateColumnMappingInputSchema,
-    outputSchema: z.record(z.string()),
+    outputSchema: GenerateColumnMappingOutputSchema,
   },
   async (input) => {
     const { output } = await mappingPrompt(input);
