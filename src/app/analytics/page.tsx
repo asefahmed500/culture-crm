@@ -6,7 +6,7 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck } from 'lucide-react';
+import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck, PlayCircle } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -32,7 +32,7 @@ const PredictionCard = ({ title, icon: Icon, prediction }: { title: string, icon
             </div>
              <Separator />
              <div>
-                <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><Lightbulb className="h-4 w-4 text-amber-500" /> Actionable Recommendation</h4>
+                <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm"><PlayCircle className="h-4 w-4 text-green-500" /> Automation Trigger</h4>
                 <p className="text-sm text-muted-foreground">{prediction.recommendation}</p>
              </div>
         </CardContent>
@@ -195,7 +195,7 @@ export default function AnalyticsPage() {
                         {insights.dataShiftAlert && (
                             <Alert variant="destructive" className="border-2 border-amber-500/50">
                                 <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Cultural Anomaly Detected!</AlertTitle>
+                                <AlertTitle>Cultural Anomaly Detected! (Automation Trigger)</AlertTitle>
                                 <AlertDescription>{insights.dataShiftAlert}</AlertDescription>
                             </Alert>
                         )}
@@ -346,7 +346,10 @@ export default function AnalyticsPage() {
                         </div>
                         
                         <div>
-                             <h2 className="text-2xl font-bold tracking-tight mb-4">Predictive Cultural Journey Mapping</h2>
+                             <h2 className="text-2xl font-bold tracking-tight mb-4">Predictive Cultural Journey Mapping & Automation Triggers</h2>
+                             <CardDescription className="mb-4 -mt-2">
+                                These insights serve as triggers for external marketing automation workflows. Each recommendation is a direct instruction for systems like Zapier, Hubspot, or Marketo.
+                             </CardDescription>
                              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
                                 <PredictionCard title="Upsell Opportunity" icon={ArrowUpRight} prediction={insights.predictions.upsellOpportunity} />
                                 <PredictionCard title="Brand Advocacy" icon={Star} prediction={insights.predictions.brandAdvocacy} />

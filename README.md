@@ -33,6 +33,7 @@ An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and
     -   **Pattern Discovery**: The "Key Patterns Discovered" card on the **Analytics** page.
     -   **Anomaly Detection**: The "Cultural Anomaly Detected!" alert on the **Analytics** page.
 -   [x] **Conversational Cultural Intelligence**: **Done.** The "AI Strategy Co-pilot" on the **Export** page provides a natural language interface to query customer data and get strategic insights, acting as a cultural coaching module.
+-   [x] **Cultural Automation Workflows**: **Done (Conceptual).** The platform provides the triggers and content for marketing automation. The "Predictive Cultural Journey Mapping" and "Anomaly Detection" features serve as triggers, while the AI-generated "Communication Playbooks" and "Campaign Briefs" provide the content for automated workflows in external systems (e.g., Zapier, Hubspot).
 
 ### 📊 ENTERPRISE-GRADE ANALYTICS
 

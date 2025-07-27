@@ -18,7 +18,7 @@ const PredictionSchema = z.object({
   segmentDescription: z.string().describe("A description of the customer segment this prediction applies to."),
   prediction: z.string().describe("The specific prediction for this segment (e.g., 'Likely to purchase premium products in the next quarter'). This should be framed as a point in the cultural journey."),
   confidenceScore: z.number().describe("Confidence score (0-100) for this prediction."),
-  recommendation: z.string().describe("An actionable recommendation for this specific intervention point in the customer's cultural journey."),
+  recommendation: z.string().describe("An actionable recommendation for this specific intervention point in the customer's cultural journey. This should be a clear, direct instruction that could trigger a marketing automation workflow (e.g., 'Add this segment to the 'High-Value Upsell' email sequence.')."),
 });
 
 const TrendSchema = z.object({
@@ -83,7 +83,7 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   seasonalForecasts: z.array(SeasonalForecastSchema).describe("2-3 seasonal behavior forecasts for key customer segments."),
   marketOpportunityGaps: z.array(z.string()).describe("A cultural gap analysis. Identify 2-3 potential market opportunity gaps based on unmet or underserved cultural preferences. These should be actionable ideas for new product development."),
   competitiveIntelligence: z.string().describe("A brief analysis of the competitive landscape from a cultural perspective. Using world knowledge, infer potential competitors and analyze their cultural positioning. Identify cultural threats (e.g., competitors targeting your key segments) and opportunities (e.g., underserved cultural segments)."),
-  dataShiftAlert: z.string().optional().describe("An alert for cultural anomaly detection. Populate this with a concise message if a significant, rapid shift in customer data patterns is detected (e.g., a trend rapidly growing to affect >15% of the base). Omit this field entirely if no significant shifts are detected."),
+  dataShiftAlert: z.string().optional().describe("An alert for cultural anomaly detection. Populate this with a concise message if a significant, rapid shift in customer data patterns is detected (e.g., a trend rapidly growing to affect >15% of the base). This is the trigger for an event-driven campaign."),
   culturalShiftStory: CulturalShiftStorySchema.describe("A narrative story about the single most important cultural shift detected in the data. This is the AI's automated hypothesis generation at work."),
   culturalEvolution: CulturalEvolutionSchema.describe("Insights into how customer culture is changing over time."),
   globalIntelligence: GlobalIntelligenceSchema.describe("Insights into how cultural trends may differ across geographic markets, providing guidance for global marketing efforts."),
@@ -107,11 +107,11 @@ Analyze the following customer profiles, fully simulating a multi-modal analysis
 Based on this entire dataset, perform the following analysis:
 1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
 2.  **Cultural Pattern Discovery (Self-Learning)**: Synthesize all real and inferred multi-modal signals to find 3-5 of the most significant recurring cultural patterns that a human might miss. This is a key self-learning function.
-3.  **Predictive Cultural Journey Mapping**: This is a critical section. Analyze the customer base to model their cultural evolution. For each prediction (Purchase, Churn, Advocacy, Upsell), you must:
+3.  **Predictive Cultural Journey Mapping & Automation Triggers**: This is a critical section. Analyze the customer base to model their cultural evolution. For each prediction (Purchase, Churn, Advocacy, Upsell), you must:
     *   **Model the Cultural Lifecycle**: Frame the prediction as a point in the customer's cultural journey (e.g., "This segment is evolving towards...").
-    *   **Identify Intervention Points**: The 'recommendation' for each prediction must be a specific, actionable strategy for that intervention point.
-    *   **Predict Cultural Churn**: The 'churnRisk' prediction must specifically identify when a segment's cultural evolution might lead them to outgrow the brand and why.
-    *   **Find Cultural Upsell Opportunities**: The 'upsellOpportunity' prediction must suggest products or services that align with a segment's *evolving* cultural identity, not just their current one.
+    *   **Identify Automation Triggers**: The 'recommendation' for each prediction must be a specific, direct instruction for a marketing automation system. For example: "Trigger the 'At-Risk Customer' workflow," or "Add to the 'Luxury Upgrade' email sequence."
+    *   **Predict Cultural Churn**: The 'churnRisk' prediction must specifically identify when a segment's cultural evolution might lead them to outgrow the brand and why. The recommendation should be an automation trigger to prevent it.
+    *   **Find Cultural Upsell Opportunities**: The 'upsellOpportunity' prediction must suggest products that align with a segment's *evolving* cultural identity. The recommendation should be a trigger to an upsell workflow.
 4.  **Cultural Trend Monitoring**: Identify the top 5 emerging and declining cultural interests.
 5.  **Dynamic Cultural Evolution Tracking**:
     *   **Life Stage Transitions**: Infer life stage transitions from changes in purchase patterns.
@@ -122,7 +122,7 @@ Based on this entire dataset, perform the following analysis:
 7.  **Competitive & Market Intelligence**:
     *   **Cultural Gap Analysis**: For the 'marketOpportunityGaps' field, conduct a cultural gap analysis. Identify 2-3 specific, unmet, or underserved cultural preferences in the data that could inspire new product development or identify competitive white space.
     *   **Competitive Cultural Intelligence**: For the 'competitiveIntelligence' field, use your world knowledge to analyze the competitive landscape from a cultural perspective. Do not just state trends; provide strategic analysis. For example, 'The rise in eco-conscious values is a threat, as competitor X is already well-positioned as a sustainable brand. To counter, focus on the 'artisan-made' aspect of sustainability, which they currently ignore.' Identify cultural threats and opportunities.
-8.  **Cultural Anomaly Detection (Self-Learning)**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns. If so, generate a concise alert message for the 'dataShiftAlert' field. This is a critical self-learning capability.
+8.  **Cultural Anomaly Detection (Event-Driven Automation Trigger)**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns. If so, generate a concise alert message for the 'dataShiftAlert' field. This alert serves as a trigger for an event-driven campaign workflow.
 9.  **Automated Hypothesis Generation (Self-Learning)**: Synthesize all findings to identify the SINGLE most significant cultural shift. For the 'culturalShiftStory' field, create a compelling narrative story about it. This is an automated hypothesis generated by the AI for the user to test.
 10. **Global Intelligence Analysis**: Using your "world knowledge," act as a geo-context engine. Even though there is no explicit location data, infer how the cultural trends in the dataset might map to different global regions.
     *   **Regional Cultural Mapping**: Based on the tastes present in the data, map them to major global regions (e.g., North America, Western Europe, Southeast Asia, etc.) where they might be prevalent.
@@ -131,7 +131,7 @@ Based on this entire dataset, perform the following analysis:
     *   **Cultural Sensitivity Score**: Calculate a score (0-100) that represents how well the brand's current appeal spans diverse cultural tastes. A high score indicates broad, sensitive appeal, while a low score suggests a narrow or potentially insensitive appeal.
 
 Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
-`,
+`
 });
 
 const generateAnalyticsInsightsFlow = ai.defineFlow(
