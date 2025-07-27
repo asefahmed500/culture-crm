@@ -18,11 +18,11 @@ const CalendarDaySchema = z.object({
   theme: z.string().describe("The content theme for the day (e.g., 'Wellness Wednesday', 'Throwback Thursday')."),
   platform: z.string().describe("The primary social media platform for this post (e.g., 'Instagram', 'TikTok', 'Email Newsletter')."),
   postSuggestion: z.string().describe("A specific and creative post idea for the day that aligns with the customer base's cultural interests."),
-  culturalTieIn: z.string().optional().describe("Explain how this post ties into a specific cultural trend identified in the data."),
+  culturalTieIn: z.string().describe("Crucially, explain how this post ties into a specific cultural trend, holiday, or event relevant to the customer base. This simulates a cultural calendar."),
 });
 
 const GenerateContentCalendarOutputSchema = z.object({
-  summary: z.string().describe("A high-level summary of the content strategy for the month, including which cultural trends it leans into."),
+  summary: z.string().describe("A high-level summary of the content strategy for the month, including which cultural trends and events it leans into."),
   calendar: z.array(CalendarDaySchema).length(30).describe("An array of 30 days of content ideas."),
 });
 
@@ -36,7 +36,7 @@ const calendarPrompt = ai.definePrompt({
   name: 'contentCalendarPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateContentCalendarOutputSchema },
-  prompt: `You are a creative and strategic social media manager with a deep understanding of cultural trends. Your task is to generate a 30-day content calendar for an e-commerce brand based on an analysis of its customer base's cultural DNA. The goal is to create content that resonates deeply and avoids cultural missteps.
+  prompt: `You are a creative and strategic social media manager with a deep understanding of cultural trends. Your task is to generate a 30-day content calendar for an e-commerce brand based on an analysis of its customer base's cultural DNA. The goal is to create content that resonates deeply by timing it with relevant cultural moments.
 
 Analyze the key cultural trends from the following sample of customer profiles:
 {{{json profiles}}}
@@ -47,7 +47,7 @@ Based on this data, create a content calendar for the next 30 days.
     *   A creative content **theme**.
     *   The best **platform** for the post.
     *   A specific **post suggestion** that feels authentic and engaging.
-    *   A **cultural tie-in** explaining how the post connects to the data.
+    *   A **Cultural Tie-In**: This is the most important part. Explain how the post connects to a relevant cultural event, holiday, or trend identified in the data. For example: "Day 15: Post about sustainable fashion. Cultural Tie-In: This aligns with the 'eco-conscious' trend and comes just before Earth Day." This simulates a cultural calendar API.
 
 Make the content ideas engaging, creative, and tailored to the cultural interests revealed in the customer data. Ensure there is a good mix of content types and platforms. Avoid generic ideas.
 

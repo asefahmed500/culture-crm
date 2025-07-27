@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle, ShoppingCart, Send, Tv, Lightbulb, Shield } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle, ShoppingCart, Send, Tv, Lightbulb, Shield, Mic } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer } from 'recharts';
 import type { ChartConfig } from "@/components/ui/chart";
@@ -375,18 +375,18 @@ export default function CustomersPage() {
                                                                         </div>
                                                                          <Separator />
                                                                          <div className="space-y-4">
-                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><Shield /> Cultural Guardrails</h3>
+                                                                            <h3 className="font-semibold text-base flex items-center gap-2"><Shield /> Cultural Guardrails (Taboo Detection)</h3>
                                                                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                                 <div className="p-3 rounded-md bg-green-500/10 border border-green-500/20">
-                                                                                    <h4 className="font-semibold text-green-600 flex items-center gap-2"><Lightbulb /> DO's: Emphasize These</h4>
+                                                                                    <h4 className="font-semibold text-green-600 flex items-center gap-2"><Lightbulb /> DOs: Emphasize These</h4>
                                                                                      <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
-                                                                                        {strategy.culturalInsights.referencesToEmphasize.map((s, i) => <li key={i}>{s}</li>)}
+                                                                                        {strategy.culturalGuardrails.dos.map((s, i) => <li key={i}>{s}</li>)}
                                                                                     </ul>
                                                                                 </div>
                                                                                 <div className="p-3 rounded-md bg-red-500/10 border border-red-500/20">
                                                                                     <h4 className="font-semibold text-destructive flex items-center gap-2"><XCircle /> DON'Ts: Avoid These</h4>
                                                                                      <ul className="list-disc list-inside text-muted-foreground mt-2 space-y-1">
-                                                                                        {strategy.culturalInsights.approachesToAvoid.map((s, i) => <li key={i}>{s}</li>)}
+                                                                                        {strategy.culturalGuardrails.donts.map((s, i) => <li key={i}>{s}</li>)}
                                                                                     </ul>
                                                                                 </div>
                                                                             </div>
