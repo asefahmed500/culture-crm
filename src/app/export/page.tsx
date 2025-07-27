@@ -1,4 +1,3 @@
-
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -80,6 +79,9 @@ export default function ExportPage() {
         setIsBriefLoading(true);
         setBriefError(null);
         setCampaignBrief(null);
+        setSalesScript(null);
+        setContentCalendar(null);
+        setCoPilotResponse(null);
         try {
             const response = await fetch('/api/export/campaign-brief', {
                 method: 'POST',
@@ -103,6 +105,9 @@ export default function ExportPage() {
         setIsCalendarLoading(true);
         setCalendarError(null);
         setContentCalendar(null);
+        setCampaignBrief(null);
+        setSalesScript(null);
+        setCoPilotResponse(null);
         try {
             const response = await fetch('/api/export/content-calendar', {
                 method: 'POST',
@@ -128,6 +133,9 @@ export default function ExportPage() {
         setIsScriptLoading(true);
         setScriptError(null);
         setSalesScript(null);
+        setCampaignBrief(null);
+        setContentCalendar(null);
+        setCoPilotResponse(null);
         try {
             const response = await fetch('/api/export/sales-script', {
                 method: 'POST',
@@ -186,6 +194,9 @@ export default function ExportPage() {
         setIsCoPilotLoading(true);
         setCoPilotError(null);
         setCoPilotResponse(null);
+        setCampaignBrief(null);
+        setSalesScript(null);
+        setContentCalendar(null);
         try {
             const response = await fetch('/api/conversational-insights', {
                 method: 'POST',
@@ -290,7 +301,7 @@ export default function ExportPage() {
                              <div className="space-y-4">
                                 <div className="relative">
                                     <Textarea 
-                                        placeholder="Ask a question... e.g., 'What music do my high-value customers like?' or 'How do I create a campaign for the Globetrotting Foodies segment?'"
+                                        placeholder="Ask a question... e.g., 'What are the top 3 most promising segments and why?' or 'How do I create a campaign for the Globetrotting Foodies segment?'"
                                         value={coPilotQuery}
                                         onChange={(e) => setCoPilotQuery(e.target.value)}
                                         className="pr-10"
@@ -319,7 +330,7 @@ export default function ExportPage() {
                     <Card>
                         <CardContent className="p-6 flex items-center justify-center">
                             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                            <p>Our AI Co-pilot is thinking...</p>
+                            <p>Cultura is thinking...</p>
                         </CardContent>
                     </Card>
                 )}
@@ -330,9 +341,7 @@ export default function ExportPage() {
                             <CardTitle>Cultura's Response</CardTitle>
                         </CardHeader>
                         <CardContent>
-                             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap">
-                                {coPilotResponse}
-                            </div>
+                             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap" dangerouslySetInnerHTML={{ __html: coPilotResponse.replace(/\n/g, '<br />') }}/>
                         </CardContent>
                     </Card>
                 )}
