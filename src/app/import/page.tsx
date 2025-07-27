@@ -43,10 +43,11 @@ export default function CustomerImportPage() {
       reader.onload = () => {
         const text = reader.result as string;
         const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/"/g, '')));
-        setHeaders(rows[0]);
+        const validHeaders = rows[0].filter(header => header.trim() !== '');
+        setHeaders(validHeaders);
         setData(rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell))); // Ensure row has same number of columns and is not empty
         // Reset mapping when new file is uploaded
-        setMapping(rows[0].reduce((acc, header) => ({ ...acc, [header]: '' }), {}));
+        setMapping(validHeaders.reduce((acc, header) => ({ ...acc, [header]: '' }), {}));
       };
       reader.readAsText(uploadedFile);
     } else {
@@ -171,7 +172,7 @@ export default function CustomerImportPage() {
                         <SelectValue placeholder="Select a field" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">- Unmapped -</SelectItem>
+                        <SelectItem value="-">- Unmapped -</SelectItem>
                         {requiredFields.map(field => (
                           <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
                             {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
