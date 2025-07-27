@@ -15,8 +15,10 @@ import { Segment } from '@/models/segment';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useSession } from 'next-auth/react';
 
 export default function SegmentsPage() {
+    const { data: session, status } = useSession();
     const [loading, setLoading] = useState(true);
     const [isGenerating, setIsGenerating] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -45,8 +47,13 @@ export default function SegmentsPage() {
     }
 
     useEffect(() => {
-        fetchSegments();
-    }, []);
+        if (status === 'authenticated') {
+            fetchSegments();
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
+            // You might want to redirect or show a message here
+        }
+    }, [status]);
 
     const handleGenerateSegments = async () => {
         setIsGenerating(true);
