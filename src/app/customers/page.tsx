@@ -10,7 +10,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle, ShoppingCart, Send, Tv, Lightbulb, Shield, Mic } from 'lucide-react';
+import { BarChart, Wand2, Loader2, Rocket, ThumbsUp, ThumbsDown, CheckCircle, XCircle, ShoppingCart, Send, Tv, Lightbulb, Shield } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend, ResponsiveContainer } from 'recharts';
 import type { ChartConfig } from "@/components/ui/chart";

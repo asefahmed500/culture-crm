@@ -1,4 +1,6 @@
 
+'use server';
+
 import dbConnect from "@/lib/mongoose";
 import CustomerProfile from "@/models/customer-profile";
 import { NextRequest, NextResponse } from "next/server";
