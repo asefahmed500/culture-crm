@@ -5,3 +5,6 @@ runConfig:
   # Increase this value if you'd like to automatically spin up
   # more instances in response to increased traffic.
   maxInstances: 1
+  # The command to start your application. The hosting environment will run
+  # this command to start your server.
+  command: npm run dev
