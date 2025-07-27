@@ -238,12 +238,12 @@ export default function CustomerImportPage() {
               <CardTitle>Import Summary</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Alert variant="default" className="bg-accent/50 border-green-500 text-green-800">
-                <CheckCircle className="h-4 w-4 !text-green-600"/>
+              <Alert variant="default" className="bg-green-100 dark:bg-green-900/20 border-green-500/50 text-green-800 dark:text-green-300">
+                <CheckCircle className="h-4 w-4 !text-green-600 dark:!text-green-400"/>
                 <AlertTitle>Success!</AlertTitle>
                 <AlertDescription>
                     Your data has been processed and saved. You can view the results below or see all profiles on the{' '}
-                    <Link href="/customers" className="font-bold underline hover:text-green-900">
+                    <Link href="/customers" className="font-bold underline hover:text-green-900 dark:hover:text-green-200">
                         Customers page
                     </Link>.
                 </AlertDescription>

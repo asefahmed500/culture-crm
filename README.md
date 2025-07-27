@@ -12,7 +12,7 @@ An insight like **"Eco-conscious indie enthusiasts"** is far more actionable and
 
 ### 🧠 AI/ML POWERHOUSE FEATURES
 
--   [x] **Multi-Modal Cultural Analysis Engine**: **Done.** The system successfully processes raw customer data, enriches it with a Gemini LLM to generate a detailed "Cultural DNA" profile, effectively simulating a multi-modal analysis. This is visible on the **Customers** page.
+-   [x] **Multi-Modal Cultural Analysis Engine**: **Done.** The system successfully processes raw customer data, enriches it with the **Qloo Taste AI™ API**, and then uses a Gemini LLM to generate a detailed "Cultural DNA" profile. This is visible on the **Customers** page.
 -   [x] **Dynamic Cultural Evolution Tracking**: **Done.** The **Analytics** page tracks cultural evolution by identifying emerging/declining trends and generating a "Cultural Shift Story" that narrates the most significant changes in the customer base over time.
 -   [x] **Cultural Influence Network Analysis**: **Done.** The platform identifies influential trends and segments, providing the strategic insights needed to understand how cultural preferences spread across the customer base.
 
@@ -56,7 +56,7 @@ A comprehensive end-to-end testing suite has been created to validate all featur
 
 ## Ethical Guardrails
 
--   **Transparency**: This README and the application UI clearly state when and how the Gemini LLM is used to generate insights.
+-   **Transparency**: This README and the application UI clearly state when and how the Qloo API and Gemini LLM are used to generate insights.
 -   **Privacy-First**: The system is designed to work with anonymized data from the start, requiring no PII for its core functionality.
 -   **Bias Detection**: The AI segmentation flow is prompted to identify and flag segments that may be based on potentially harmful stereotypes, which are then highlighted in the UI.
 -   **Human-in-the-Loop**: The Cultural Accuracy Scoring feature allows users to validate AI-generated profiles, providing a feedback loop to track and improve model accuracy over time.
@@ -66,7 +66,7 @@ A comprehensive end-to-end testing suite has been created to validate all featur
 
 -   **Framework**: Next.js (App Router)
 -   **Styling**: Tailwind CSS with shadcn/ui components
--   **AI / LLM**: Google Gemini via Genkit
+-   **AI / LLM**: Google Gemini via Genkit, **Qloo Taste AI™ API**
 -   **Database**: MongoDB with Mongoose
 -   **Authentication**: NextAuth.js (Credentials & Google Provider)
 
@@ -77,6 +77,10 @@ A comprehensive end-to-end testing suite has been created to validate all featur
 Create a `.env` file in the root of the project and add the following environment variables.
 
 ```
+# Qloo Hackathon API Key & URL
+QLOO_API_URL="https://hackathon.api.qloo.com"
+QLOO_API_KEY="your_qloo_api_key"
+
 # MongoDB Connection String
 MONGODB_URI="your_mongodb_connection_string"
 

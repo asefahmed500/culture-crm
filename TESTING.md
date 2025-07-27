@@ -13,8 +13,9 @@ This document provides a comprehensive checklist and test prompts to validate ev
 ### 🔍 Checkpoints:
 
 *   [ ] **CSV Upload & Parsing**: Navigate to the **Customer Import** page. Upload a sample CSV. Confirm that columns are parsed correctly and can be mapped to the required system fields.
+*   [ ] **Qloo API Integration**: After processing, verify that the application successfully calls the Qloo API with the `purchaseCategories` data.
 *   [ ] **AI Enrichment**: After processing, navigate to the **Customers** page. Verify that new profiles have been created.
-*   [ ] **Cultural DNA Rendering**: For each new profile, open the "View DNA" dialog. Confirm that the radar chart, preferences, and "Surprising Connections" are all rendered correctly.
+*   [ ] **Cultural DNA Rendering**: For each new profile, open the "View DNA" dialog. Confirm that the radar chart, preferences, and "Surprising Connections" are all rendered correctly based on the data synthesized from the Qloo API.
 *   [ ] **Feedback Loop**: Test the "Accurate" / "Inaccurate" buttons and verify that the "Cultural DNA Accuracy" score on the **Dashboard** updates.
 
 ---
@@ -198,7 +199,7 @@ This document provides a comprehensive checklist and test prompts to validate ev
 
 *   [ ] All `fetch` calls to `/api/...` routes should return `2xx` status codes on valid requests.
 *   [ ] API routes should handle invalid inputs gracefully (e.g., return `400` or `500` with a clear error message).
-*   [ ] The application should remain functional even if an external API call to Gemini fails, providing a clear error message to the user.
+*   [ ] The application should remain functional even if an external API call to Gemini or Qloo fails, providing a clear error message to the user.
 
 ### 🎨 UI Tests
 
