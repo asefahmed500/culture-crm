@@ -9,7 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Upload, FileText, X, CheckCircle, Info } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucide-react';
 import AppShell from '@/components/app-shell';
 import { processCustomerData, ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
@@ -22,20 +22,42 @@ type Mapping = {
 const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
 const importantField = 'purchase_categories';
 
-// Function to normalize header names for better matching
-const normalizeHeader = (header: string) => {
-  return header.toLowerCase().replace(/[\s_-]/g, '_');
-};
-
 export default function CustomerImportPage() {
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<CsvData>([]);
   const [headers, setHeaders] = useState<string[]>([]);
   const [mapping, setMapping] = useState<Mapping>({});
+  const [isMappingLoading, setIsMappingLoading] = useState(false);
   const [processing, setProcessing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ProcessCustomerDataOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const handleSmartMap = async (headers: string[], data: CsvData) => {
+    setIsMappingLoading(true);
+    setError(null);
+    try {
+        const response = await fetch('/api/smart-map-columns', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ headers, previewData: data.slice(0, 5) }),
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'AI mapping failed');
+        }
+
+        const smartMapping = await response.json();
+        setMapping(smartMapping);
+
+    } catch (err: any) {
+        setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
+    } finally {
+        setIsMappingLoading(false);
+    }
+  };
+
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
@@ -50,17 +72,13 @@ export default function CustomerImportPage() {
         const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/"/g, '')));
         
         const validHeaders = rows[0].filter(header => header.trim() !== '');
+        const validData = rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell));
+
         setHeaders(validHeaders);
-        setData(rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell)));
+        setData(validData);
 
         // Auto-mapping logic
-        const newMapping: Mapping = {};
-        validHeaders.forEach(header => {
-            const normalized = normalizeHeader(header);
-            const match = requiredFields.find(field => normalized.includes(field) || field.includes(normalized));
-            newMapping[header] = match || '';
-        });
-        setMapping(newMapping);
+        handleSmartMap(validHeaders, validData);
       };
       reader.readAsText(uploadedFile);
     } else {
@@ -167,7 +185,7 @@ export default function CustomerImportPage() {
             <Card>
               <CardHeader>
                 <CardTitle>Column Mapping</CardTitle>
-                <CardDescription>Map your CSV columns to the required system fields. The system will attempt to auto-map them. Unmapped columns will be ignored.</CardDescription>
+                <CardDescription>Map your CSV columns to the required system fields. The AI will attempt to auto-map them. Unmapped columns will be ignored.</CardDescription>
                  <Alert className="mt-4">
                     <Info className="h-4 w-4"/>
                     <AlertTitle>Powered by Qloo Taste AI™ & Gemini</AlertTitle>
@@ -176,25 +194,36 @@ export default function CustomerImportPage() {
                     </AlertDescription>
                  </Alert>
               </CardHeader>
-              <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                {headers.map(header => (
-                  <div key={header} className="space-y-2">
-                    <p className="font-medium">{header}</p>
-                    <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header]}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="-">- Unmapped -</SelectItem>
-                        {requiredFields.map(field => (
-                          <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
-                            {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
-                          </SelectItem>
+              <CardContent>
+                {isMappingLoading && (
+                    <div className="flex items-center justify-center p-8 gap-2 text-muted-foreground">
+                        <Loader2 className="h-5 w-5 animate-spin" />
+                        <Sparkles className="h-5 w-5 text-primary" />
+                        <span>AI is auto-mapping your columns...</span>
+                    </div>
+                )}
+                {!isMappingLoading && headers.length > 0 && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        {headers.map(header => (
+                        <div key={header} className="space-y-2">
+                            <p className="font-medium">{header}</p>
+                            <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || ''}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="- Unmapped -" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="">- Unmapped -</SelectItem>
+                                {requiredFields.map(field => (
+                                <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
+                                    {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
+                                </SelectItem>
+                                ))}
+                            </SelectContent>
+                            </Select>
+                        </div>
                         ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
+                    </div>
+                )}
               </CardContent>
             </Card>
 
@@ -226,7 +255,7 @@ export default function CustomerImportPage() {
             </Card>
 
             <div className="flex justify-end">
-              <Button onClick={handleProcess} disabled={processing}>
+              <Button onClick={handleProcess} disabled={processing || isMappingLoading}>
                 {processing ? 'Processing...' : 'Process & Save Data'}
               </Button>
             </div>
@@ -309,5 +338,3 @@ export default function CustomerImportPage() {
     </AppShell>
   );
 }
-
-    
