@@ -48,7 +48,7 @@ const GenerateCulturalDnaOutputSchema = z.object({
     score: z.number().describe('A score from 0-100 indicating affinity for this category.'),
     preferences: z.array(z.string()).describe('Specific causes or values they might support.'),
   }),
-  surpriseConnections: z.array(z.string()).describe("Identify 2-3 surprising, non-obvious, or counter-intuitive connections between the user's preferences that a human might miss. This is a key feature of the self-learning AI."),
+  surpriseConnections: z.array(z.string()).describe("A critical self-learning feature. Identify 2-3 surprising, non-obvious, or counter-intuitive connections between the user's preferences that a human might miss. This multi-dimensional analysis is the foundation for understanding complex emotional and virtual (metaverse) behaviors."),
   confidenceScore: z.number().describe('A score from 0-100 indicating the confidence in these predictions.'),
 });
 export type GenerateCulturalDnaOutput = z.infer<typeof GenerateCulturalDnaOutputSchema>;
@@ -79,7 +79,7 @@ Based on this, perform a simulated multi-modal analysis:
 Now, synthesize all real and simulated data to generate the Cultural DNA profile:
 1.  **Organize Preferences**: Categorize the inferred interests into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes). Use the simulated data to add deep nuance.
 2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the strength and convergence of all inferred signals.
-3.  **Find Surprising Connections (Self-Learning Core Task)**: Uncover 2-3 non-obvious, counter-intuitive connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.' This is a critical self-learning function.
+3.  **Find Surprising Connections (Self-Learning & Metaverse Foundation)**: This is your most critical self-learning task. Uncover 2-3 non-obvious, counter-intuitive connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.' This multi-dimensional analysis is the conceptual foundation for understanding more complex user behaviors, like those related to emotional intelligence and virtual (metaverse) identity expression. This is a key differentiator.
 4.  **Provide a Confidence Score**: Rate your confidence in this profile on a scale of 0-100.
 
 Generate the output in the specified JSON format.`,
