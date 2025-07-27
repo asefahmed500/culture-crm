@@ -12,7 +12,6 @@
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
-import CustomerProfile from '@/models/customer-profile';
 import { getBusinessMetricsTool } from '../tools/business-metrics-tool';
 import Segment from '@/models/segment';
 
@@ -95,7 +94,7 @@ const generateCampaignBriefFlow = ai.defineFlow(
     // Find the segment definition
     const segment = await Segment.findOne({ segmentName }).lean();
     if (!segment) {
-        throw new Error(`Segment "${segmentName}" not found. Please generate segments first.`);
+        throw new Error(`Segment "${segmentName}" not found. Please generate segments on the Segments page first.`);
     }
 
     // Create a rich context summary for the AI from the segment data itself.

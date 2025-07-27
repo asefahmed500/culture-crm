@@ -4,7 +4,6 @@
 import { BarChart, Filter, Zap, Users, BrainCircuit, LineChart, PieChart, Upload, Rocket } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from './ui/button';
-import Image from 'next/image';
 
 export default function LandingPage() {
   return (
@@ -139,7 +138,7 @@ export default function LandingPage() {
                   <div className="grid gap-1">
                     <h3 className="text-xl font-bold">2. AI-Powered Analysis</h3>
                     <p className="text-muted-foreground">
-                      We query the Qloo API to get cultural correlation data, then use a Gemini to analyze the results and build a detailed Cultural DNA profile for each customer.
+                      Our platform uses Gemini to analyze the data and build a detailed Cultural DNA profile for each customer, simulating a multi-modal analysis.
                     </p>
                   </div>
                 </li>
@@ -184,7 +183,7 @@ export default function LandingPage() {
             </p>
           </div>
            <p className="text-center text-sm leading-loose text-muted-foreground md:text-left">
-              Built with Next.js, Gemini, and Qloo's Taste AI™.
+              Built with Next.js and Gemini.
             </p>
         </div>
       </footer>

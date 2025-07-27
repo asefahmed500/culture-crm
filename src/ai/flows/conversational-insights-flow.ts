@@ -56,6 +56,6 @@ const conversationalInsightsFlow = ai.defineFlow(
     if (!output) {
       throw new Error('The AI model did not return a valid response.');
     }
-    return output;
+    return output as string;
   }
 );

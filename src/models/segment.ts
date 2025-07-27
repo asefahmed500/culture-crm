@@ -15,7 +15,6 @@ export interface Segment extends Document {
   businessOpportunityRank: number;
   biasWarning?: string;
   actualROI?: number;
-  comparisonROI?: number;
 }
 
 const SegmentSchema: Schema<Segment> = new Schema({
@@ -31,7 +30,6 @@ const SegmentSchema: Schema<Segment> = new Schema({
   businessOpportunityRank: { type: Number, required: true },
   biasWarning: { type: String, required: false },
   actualROI: { type: Number, required: false },
-  comparisonROI: { type: Number, required: false },
 }, {
     timestamps: true
 });
