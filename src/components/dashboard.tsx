@@ -12,30 +12,39 @@ import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { useEffect, useState, useMemo } from 'react';
-import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent } from 'lucide-react';
+import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent, AlertCircle } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 import type { ICustomerProfile } from '@/models/customer-profile';
 import type { Segment } from '@/models/segment';
+import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 export default function Dashboard() {
     const router = useRouter();
-    const { data: session } = useSession();
+    const { data: session, status } = useSession();
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
     const [segments, setSegments] = useState<Segment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 setLoading(true);
+                setError(null);
                 const [profilesRes, segmentsRes] = await Promise.all([
                     fetch('/api/customer-profiles'),
                     fetch('/api/customer-segments'),
                 ]);
                 
-                if (!profilesRes.ok || !segmentsRes.ok) {
-                    throw new Error('Failed to fetch data');
+                if (!profilesRes.ok) {
+                    const errorData = await profilesRes.json();
+                    throw new Error(errorData.message || 'Failed to fetch profiles');
                 }
+                 if (!segmentsRes.ok) {
+                    const errorData = await segmentsRes.json();
+                    throw new Error(errorData.message || 'Failed to fetch segments');
+                }
+
                 const profilesData = await profilesRes.json();
                 const segmentsData = await segmentsRes.json();
                 
@@ -43,14 +52,18 @@ export default function Dashboard() {
                 setSegments(segmentsData.segments || []);
 
             } catch (err: any) {
-                console.error(err.message || 'An unexpected error occurred.');
+                setError(err.message || 'An unexpected error occurred.');
             } finally {
                 setLoading(false);
             }
         };
 
-        fetchData();
-    }, []);
+        if (status === 'authenticated') {
+            fetchData();
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
+        }
+    }, [status]);
     
     const accuracyScore = useMemo(() => {
         const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0 && p.accuracyFeedback !== undefined && p.accuracyFeedback !== null);
@@ -153,17 +166,11 @@ export default function Dashboard() {
                     <Skeleton className="h-4 w-3/4" />
                 </CardHeader>
             </Card>
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <Card><CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent></Card>
+                <Card><CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent></Card>
+            </div>
             <Card>
-                <CardHeader>
-                    <Skeleton className="h-7 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                </CardHeader>
-                 <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                    <Skeleton className="h-24 w-full" />
-                    <Skeleton className="h-24 w-full" />
-                 </CardContent>
-            </Card>
-             <Card>
                 <CardHeader>
                     <Skeleton className="h-7 w-3/4 mb-2" />
                     <Skeleton className="h-4 w-full" />
@@ -181,6 +188,12 @@ export default function Dashboard() {
         
         {loading ? (
             <LoadingState />
+        ) : error ? (
+            <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertTitle>Error Loading Dashboard</AlertTitle>
+                <AlertDescription>{error}</AlertDescription>
+            </Alert>
         ) : (
             <>
                 {profiles.length > 0 && (

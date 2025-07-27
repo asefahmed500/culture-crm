@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import type { GenerateCommunicationStrategyOutput } from '@/ai/flows/generate-communication-strategy-flow';
+import { useSession } from 'next-auth/react';
 
 
 interface ICulturalDNA {
@@ -61,6 +62,7 @@ const getRadarChartData = (dna: ICulturalDNA) => {
 };
 
 export default function CustomersPage() {
+    const { data: session, status } = useSession();
     const [profiles, setProfiles] = useState<ICustomerProfile[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -69,26 +71,31 @@ export default function CustomersPage() {
     const [strategy, setStrategy] = useState<GenerateCommunicationStrategyOutput | null>(null);
     const { toast } = useToast();
 
-    const fetchProfiles = async () => {
-        try {
-            setLoading(true);
-            setError(null);
-            const response = await fetch('/api/customer-profiles');
-            if (!response.ok) {
-                throw new Error('Failed to fetch data');
+    useEffect(() => {
+        const fetchProfiles = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const response = await fetch('/api/customer-profiles');
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to fetch customer profiles');
+                }
+                const data = await response.json();
+                setProfiles(data);
+            } catch (err: any) {
+                setError(err.message || 'An unexpected error occurred.');
+            } finally {
+                setLoading(false);
             }
-            const data = await response.json();
-            setProfiles(data);
-        } catch (err: any) {
-            setError(err.message || 'An unexpected error occurred.');
-        } finally {
+        };
+
+        if (status === 'authenticated') {
+            fetchProfiles();
+        } else if (status === 'unauthenticated') {
             setLoading(false);
         }
-    };
-
-    useEffect(() => {
-        fetchProfiles();
-    }, []);
+    }, [status]);
 
     const handleGenerateStrategy = async (profile: ICustomerProfile) => {
         if (!profile.culturalDNA) return;
