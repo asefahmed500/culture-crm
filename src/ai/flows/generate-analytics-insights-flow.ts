@@ -46,6 +46,29 @@ const CulturalShiftStorySchema = z.object({
     recommendation: z.string().describe("A single, powerful strategic recommendation on how the business can capitalize on this cultural shift."),
 });
 
+const CulturalEvolutionSchema = z.object({
+    lifeStageShifts: z.array(z.string()).describe("A list of detected or inferred life stage transitions within the customer base (e.g., 'A significant portion of the 'Urban Explorer' segment appears to be entering parenthood, based on new purchasing patterns.')."),
+    culturalDrift: z.array(z.string()).describe("Analysis of how customers are moving between different cultural segments over time. (e.g., 'Customers from the 'Casual Gamers' segment are showing increased interest in 'DIY Hobbies', suggesting a drift towards the 'Creative Homebodies' segment.')."),
+    externalInfluenceMapping: z.array(z.string()).describe("Inferred mapping of how external events or macro-trends are influencing customer preferences (e.g., 'The recent global focus on wellness is likely driving the increased interest in 'Mindfulness Apps' across multiple segments.')."),
+    microTrends: z.array(z.string()).describe("Identification of nascent, micro-trends before they become mainstream (e.g., 'A small but growing cluster of high-value customers is showing interest in 'Analog Photography', a potential micro-trend to watch.').")
+});
+
+const GlobalIntelligenceSchema = z.object({
+    regionalCulturalMapping: z.array(z.object({
+        region: z.string().describe("A major global region (e.g., 'North America', 'Western Europe', 'Southeast Asia')."),
+        dominantCulturalTraits: z.array(z.string()).describe("A list of cultural traits from the customer data that are likely to be most prevalent in this region."),
+        marketImplication: z.string().describe("The key market implication for this region based on its cultural profile."),
+    })).describe("A mapping of cultural trends to major global regions, based on world knowledge and the provided customer data."),
+    culturalCollisionHotspots: z.array(z.object({
+        hotspot: z.string().describe("A potential area of cultural friction (e.g., 'Humor styles', 'Color symbolism', 'Pacing of advertisements')."),
+        description: z.string().describe("An explanation of why this could be a point of collision when marketing globally."),
+        recommendation: z.string().describe("A recommendation to mitigate this risk."),
+    })).describe("Identification of potential cultural collisions when taking a global brand into local markets."),
+    crossCulturalCampaignAdvice: z.string().describe("General, actionable advice on how to optimize marketing campaigns to be effective across different cultural contexts identified in the data."),
+    culturalSensitivityScore: z.number().min(0).max(100).describe("An overall score (0-100) representing the brand's current cultural sensitivity based on the diversity of tastes in its customer base. A high score means the brand appeals to a wide variety of cultural preferences and is less likely to cause offense."),
+});
+
+
 const GenerateAnalyticsInsightsOutputSchema = z.object({
   overallSummary: z.string().describe("A high-level summary of the most important findings from the analysis."),
   keyPatterns: z.array(z.string()).describe("List of 3-5 key behavioral or cultural patterns identified across the entire customer base. This is part of the AI's self-learning pattern discovery."),
@@ -62,6 +85,8 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   competitiveIntelligence: z.string().describe("A brief analysis of how the identified trends position the business against potential competitors and where cultural gaps can be turned into a competitive advantage."),
   dataShiftAlert: z.string().optional().describe("An alert for cultural anomaly detection. Populate this with a concise message if a significant, rapid shift in customer data patterns is detected (e.g., a trend rapidly growing to affect >15% of the base). Omit this field entirely if no significant shifts are detected."),
   culturalShiftStory: CulturalShiftStorySchema.describe("A narrative story about the single most important cultural shift detected in the data. This is the AI's automated hypothesis generation at work."),
+  culturalEvolution: CulturalEvolutionSchema.describe("Insights into how customer culture is changing over time."),
+  globalIntelligence: GlobalIntelligenceSchema.describe("Insights into how cultural trends may differ across geographic markets, providing guidance for global marketing efforts."),
 });
 
 export type GenerateAnalyticsInsightsOutput = z.infer<typeof GenerateAnalyticsInsightsOutputSchema>;
@@ -74,28 +99,30 @@ const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
   input: { schema: z.any() }, // Input is the array of profiles
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
-  prompt: `You are a world-class, self-learning cultural sociologist and market intelligence analyst, acting as a multi-modal analysis engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological.
+  prompt: `You are a world-class, self-learning cultural sociologist, market intelligence analyst, and geo-context engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
-Analyze the following customer profiles, inferring multi-modal context (e.g., review sentiment, browsing behavior, purchase timing patterns) where appropriate:
+Analyze the following customer profiles, fully simulating a multi-modal analysis by inferring rich context (e.g., social media sentiment, product review language, browsing behavior, purchase timing patterns, and email engagement) from the provided Cultural DNA and behavioral data:
 {{{json profiles}}}
 
-Based on this entire dataset, perform the following self-learning analysis:
+Based on this entire dataset, perform the following analysis:
 1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
-2.  **Cultural Pattern Discovery**: Find 3-5 of the most significant recurring cultural patterns, synthesizing behavioral data with cultural affinities. This is a core self-learning task.
-3.  **Predictive Cultural Journey Mapping**: This is crucial. Analyze the customer base to model cultural evolution. This involves predicting lifecycle transitions and identifying intervention points.
-    -   **Purchase Likelihood**: Who is most likely to buy soon? What's the recommended action?
-    -   **Cultural Churn Risk**: Identify segments whose cultural tastes are evolving away from our current offerings. This is your cultural churn risk classifier. What's the recommended intervention?
-    -   **Brand Advocacy**: Who is most likely to become a vocal supporter of the brand?
-    -   **Cultural Upsell Opportunity**: Identify segments whose evolving tastes make them prime candidates for new or different product categories. This is your culture-aligned upsell product matcher. What is the recommended product or service to offer?
-4.  **Cultural Trend Monitoring**:
-    -   **Top 5 Emerging Interests**: Identify the top 5 cultural interests that are gaining popularity. Consider what external trends might be influencing this.
-    -   **Top 5 Declining Interests**: Identify the top 5 cultural interests that are losing engagement.
-5.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons, considering how their cultural tastes might influence holiday or event-based purchasing. This helps identify intervention points.
-6.  **Market Intelligence & Product Development Insights**:
-    -   **Market Opportunity Gaps**: Based on the analysis, perform a cultural gap analysis to identify 2-3 potential market opportunities where customer preferences appear to be underserved. This should guide future product development.
-    -   **Competitive Intelligence**: Provide a brief analysis of how these trends could create a competitive advantage. What cultural positioning should the business take?
-7.  **Cultural Anomaly Detection**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns (e.g., a single trend growing to affect >15% of the customer base). If so, generate a concise alert message for the 'dataShiftAlert' field. If not, omit this field. This is a key self-learning capability.
-8.  **Automated Hypothesis Generation (Cultural Shift Story)**: This is the most important part of your self-learning analysis. Synthesize all your findings to identify the SINGLE most significant, interesting, or surprising cultural shift occurring in the data. Create a compelling narrative story about it, complete with a title, a short narrative explaining your hypothesis, the key data points supporting it, and a powerful recommendation.
+2.  **Cultural Pattern Discovery**: Synthesize all real and inferred multi-modal signals to find 3-5 of the most significant recurring cultural patterns.
+3.  **Predictive Cultural Journey Mapping**: Analyze the customer base to model cultural evolution (Purchase Likelihood, Churn Risk, Brand Advocacy, Upsell Opportunity).
+4.  **Cultural Trend Monitoring**: Identify the top 5 emerging and declining cultural interests.
+5.  **Dynamic Cultural Evolution Tracking**:
+    *   **Life Stage Transitions**: Infer life stage transitions from changes in purchase patterns.
+    *   **Cultural Drift**: Analyze how individuals or groups might be moving between different cultural segments over time.
+    *   **Influence Mapping**: Hypothesize how external events might be influencing the observed cultural shifts.
+    *   **Micro-trend Identification**: Spot nascent, niche trends before they become mainstream.
+6.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons.
+7.  **Market Intelligence & Product Development**: Identify market opportunity gaps and provide competitive intelligence.
+8.  **Cultural Anomaly Detection**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns. If so, generate a concise alert message.
+9.  **Automated Hypothesis Generation (Cultural Shift Story)**: Synthesize all findings to identify the SINGLE most significant cultural shift. Create a compelling narrative story about it.
+10. **Global Intelligence Analysis**: Using your "world knowledge," act as a geo-context engine. Even though there is no explicit location data, infer how the cultural trends in the dataset might map to different global regions.
+    *   **Regional Cultural Mapping**: Based on the tastes present in the data, map them to major global regions (e.g., North America, Western Europe, Southeast Asia, etc.) where they might be prevalent.
+    *   **Cultural Collision Detection**: Identify 2-3 potential "cultural collision hotspots" (e.g., humor, symbolism) where a global campaign might fail in a local context.
+    *   **Cross-Cultural Campaign Optimization**: Provide actionable advice for adapting marketing messages for different cultural contexts.
+    *   **Cultural Sensitivity Score**: Calculate a score (0-100) that represents how well the brand's current appeal spans diverse cultural tastes. A high score indicates broad, sensitive appeal, while a low score suggests a narrow or potentially insensitive appeal.
 
 Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
 `,
@@ -149,3 +176,5 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

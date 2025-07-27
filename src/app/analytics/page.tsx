@@ -6,11 +6,12 @@ import AppShell from '@/components/app-shell';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, BarChart, TrendingUp, Bell, Star, HeartCrack, ArrowUpRight, Lightbulb, CalendarClock, TrendingDown, Briefcase, Sparkles, MessageCircle, Users, Activity, AlertTriangle, BrainCircuit } from 'lucide-react';
+import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Progress } from '@/components/ui/progress';
 
 const PredictionCard = ({ title, icon: Icon, prediction }: { title: string, icon: React.ElementType, prediction: GenerateAnalyticsInsightsOutput['predictions']['purchaseLikelihood'] }) => (
     <Card>
@@ -56,6 +57,23 @@ const InterestTrendCard = ({ title, icon: Icon, trends, iconColor }: { title: st
         </CardContent>
     </Card>
 );
+
+const EvolutionCard = ({ title, icon: Icon, items }: { title: string, icon: React.ElementType, items: string[] }) => (
+    <Card>
+        <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+                <Icon className="h-4 w-4 text-primary" />
+                {title}
+            </CardTitle>
+        </CardHeader>
+        <CardContent>
+            <ul className="space-y-3 list-disc list-inside text-sm text-muted-foreground">
+                {items.map((item, i) => <li key={i}>{item}</li>)}
+            </ul>
+        </CardContent>
+    </Card>
+);
+
 
 const LoadingSkeleton = () => (
     <div className="mt-8 space-y-8">
@@ -230,6 +248,78 @@ export default function AnalyticsPage() {
                         </div>
 
                         <div>
+                            <h2 className="text-2xl font-bold tracking-tight mb-4">Dynamic Cultural Evolution Tracking</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+                                <EvolutionCard title="Life Stage Shifts" icon={Footprints} items={insights.culturalEvolution.lifeStageShifts} />
+                                <EvolutionCard title="Cultural Drift" icon={ChevronsRight} items={insights.culturalEvolution.culturalDrift} />
+                                <EvolutionCard title="External Influence" icon={Wind} items={insights.culturalEvolution.externalInfluenceMapping} />
+                                <EvolutionCard title="Micro-Trends" icon={Telescope} items={insights.culturalEvolution.microTrends} />
+                            </div>
+                        </div>
+
+                         <div>
+                            <h2 className="text-2xl font-bold tracking-tight mb-4">Global Intelligence Insights</h2>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                <Card className="lg:col-span-2">
+                                    <CardHeader>
+                                        <CardTitle className="flex items-center gap-2"><Globe className="h-5 w-5" /> Regional Cultural Mapping</CardTitle>
+                                        <CardDescription>How cultural trends may manifest in different global markets.</CardDescription>
+                                    </CardHeader>
+                                    <CardContent className="space-y-4">
+                                        {insights.globalIntelligence.regionalCulturalMapping.map((region, i) => (
+                                            <div key={i} className="p-3 border rounded-lg bg-accent/20">
+                                                <h3 className="font-semibold">{region.region}</h3>
+                                                <div className="flex flex-wrap gap-2 my-2">
+                                                    {region.dominantCulturalTraits.map((trait, idx) => <Badge key={idx} variant="secondary">{trait}</Badge>)}
+                                                </div>
+                                                <p className="text-xs text-muted-foreground">{region.marketImplication}</p>
+                                            </div>
+                                        ))}
+                                    </CardContent>
+                                </Card>
+                                <div className="space-y-6">
+                                    <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2 text-lg"><ShieldCheck className="h-5 w-5" /> Cultural Sensitivity Score</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="flex items-center gap-4">
+                                                 <Progress value={insights.globalIntelligence.culturalSensitivityScore} className="h-3" />
+                                                 <span className="text-xl font-bold">{insights.globalIntelligence.culturalSensitivityScore.toFixed(0)}</span>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mt-2">Represents how well the brand's appeal spans diverse cultural tastes.</p>
+                                        </CardContent>
+                                    </Card>
+                                     <Card>
+                                        <CardHeader>
+                                            <CardTitle className="flex items-center gap-2 text-lg"><Lightbulb className="h-5 w-5 text-amber-500" /> Cross-Cultural Advice</CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <p className="text-sm text-muted-foreground">{insights.globalIntelligence.crossCulturalCampaignAdvice}</p>
+                                        </CardContent>
+                                    </Card>
+                                </div>
+
+                            </div>
+                             <Card className="mt-6">
+                                <CardHeader>
+                                    <CardTitle className="flex items-center gap-2"><TestTube className="h-5 w-5" /> Cultural Collision Hotspots</CardTitle>
+                                    <CardDescription>Potential areas of friction when marketing globally, and how to mitigate them.</CardDescription>
+                                </CardHeader>
+                                <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {insights.globalIntelligence.culturalCollisionHotspots.map((hotspot, i) => (
+                                        <div key={i} className="p-4 border rounded-lg">
+                                            <h4 className="font-semibold flex items-center gap-2"><Puzzle className="h-4 w-4 text-destructive" /> {hotspot.hotspot}</h4>
+                                            <p className="text-sm text-muted-foreground mt-2">{hotspot.description}</p>
+                                            <Separator className="my-2" />
+                                            <p className="text-xs"><strong className="text-green-600">Recommendation:</strong> {hotspot.recommendation}</p>
+                                        </div>
+                                    ))}
+                                </CardContent>
+                            </Card>
+                        </div>
+
+                        <div>
                             <h2 className="text-2xl font-bold tracking-tight mb-4">Market Intelligence & Product Insights</h2>
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                                 <Card>
@@ -291,3 +381,5 @@ export default function AnalyticsPage() {
         </AppShell>
     );
 }
+
+    

@@ -63,25 +63,24 @@ const culturalDnaPrompt = ai.definePrompt({
     output: { schema: GenerateCulturalDnaOutputSchema },
     prompt: `You are a self-learning, multi-modal cultural intelligence expert powered by Gemini. Your task is to analyze anonymized behavioral data and synthesize it to create a rich "Cultural DNA" profile.
 
-Use your extensive world knowledge to infer cultural tastes from the provided behavioral data.
-Act as if you are analyzing multiple data sources simultaneously to get a holistic view of the customer.
-- **Behavioral Data**: The primary source of truth for this customer's behavior.
-- **Simulated Multi-Modal Data**: Infer additional context by acting as if you have access to:
-    - Sentiment from product reviews (e.g., positive mentions of "sustainability" or "craftsmanship").
-    - Seasonal purchase patterns (e.g., buying hiking gear in spring).
-    - Brand engagement metrics (e.g., high interaction with independent or luxury brands).
+You must fully simulate a multi-modal analysis by inferring cultural tastes from the provided behavioral data as if you were analyzing multiple data sources simultaneously.
 
 Behavioral Data:
 - Age Range: {{{ageRange}}}
 - Spending Level: {{{spendingLevel}}}
-- Purchase Categories: {{{json purchaseCategories}}}
-- Interaction Frequency: {{{interactionFrequency}}}
+- Purchase Categories & Timing: {{{json purchaseCategories}}} (Analyze these for seasonal patterns or event-driven buying. For example, 'ski gear' in November suggests winter sports interest.)
+- Interaction Frequency: {{{interactionFrequency}}} (High interaction could imply stronger brand loyalty.)
 
-Based on this multi-modal analysis, perform the following actions:
-1.  **Organize Preferences**: Categorize the inferred interests from the behavioral data into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes). Use the simulated data to add nuance (e.g., if purchases include 'vintage clothes' and reviews mention 'unique finds', the fashion preference is not just 'clothing' but 'vintage fashion').
-2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the strength of inferred preferences, tempered by the behavioral and simulated data.
-3.  **Find Surprising Connections (Self-Learning Core Task)**: This is a critical demonstration of your self-learning ability. Analyze all available data to uncover 2-3 non-obvious, counter-intuitive, or surprising connections that a human analyst might easily miss. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.' or 'An interest in competitive baking shows seems to correlate with a preference for solo travel.'
-4.  **Provide a Confidence Score**: Rate your overall confidence in this generated profile on a scale of 0-100, based on the richness and consistency of the provided data.
+Based on this, perform a simulated multi-modal analysis:
+1.  **Simulate Social Media Sentiment:** Based on the purchase categories, infer the likely sentiment and topics this person might post about. E.g., 'vintage clothing' purchases might correlate with positive posts about sustainability and unique fashion finds.
+2.  **Simulate Product Review Analysis:** Infer the language and cultural cues this person might use in a product review. E.g., 'handmade leather goods' purchase could lead to reviews praising 'craftsmanship' and 'quality'.
+3.  **Simulate Behavioral Analysis (Heatmaps/Engagement):** Infer web and email engagement patterns. A customer buying high-end 'audiophile headphones' might be inferred to spend more time on detailed product pages (simulated heatmap) and open emails with technical specs (simulated engagement).
+
+Now, synthesize all real and simulated data to generate the Cultural DNA profile:
+1.  **Organize Preferences**: Categorize the inferred interests into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes). Use the simulated data to add deep nuance.
+2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the strength and convergence of all inferred signals.
+3.  **Find Surprising Connections (Self-Learning Core Task)**: Uncover 2-3 non-obvious, counter-intuitive connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.'
+4.  **Provide a Confidence Score**: Rate your confidence in this profile on a scale of 0-100.
 
 Generate the output in the specified JSON format.`,
 });

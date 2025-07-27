@@ -13,7 +13,9 @@ const findSegmentForProfile = (profile: any, segments: any[]) => {
     let bestSegment: any = null;
     let highestScore = -1;
 
-    if (!profile.culturalDNA) return null;
+    if (!profile.culturalDNA) {
+        return null; // Return early if DNA is missing
+    }
 
     segments.forEach(segment => {
         let score = 0;
