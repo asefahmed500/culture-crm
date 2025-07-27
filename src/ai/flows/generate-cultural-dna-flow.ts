@@ -79,7 +79,7 @@ Based on this, perform a simulated multi-modal analysis:
 Now, synthesize all real and simulated data to generate the Cultural DNA profile:
 1.  **Organize Preferences**: Categorize the inferred interests into the six cultural categories (Music, Entertainment, Dining, Fashion, Travel, Social Causes). Use the simulated data to add deep nuance.
 2.  **Score Affinities**: For each category, calculate an affinity score from 0-100 based on the strength and convergence of all inferred signals.
-3.  **Find Surprising Connections (Self-Learning Core Task)**: Uncover 2-3 non-obvious, counter-intuitive connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.'
+3.  **Find Surprising Connections (Self-Learning Core Task)**: Uncover 2-3 non-obvious, counter-intuitive connections. For example, 'A preference for minimalist fashion and high-tech gadgets often correlates with an interest in documentary films.' This is a critical self-learning function.
 4.  **Provide a Confidence Score**: Rate your confidence in this profile on a scale of 0-100.
 
 Generate the output in the specified JSON format.`,

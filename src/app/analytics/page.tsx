@@ -234,6 +234,7 @@ export default function AnalyticsPage() {
                            <Card className="lg:col-span-1">
                                 <CardHeader>
                                     <CardTitle className="flex items-center gap-2"><Activity className="h-5 w-5" /> Key Patterns Discovered</CardTitle>
+                                     <CardDescription>Non-obvious correlations found by the AI.</CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <ul className="space-y-3 list-disc list-inside text-muted-foreground">
@@ -293,7 +294,7 @@ export default function AnalyticsPage() {
                                      <Card>
                                         <CardHeader>
                                             <CardTitle className="flex items-center gap-2 text-lg"><Lightbulb className="h-5 w-5 text-amber-500" /> Cross-Cultural Advice</CardTitle>
-                                        </CardHeader>
+                                        </Header>
                                         <CardContent>
                                             <p className="text-sm text-muted-foreground">{insights.globalIntelligence.crossCulturalCampaignAdvice}</p>
                                         </CardContent>
