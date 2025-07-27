@@ -16,9 +16,9 @@ import Story from '@/models/story';
 
 const PredictionSchema = z.object({
   segmentDescription: z.string().describe("A description of the customer segment this prediction applies to."),
-  prediction: z.string().describe("The specific prediction for this segment (e.g., 'Likely to purchase premium products in the next quarter')."),
+  prediction: z.string().describe("The specific prediction for this segment (e.g., 'Likely to purchase premium products in the next quarter'). This should be framed as a point in the cultural journey."),
   confidenceScore: z.number().describe("Confidence score (0-100) for this prediction."),
-  recommendation: z.string().describe("An actionable recommendation based on this prediction."),
+  recommendation: z.string().describe("An actionable recommendation for this specific intervention point in the customer's cultural journey."),
 });
 
 const TrendSchema = z.object({
@@ -73,10 +73,10 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   overallSummary: z.string().describe("A high-level summary of the most important findings from the analysis."),
   keyPatterns: z.array(z.string()).describe("List of 3-5 key behavioral or cultural patterns identified across the entire customer base. This is part of the AI's self-learning pattern discovery."),
   predictions: z.object({
-    purchaseLikelihood: PredictionSchema,
-    churnRisk: PredictionSchema,
-    brandAdvocacy: PredictionSchema,
-    upsellOpportunity: PredictionSchema,
+    purchaseLikelihood: PredictionSchema.describe("A prediction about a segment's likelihood to make a future purchase."),
+    churnRisk: PredictionSchema.describe("A cultural churn prediction. This identifies when a segment's cultural evolution may lead them to outgrow the brand."),
+    brandAdvocacy: PredictionSchema.describe("A prediction about a segment's potential to become brand advocates."),
+    upsellOpportunity: PredictionSchema.describe("Identifies products or services that align with a segment's evolving cultural identity."),
   }),
   topEmergingInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 emerging cultural interests gaining popularity."),
   topDecliningInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 declining cultural interests losing engagement."),
@@ -107,7 +107,11 @@ Analyze the following customer profiles, fully simulating a multi-modal analysis
 Based on this entire dataset, perform the following analysis:
 1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
 2.  **Cultural Pattern Discovery**: Synthesize all real and inferred multi-modal signals to find 3-5 of the most significant recurring cultural patterns.
-3.  **Predictive Cultural Journey Mapping**: Analyze the customer base to model cultural evolution (Purchase Likelihood, Churn Risk, Brand Advocacy, Upsell Opportunity).
+3.  **Predictive Cultural Journey Mapping**: This is a critical section. Analyze the customer base to model their cultural evolution. For each prediction (Purchase, Churn, Advocacy, Upsell), you must:
+    *   **Model the Cultural Lifecycle**: Frame the prediction as a point in the customer's cultural journey (e.g., "This segment is evolving towards...").
+    *   **Identify Intervention Points**: The 'recommendation' for each prediction must be a specific, actionable strategy for that intervention point.
+    *   **Predict Cultural Churn**: The 'churnRisk' prediction must specifically identify when a segment's cultural evolution might lead them to outgrow the brand and why.
+    *   **Find Cultural Upsell Opportunities**: The 'upsellOpportunity' prediction must suggest products or services that align with a segment's *evolving* cultural identity, not just their current one.
 4.  **Cultural Trend Monitoring**: Identify the top 5 emerging and declining cultural interests.
 5.  **Dynamic Cultural Evolution Tracking**:
     *   **Life Stage Transitions**: Infer life stage transitions from changes in purchase patterns.
