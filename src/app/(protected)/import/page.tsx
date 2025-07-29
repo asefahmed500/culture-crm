@@ -34,7 +34,7 @@ export default function CustomerImportPage() {
   const [result, setResult] = useState<ProcessCustomerDataOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSmartMap = async (headers: string[], data: CsvData) => {
+  const handleSmartMap = useCallback(async (headers: string[], data: CsvData) => {
     setIsMappingLoading(true);
     setError(null);
     try {
@@ -57,7 +57,7 @@ export default function CustomerImportPage() {
     } finally {
         setIsMappingLoading(false);
     }
-  };
+  }, []);
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
@@ -83,7 +83,7 @@ export default function CustomerImportPage() {
     } else {
       setError('Please upload a valid CSV file.');
     }
-  }, []);
+  }, [handleSmartMap]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'text/csv': ['.csv']} });
 
