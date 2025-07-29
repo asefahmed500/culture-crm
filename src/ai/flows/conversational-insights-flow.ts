@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -45,7 +46,7 @@ User's Question:
 `,
 });
 
-const conversationalInsightsFlow = ai.defineFlow(
+export const conversationalInsightsFlow = ai.defineFlow(
   {
     name: 'conversationalInsightsFlow',
     inputSchema: ConversationalInsightsInputSchema,
