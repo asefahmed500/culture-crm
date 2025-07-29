@@ -28,25 +28,30 @@ export default function SegmentsPage() {
     const [actualROI, setActualROI] = useState<number | ''>('');
     const { toast } = useToast();
 
-    async function fetchSegments() {
-        setLoading(true);
-        setError(null);
-        try {
-            const response = await fetch('/api/customer-segments');
-            if (!response.ok) {
-                const err = await response.json();
-                throw new Error(err.message || 'Failed to fetch existing segments');
-            }
-            const data = await response.json();
-            setResult(data);
-        } catch (err: any) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
+        async function fetchSegments() {
+            setLoading(true);
+            setError(null);
+            try {
+                const response = await fetch('/api/customer-segments');
+                if (!response.ok) {
+                    const resText = await response.text();
+                    try {
+                        const errorData = JSON.parse(resText);
+                        throw new Error(errorData.message || 'Failed to fetch existing segments');
+                    } catch (e) {
+                         throw new Error(`Failed to fetch segments. Server returned non-JSON response: ${resText.substring(0, 100)}`);
+                    }
+                }
+                const data = await response.json();
+                setResult(data);
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setLoading(false);
+            }
+        }
+
         if (status === 'authenticated') {
             fetchSegments();
         } else if (status === 'unauthenticated') {
@@ -90,7 +95,13 @@ export default function SegmentsPage() {
                 description: 'Campaign performance saved.',
             });
             // Refetch segments to show updated data
-            await fetchSegments();
+            if (status === 'authenticated') {
+                setLoading(true);
+                const fetchRes = await fetch('/api/customer-segments');
+                const data = await fetchRes.json();
+                setResult(data);
+                setLoading(false);
+            }
             setSelectedSegment(null); // Close dialog
             setActualROI('');
 
@@ -204,7 +215,7 @@ export default function SegmentsPage() {
                                             )}
                                         </CardContent>
                                         <CardContent>
-                                             <Dialog onOpenChange={(open) => !open && setSelectedSegment(null)}>
+                                             <Dialog onOpenChange={(open) => {if (!open) setSelectedSegment(null)}}>
                                                 <DialogTrigger asChild>
                                                     <Button variant="outline" className="w-full" onClick={() => setSelectedSegment(segment)}>
                                                         Track Performance
