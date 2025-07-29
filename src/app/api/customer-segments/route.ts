@@ -21,8 +21,8 @@ export async function GET(req: NextRequest) {
         // which are not stored with individual segments.
         // In a real app, these might be stored in a separate "Report" collection.
         const responsePayload = {
-            segments: segments,
-            summary: segments.length > 0 ? `Found ${segments.length} saved segments. Displaying from database.` : "No segments have been generated yet.",
+            segments: segments || [],
+            summary: segments && segments.length > 0 ? `Found ${segments.length} saved segments. Displaying from database.` : "No segments have been generated yet.",
             topCampaignIdeas: [], // This would need a more complex implementation to store/retrieve
         };
         

@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     try {
         await dbConnect();
         const stories = await Story.find({}).sort({ createdAt: -1 }).limit(10);
-        return NextResponse.json(stories, { status: 200 });
+        return NextResponse.json(stories || [], { status: 200 });
 
     } catch (error: any) {
         console.error("Failed to fetch stories:", error);
