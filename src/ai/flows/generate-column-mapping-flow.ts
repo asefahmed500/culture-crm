@@ -10,8 +10,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { generate } from 'genkit';
-import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 const GenerateColumnMappingInputSchema = z.object({
@@ -52,12 +50,27 @@ Instructions:
 
 Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or an empty string.
 
+Example Response:
+{
+  "CustomerID": "",
+  "age": "age_range",
+  "total_spent": "spending_level",
+  "last_purchase_item": "purchase_categories",
+  "visits_last_month": "interaction_frequency"
+}
+
 CSV Headers:
 {{{json headers}}}
 
 CSV Data Preview (first 5 rows):
 {{{json previewData}}}
 `,
+    config: {
+        temperature: 0,
+        response: {
+            format: 'json',
+        },
+    }
 });
 
 
