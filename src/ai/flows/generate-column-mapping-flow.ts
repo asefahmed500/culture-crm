@@ -32,9 +32,9 @@ export async function generateColumnMapping(input: GenerateColumnMappingInput): 
 }
 
 
-// This defines a function that builds the prompt dynamically.
 const mappingPrompt = ai.definePrompt({
     name: 'columnMappingPrompt',
+    input: { schema: GenerateColumnMappingInputSchema },
     output: { schema: GenerateColumnMappingOutputSchema },
     prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
@@ -66,7 +66,7 @@ CSV Headers:
 
 CSV Data Preview (first 5 rows):
 {{{json previewData}}}
-`
+`,
 });
 
 
@@ -78,16 +78,7 @@ export const generateColumnMappingFlow = ai.defineFlow(
   },
   async (input) => {
     
-    const { output } = await generate({
-        model: gemini15Flash, // Using a powerful and free model for better data analysis
-        prompt: await mappingPrompt(input),
-        config: {
-            temperature: 0,
-            response: {
-                format: 'json',
-            },
-        },
-    });
+    const { output } = await mappingPrompt(input);
 
     if (!output) {
       throw new Error('The AI model did not return a valid mapping.');
