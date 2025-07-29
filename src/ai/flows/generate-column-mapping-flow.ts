@@ -10,6 +10,8 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { generate } from 'genkit';
+import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 const GenerateColumnMappingInputSchema = z.object({
@@ -19,18 +21,22 @@ const GenerateColumnMappingInputSchema = z.object({
 
 export type GenerateColumnMappingInput = z.infer<typeof GenerateColumnMappingInputSchema>;
 
+// The output is a simple key-value mapping object.
+// The key is the original CSV header, and the value is the system field it maps to.
 const GenerateColumnMappingOutputSchema = z.record(z.string());
 export type GenerateColumnMappingOutput = z.infer<typeof GenerateColumnMappingOutputSchema>;
+
 
 export async function generateColumnMapping(input: GenerateColumnMappingInput): Promise<GenerateColumnMappingOutput> {
   return generateColumnMappingFlow(input);
 }
 
+
 const mappingPrompt = ai.definePrompt({
-  name: 'columnMappingPrompt',
-  input: { schema: GenerateColumnMappingInputSchema },
-  output: { schema: GenerateColumnMappingOutputSchema },
-  prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+    name: 'columnMappingPrompt',
+    input: { schema: GenerateColumnMappingInputSchema },
+    output: { schema: GenerateColumnMappingOutputSchema },
+    prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
@@ -54,6 +60,7 @@ CSV Data Preview (first 5 rows):
 `,
 });
 
+
 export const generateColumnMappingFlow = ai.defineFlow(
   {
     name: 'generateColumnMappingFlow',
@@ -61,6 +68,7 @@ export const generateColumnMappingFlow = ai.defineFlow(
     outputSchema: GenerateColumnMappingOutputSchema,
   },
   async (input) => {
+    
     const { output } = await mappingPrompt(input);
 
     if (!output) {

@@ -51,7 +51,11 @@ export default function CustomerImportPage() {
         }
 
         const smartMapping = await response.json();
-        setMapping(smartMapping);
+        const initialMapping: Mapping = {};
+        headers.forEach(header => {
+            initialMapping[header] = smartMapping[header] || '';
+        });
+        setMapping(initialMapping);
 
     } catch (err: any) {
         setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
@@ -308,7 +312,7 @@ export default function CustomerImportPage() {
               <CheckCircle className="h-4 w-4 !text-green-600 dark:!text-green-400"/>
               <AlertTitle>Success!</AlertTitle>
               <AlertDescription>
-                  Your data has been processed and saved. You can view the results below or see all profiles on the{' '}
+                  {result.summary} You can view the results below or see all profiles on the{' '}
                   <Link href="/customers" className="font-bold underline hover:text-green-900 dark:hover:text-green-200">
                       Customers page
                   </Link>.
