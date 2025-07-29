@@ -87,15 +87,19 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
   async () => {
     await dbConnect();
     const profiles = await CustomerProfile.find({}).lean();
+    if (profiles.length === 0) {
+      throw new Error("No customer profiles found in the database. Please import data first.");
+    }
 
-    // To prevent exceeding context window limits, we'll summarize if there are too many profiles.
-    const MAX_PROFILES_FOR_FULL_ANALYSIS = 100;
+    const MAX_PROFILES_FOR_ANALYSIS = 100;
     let profilesForPrompt;
-    if (profiles.length > MAX_PROFILES_FOR_FULL_ANALYSIS) {
-        profilesForPrompt = profiles.slice(0, MAX_PROFILES_FOR_FULL_ANALYSIS).map(p => ({
-            ageRange: p.ageRange,
-            spendingLevel: p.spendingLevel,
-            interactionFrequency: p.interactionFrequency,
+
+    if (profiles.length > MAX_PROFILES_FOR_ANALYSIS) {
+        // If there are too many profiles, summarize them to avoid exceeding the context window.
+        // This creates a more concise representation of each profile.
+        profilesForPrompt = profiles.map(p => ({
+            id: p._id.toString(), // Keep an ID for reference if needed
+            // Summarize the DNA to its most essential parts: the scores. Preferences are too verbose.
             culturalDNA: p.culturalDNA ? {
                 music: p.culturalDNA.music.score,
                 entertainment: p.culturalDNA.entertainment.score,
@@ -103,14 +107,18 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
                 fashion: p.culturalDNA.fashion.score,
                 travel: p.culturalDNA.travel.score,
                 socialCauses: p.culturalDNA.socialCauses.score,
-            } : {}
-        }));
-    } else {
-        profilesForPrompt = profiles.map(p => ({
-            ageRange: p.ageRange,
+            } : {},
+            // Include other key behavioral data
             spendingLevel: p.spendingLevel,
             interactionFrequency: p.interactionFrequency,
+        }));
+    } else {
+        // If the number of profiles is manageable, use the full data.
+        profilesForPrompt = profiles.map(p => ({
+            id: p._id.toString(),
             culturalDNA: p.culturalDNA,
+            spendingLevel: p.spendingLevel,
+            interactionFrequency: p.interactionFrequency,
         }));
     }
 

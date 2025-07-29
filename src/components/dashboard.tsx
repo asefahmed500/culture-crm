@@ -29,7 +29,8 @@ export default function Dashboard() {
     useEffect(() => {
         const fetchData = async () => {
             if (status !== 'authenticated') {
-                return; // Don't fetch if not authenticated
+                setLoading(false);
+                return;
             }
             try {
                 setLoading(true);
@@ -40,7 +41,6 @@ export default function Dashboard() {
                 ]);
                 
                 if (!profilesRes.ok) {
-                    // Check if response is not JSON before parsing
                     const resText = await profilesRes.text();
                     try {
                         const errorData = JSON.parse(resText);
@@ -78,7 +78,7 @@ export default function Dashboard() {
     }, [status]);
     
     const accuracyScore = useMemo(() => {
-        if (!profiles) return null;
+        if (!profiles || profiles.length === 0) return null;
         const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0 && p.accuracyFeedback !== undefined && p.accuracyFeedback !== null);
         if (feedbackGiven.length === 0) return null;
 
@@ -87,7 +87,7 @@ export default function Dashboard() {
     }, [profiles]);
 
     const averageROI = useMemo(() => {
-        if (!segments) return null;
+        if (!segments || segments.length === 0) return null;
         const segmentsWithRoi = segments.filter(s => typeof s.actualROI === 'number');
         if (segmentsWithRoi.length === 0) return null;
 
@@ -115,7 +115,7 @@ export default function Dashboard() {
                 <CardDescription className="flex items-center gap-2"><Icon className="h-4 w-4" />{title}</CardDescription>
             </CardHeader>
             <CardContent>
-                 {(status === 'loading' || loading) ? <Skeleton className="h-8 w-20" /> : (
+                 {loading ? <Skeleton className="h-8 w-20" /> : (
                      value !== null ? (
                          <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
                     ) : (

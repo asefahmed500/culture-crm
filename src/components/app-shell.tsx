@@ -27,6 +27,7 @@ import {
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useEffect } from 'react';
+import Link from 'next/link';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
@@ -53,19 +54,25 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   ]
 
   useEffect(() => {
-    if (status === 'unauthenticated') {
-      if (!['/login', '/signup', '/'].includes(pathname)) {
-        router.replace('/login');
-      }
+    // If not authenticated and trying to access a protected page, redirect to login
+    if (status === 'unauthenticated' && !['/login', '/signup', '/'].includes(pathname)) {
+      router.replace('/login');
     }
   }, [status, pathname, router]);
 
   if (status === 'loading') {
-    return <div className="flex h-screen items-center justify-center">Loading...</div>;
+    return <div className="flex h-screen items-center justify-center">Loading session...</div>;
   }
   
+  // For public pages, render children without the shell
   if (['/login', '/signup', '/'].includes(pathname)) {
       return <>{children}</>;
+  }
+
+  // If we are on a protected page but not authenticated, show a loading state
+  // while the useEffect above handles the redirect.
+  if (status === 'unauthenticated') {
+      return <div className="flex h-screen items-center justify-center">Redirecting to login...</div>;
   }
   
   return (
@@ -73,10 +80,10 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
       <div className="relative flex min-h-screen w-full">
         <Sidebar>
           <SidebarHeader>
-            <div className="flex items-center gap-2">
+             <Link href="/dashboard" className="flex items-center gap-2">
               <Zap className="h-6 w-6 text-primary" />
               <h1 className="text-xl font-bold text-foreground">Cultural CRM</h1>
-            </div>
+            </Link>
           </SidebarHeader>
           <SidebarContent>
             <SidebarMenu>

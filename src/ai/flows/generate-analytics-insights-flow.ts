@@ -142,15 +142,19 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
   async () => {
     await dbConnect();
     const profiles = await CustomerProfile.find({}).lean();
+    if (profiles.length === 0) {
+      throw new Error("No customer profiles found. Please import data before generating analytics.");
+    }
 
-    const MAX_PROFILES_FOR_FULL_ANALYSIS = 100;
+    const MAX_PROFILES_FOR_ANALYSIS = 100;
     let profilesForPrompt;
-    if (profiles.length > MAX_PROFILES_FOR_FULL_ANALYSIS) {
+    if (profiles.length > MAX_PROFILES_FOR_ANALYSIS) {
         // Create a summary of profiles if there are too many
-        profilesForPrompt = profiles.slice(0, MAX_PROFILES_FOR_FULL_ANALYSIS).map(p => ({
+        profilesForPrompt = profiles.map(p => ({
             ageRange: p.ageRange,
             spendingLevel: p.spendingLevel,
             interactionFrequency: p.interactionFrequency,
+            // Summarize DNA to just the scores to save space
             culturalDNA: p.culturalDNA ? {
                 music: p.culturalDNA.music.score,
                 entertainment: p.culturalDNA.entertainment.score,
@@ -161,6 +165,7 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
             } : {}
         }));
     } else {
+        // Use full profiles if count is manageable
         profilesForPrompt = profiles.map(p => ({
             ageRange: p.ageRange,
             spendingLevel: p.spendingLevel,

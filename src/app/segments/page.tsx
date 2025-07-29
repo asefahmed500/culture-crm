@@ -16,6 +16,42 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSession } from 'next-auth/react';
+import { Skeleton } from '@/components/ui/skeleton';
+
+const SegmentsLoadingSkeleton = () => (
+    <div className="mt-8 space-y-8">
+        <Card className="bg-primary/5 border-primary/20">
+            <CardHeader>
+                <Skeleton className="h-7 w-1/3" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-4 w-2/3" />
+            </CardContent>
+        </Card>
+        <div>
+            <Skeleton className="h-8 w-1/4 mb-4" />
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-6">
+                {Array.from({ length: 4 }).map((_, i) => (
+                    <Card key={i}>
+                        <CardHeader>
+                            <Skeleton className="h-6 w-3/4 mb-2" />
+                            <Skeleton className="h-4 w-full" />
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <Skeleton className="h-5 w-1/2 mb-2" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-5/6" />
+                            <Separator />
+                            <Skeleton className="h-5 w-1/2 mb-2" />
+                            <Skeleton className="h-4 w-full" />
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        </div>
+    </div>
+);
+
 
 export default function SegmentsPage() {
     const { data: session, status } = useSession();
@@ -28,35 +64,34 @@ export default function SegmentsPage() {
     const [actualROI, setActualROI] = useState<number | ''>('');
     const { toast } = useToast();
 
-    useEffect(() => {
-        async function fetchSegments() {
-            setLoading(true);
-            setError(null);
-            try {
-                const response = await fetch('/api/customer-segments');
-                if (!response.ok) {
-                    const resText = await response.text();
-                    try {
-                        const errorData = JSON.parse(resText);
-                        throw new Error(errorData.message || 'Failed to fetch existing segments');
-                    } catch (e) {
-                         throw new Error(`Failed to fetch segments. Server returned non-JSON response: ${resText.substring(0, 100)}`);
-                    }
+    const fetchSegments = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            const response = await fetch('/api/customer-segments');
+            if (!response.ok) {
+                const resText = await response.text();
+                try {
+                    const errorData = JSON.parse(resText);
+                    throw new Error(errorData.message || 'Failed to fetch existing segments');
+                } catch (e) {
+                     throw new Error(`Failed to fetch segments. Server returned non-JSON response: ${resText.substring(0, 100)}`);
                 }
-                const data = await response.json();
-                setResult(data);
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setLoading(false);
             }
+            const data = await response.json();
+            setResult(data);
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
         }
+    }
 
+    useEffect(() => {
         if (status === 'authenticated') {
             fetchSegments();
         } else if (status === 'unauthenticated') {
             setLoading(false);
-            // You might want to redirect or show a message here
         }
     }, [status]);
 
@@ -86,7 +121,7 @@ export default function SegmentsPage() {
             const response = await fetch(`/api/customer-segments/${selectedSegment._id}/performance`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ actualROI }),
+                body: JSON.stringify({ actualROI: Number(actualROI) }),
             });
             if (!response.ok) throw new Error('Failed to save performance');
             
@@ -94,14 +129,9 @@ export default function SegmentsPage() {
                 title: 'Success',
                 description: 'Campaign performance saved.',
             });
-            // Refetch segments to show updated data
-            if (status === 'authenticated') {
-                setLoading(true);
-                const fetchRes = await fetch('/api/customer-segments');
-                const data = await fetchRes.json();
-                setResult(data);
-                setLoading(false);
-            }
+            
+            await fetchSegments(); // Refetch data
+            
             setSelectedSegment(null); // Close dialog
             setActualROI('');
 
@@ -150,11 +180,12 @@ export default function SegmentsPage() {
                                 <AlertDescription>{error}</AlertDescription>
                             </Alert>
                         )}
-                        {loading && !result && <p>Loading saved segments...</p>}
                     </CardContent>
                 </Card>
 
-                {result && result.segments.length > 0 && (
+                {loading && <SegmentsLoadingSkeleton />}
+
+                {!loading && result && result.segments.length > 0 && (
                     <div className="mt-8 space-y-8">
                         
                         <Card className="bg-primary/5 border-primary/20">
@@ -221,30 +252,32 @@ export default function SegmentsPage() {
                                                         Track Performance
                                                     </Button>
                                                 </DialogTrigger>
-                                                <DialogContent>
-                                                    <DialogHeader>
-                                                        <DialogTitle>Track Campaign Performance</DialogTitle>
-                                                        <DialogDescription>
-                                                            Enter the actual ROI from a campaign that targeted the "{selectedSegment?.segmentName}" segment.
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                    <div className="grid gap-4 py-4">
-                                                        <div className="grid grid-cols-4 items-center gap-4">
-                                                            <Label htmlFor="roi" className="text-right">Actual ROI (%)</Label>
-                                                            <Input 
-                                                                id="roi" 
-                                                                type="number" 
-                                                                className="col-span-3"
-                                                                value={actualROI}
-                                                                onChange={(e) => setActualROI(e.target.value === '' ? '' : Number(e.target.value))}
-                                                            />
+                                                {selectedSegment && (
+                                                    <DialogContent>
+                                                        <DialogHeader>
+                                                            <DialogTitle>Track Campaign Performance</DialogTitle>
+                                                            <DialogDescription>
+                                                                Enter the actual ROI from a campaign that targeted the "{selectedSegment?.segmentName}" segment.
+                                                            </DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="grid gap-4 py-4">
+                                                            <div className="grid grid-cols-4 items-center gap-4">
+                                                                <Label htmlFor="roi" className="text-right">Actual ROI (%)</Label>
+                                                                <Input 
+                                                                    id="roi" 
+                                                                    type="number" 
+                                                                    className="col-span-3"
+                                                                    value={actualROI}
+                                                                    onChange={(e) => setActualROI(e.target.value === '' ? '' : Number(e.target.value))}
+                                                                />
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <Button onClick={handleSavePerformance} disabled={isSavingPerformance}>
-                                                        {isSavingPerformance && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                                                        Save Performance
-                                                    </Button>
-                                                </DialogContent>
+                                                        <Button onClick={handleSavePerformance} disabled={isSavingPerformance}>
+                                                            {isSavingPerformance && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                                            Save Performance
+                                                        </Button>
+                                                    </DialogContent>
+                                                )}
                                             </Dialog>
                                         </CardContent>
                                     </Card>
