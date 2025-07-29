@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck, PlayCircle } from 'lucide-react';
-import type { GenerateAnalyticsInsightsOutput } from 'ai/flows/generate-analytics-insights-flow';
+import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -135,14 +135,12 @@ export default function AnalyticsPage() {
         setInsights(null);
 
         try {
-            const response = await fetch('/api/genkit/flow/generateAnalyticsInsightsFlow', { 
-                method: 'POST',
-                body: JSON.stringify({}), // Sending empty body for POST
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch('/api/genkit/flow/generateAnalyticsInsights', { 
+                method: 'POST'
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate insights');
+                throw new Error(errorData.message || 'Failed to generate insights');
             }
             const data = await response.json();
             setInsights(data);

@@ -16,7 +16,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCommunicationStrategyOutput } from 'ai/flows/generate-communication-strategy-flow';
+import type { GenerateCommunicationStrategyOutput } from '@/ai/flows/generate-communication-strategy-flow';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
 
@@ -105,7 +105,7 @@ export default function CustomersPage() {
         setStrategy(null);
 
         try {
-            const response = await fetch('/api/genkit/flow/generateCommunicationStrategyFlow', {
+            const response = await fetch('/api/genkit/flow/generateCommunicationStrategy', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(profile.culturalDNA),
@@ -113,7 +113,7 @@ export default function CustomersPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate strategy');
+                throw new Error(errorData.message || 'Failed to generate strategy');
             }
 
             const data = await response.json();

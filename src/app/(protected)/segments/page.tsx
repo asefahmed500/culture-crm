@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, RefreshCw, AlertTriangle, AreaChart, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import type { GenerateCustomerSegmentsOutput } from 'ai/flows/generate-customer-segments-flow';
+import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Segment } from '@/models/segment';
@@ -93,14 +93,12 @@ export default function SegmentsPage() {
         setError(null);
 
         try {
-            const response = await fetch('/api/genkit/flow/generateCustomerSegmentsFlow', { 
-                method: 'POST',
-                body: JSON.stringify({}),
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch('/api/genkit/flow/generateCustomerSegments', { 
+                method: 'POST'
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate segments');
+                throw new Error(errorData.message || 'Failed to generate segments');
             }
             const data = await response.json();
             setResult(data);
@@ -182,7 +180,7 @@ export default function SegmentsPage() {
 
             {loading ? <SegmentsLoadingSkeleton /> : (
                 <>
-                    {!error && result && result.segments.length > 0 && (
+                    {!error && result && result.segments && result.segments.length > 0 && (
                         <div className="mt-8 space-y-8">
                             
                             <Card className="bg-primary/5 border-primary/20">
@@ -315,7 +313,7 @@ export default function SegmentsPage() {
                             )}
                         </div>
                     )}
-                    {!loading && !error && (!result || result.segments.length === 0) && (
+                    {!loading && !error && (!result || !result.segments || result.segments.length === 0) && (
                          <Alert className="mt-4">
                             <Zap className="h-4 w-4" />
                             <AlertTitle>No Segments Generated Yet</AlertTitle>

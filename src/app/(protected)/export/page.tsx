@@ -8,9 +8,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot, Mic } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCampaignBriefOutput } from 'ai/flows/generate-campaign-brief-flow';
-import type { GenerateContentCalendarOutput } from 'ai/flows/generate-content-calendar-flow';
-import type { GenerateSalesScriptOutput } from 'ai/flows/generate-sales-script-flow';
+import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
+import type { GenerateContentCalendarOutput } from '@/ai/flows/generate-content-calendar-flow';
+import type { GenerateSalesScriptOutput } from '@/ai/flows/generate-sales-script-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -83,14 +83,14 @@ export default function ExportPage() {
         setContentCalendar(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/genkit/flow/generateCampaignBriefFlow', {
+            const response = await fetch('/api/genkit/flow/generateCampaignBrief', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ segmentName: selectedSegment }),
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate campaign brief');
+                throw new Error(errorData.message || 'Failed to generate campaign brief');
             }
             const data = await response.json();
             setCampaignBrief(data);
@@ -109,14 +109,12 @@ export default function ExportPage() {
         setSalesScript(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/genkit/flow/generateContentCalendarFlow', {
-                method: 'POST',
-                body: JSON.stringify({}),
-                headers: { 'Content-Type': 'application/json' },
+            const response = await fetch('/api/genkit/flow/generateContentCalendar', {
+                method: 'POST'
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate content calendar');
+                throw new Error(errorData.message || 'Failed to generate content calendar');
             }
             const data = await response.json();
             setContentCalendar(data);
@@ -139,14 +137,14 @@ export default function ExportPage() {
         setContentCalendar(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/genkit/flow/generateSalesScriptFlow', {
+            const response = await fetch('/api/genkit/flow/generateSalesScript', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ segmentName: selectedSegment }),
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to generate sales script');
+                throw new Error(errorData.message || 'Failed to generate sales script');
             }
             const data = await response.json();
             setSalesScript(data);
@@ -200,14 +198,14 @@ export default function ExportPage() {
         setSalesScript(null);
         setContentCalendar(null);
         try {
-            const response = await fetch('/api/genkit/flow/conversationalInsightsFlow', {
+            const response = await fetch('/api/genkit/flow/conversationalInsights', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: coPilotQuery }),
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.error.message || 'Failed to get insight from Co-pilot');
+                throw new Error(errorData.message || 'Failed to get insight from Co-pilot');
             }
             const data = await response.json();
             setCoPilotResponse(data);
