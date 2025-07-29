@@ -12,6 +12,7 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucide-react';
 import { ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
 
 type CsvData = string[][];
 type Mapping = {
@@ -22,6 +23,7 @@ const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'i
 const importantField = 'purchase_categories';
 
 export default function CustomerImportPage() {
+  const { data: session, status } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<CsvData>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -48,7 +50,13 @@ export default function CustomerImportPage() {
         }
 
         const smartMapping = await response.json();
-        setMapping(smartMapping);
+        // Ensure that any returned mapping values that are empty strings are converted
+        // to 'unmapped' for the Select component.
+        const sanitizedMapping: Mapping = {};
+        for(const key in smartMapping) {
+            sanitizedMapping[key] = smartMapping[key] === '' ? 'unmapped' : smartMapping[key];
+        }
+        setMapping(sanitizedMapping);
 
     } catch (err: any) {
         setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
@@ -76,7 +84,6 @@ export default function CustomerImportPage() {
         setHeaders(validHeaders);
         setData(validData);
 
-        // Auto-mapping logic
         handleSmartMap(validHeaders, validData);
       };
       reader.readAsText(uploadedFile);
@@ -102,7 +109,13 @@ export default function CustomerImportPage() {
   };
 
   const handleProcess = async () => {
-    const mappedColumns = Object.values(mapping);
+    // Create a mapping to be sent to the backend, converting 'unmapped' back to empty strings.
+    const backendMapping: Mapping = {};
+    for (const key in mapping) {
+        backendMapping[key] = mapping[key] === 'unmapped' ? '' : mapping[key];
+    }
+    
+    const mappedColumns = Object.values(backendMapping);
     const allRequiredFieldsMapped = requiredFields.every(field => mappedColumns.includes(field));
 
     if (!allRequiredFieldsMapped) {
@@ -117,7 +130,6 @@ export default function CustomerImportPage() {
 
     const fileContent = await file!.text();
 
-    // Simulate progress
     const progressInterval = setInterval(() => {
         setProgress(prev => {
             if (prev >= 90) {
@@ -134,7 +146,7 @@ export default function CustomerImportPage() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 csvData: fileContent,
-                columnMapping: mapping
+                columnMapping: backendMapping
             })
         });
 
@@ -217,12 +229,12 @@ export default function CustomerImportPage() {
                       <div key={header} className="space-y-2">
                           <p className="font-medium">{header}</p>
                           <div className="flex items-center gap-1">
-                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || ''}>
+                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || 'unmapped'}>
                               <SelectTrigger>
                                   <SelectValue placeholder="- Unmapped -" />
                               </SelectTrigger>
                               <SelectContent>
-                                  <SelectItem value="">- Unmapped -</SelectItem>
+                                  <SelectItem value="unmapped">- Unmapped -</SelectItem>
                                   {requiredFields.map(field => (
                                   <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
                                       {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
@@ -230,8 +242,8 @@ export default function CustomerImportPage() {
                                   ))}
                               </SelectContent>
                               </Select>
-                              {mapping[header] && (
-                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, '')}>
+                              {mapping[header] && mapping[header] !== 'unmapped' && (
+                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, 'unmapped')}>
                                       <X className="h-4 w-4" />
                                   </Button>
                               )}
@@ -283,7 +295,7 @@ export default function CustomerImportPage() {
               <CardHeader>
                   <CardTitle>Processing Data...</CardTitle>
                   <CardDescription>The AI is analyzing, cleaning, and saving your data. Please wait.</CardDescription>
-              </CardHeader>
+              </Header>
               <CardContent>
                   <Progress value={progress} className="w-full" />
                   <p className="text-center mt-2 text-sm text-muted-foreground">{progress}% complete</p>
@@ -353,5 +365,3 @@ export default function CustomerImportPage() {
     </main>
   );
 }
-
-    
