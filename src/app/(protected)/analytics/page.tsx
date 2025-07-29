@@ -294,7 +294,7 @@ export default function AnalyticsPage() {
                                  <Card>
                                     <CardHeader>
                                         <CardTitle className="flex items-center gap-2 text-lg"><Lightbulb className="h-5 w-5 text-amber-500" /> Cross-Cultural Advice</CardTitle>
-                                    </Header>
+                                    </CardHeader>
                                     <CardContent>
                                         <p className="text-sm text-muted-foreground">{insights.globalIntelligence.crossCulturalCampaignAdvice}</p>
                                     </CardContent>
