@@ -104,7 +104,8 @@ export default function CustomerImportPage() {
   const handleProcess = async () => {
     const backendMapping: Mapping = {};
     for (const key in mapping) {
-        if (mapping[key] !== 'unmapped') {
+        // Use an empty string for unmapped fields instead of the word 'unmapped'
+        if (mapping[key]) {
             backendMapping[key] = mapping[key];
         }
     }
@@ -223,12 +224,12 @@ export default function CustomerImportPage() {
                       <div key={header} className="space-y-2">
                           <p className="font-medium">{header}</p>
                           <div className="flex items-center gap-1">
-                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || 'unmapped'}>
+                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || ''}>
                               <SelectTrigger>
                                   <SelectValue placeholder="- Unmapped -" />
                               </SelectTrigger>
                               <SelectContent>
-                                  <SelectItem value="unmapped">- Unmapped -</SelectItem>
+                                  <SelectItem value="">- Unmapped -</SelectItem>
                                   {requiredFields.map(field => (
                                   <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
                                       {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
@@ -236,8 +237,8 @@ export default function CustomerImportPage() {
                                   ))}
                               </SelectContent>
                               </Select>
-                              {mapping[header] && mapping[header] !== 'unmapped' && (
-                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, 'unmapped')}>
+                              {mapping[header] && mapping[header] !== '' && (
+                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, '')}>
                                       <X className="h-4 w-4" />
                                   </Button>
                               )}
