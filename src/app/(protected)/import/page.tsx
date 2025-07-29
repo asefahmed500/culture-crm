@@ -59,7 +59,6 @@ export default function CustomerImportPage() {
     }
   };
 
-
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const uploadedFile = acceptedFiles[0];
     if (uploadedFile && (uploadedFile.type === 'text/csv' || uploadedFile.name.endsWith('.csv'))) {
@@ -105,7 +104,9 @@ export default function CustomerImportPage() {
   const handleProcess = async () => {
     const backendMapping: Mapping = {};
     for (const key in mapping) {
-        backendMapping[key] = mapping[key] === 'unmapped' ? '' : mapping[key];
+        if (mapping[key] !== 'unmapped') {
+            backendMapping[key] = mapping[key];
+        }
     }
     
     const mappedColumns = Object.values(backendMapping);
