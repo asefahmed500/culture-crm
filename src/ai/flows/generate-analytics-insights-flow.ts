@@ -97,7 +97,7 @@ export async function generateAnalyticsInsights(): Promise<GenerateAnalyticsInsi
 
 const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
-  input: { schema: z.any() }, // Input is the array of profiles
+  input: { schema: z.object({ profiles: z.any() }) }, 
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a world-class, self-learning cultural sociologist, market intelligence analyst, and geo-context engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
@@ -142,8 +142,9 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
   async () => {
     await dbConnect();
     const profiles = await CustomerProfile.find({}).lean();
-    if (profiles.length === 0) {
-      throw new Error("No customer profiles found. Please import data before generating analytics.");
+    
+    if (!profiles || profiles.length === 0) {
+      throw new Error("No customer profiles found in the database. Please import data on the Customer Import page before generating analytics.");
     }
 
     const MAX_PROFILES_FOR_ANALYSIS = 100;
@@ -187,3 +188,5 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
