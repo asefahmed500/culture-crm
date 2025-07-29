@@ -34,7 +34,6 @@ export async function generateContentCalendar(): Promise<GenerateContentCalendar
 
 const calendarPrompt = ai.definePrompt({
   name: 'contentCalendarPrompt',
-  input: { schema: z.object({ profiles: z.any() }) },
   output: { schema: GenerateContentCalendarOutputSchema },
   prompt: `You are a creative and strategic social media manager with a deep understanding of cultural trends. Your task is to generate a 30-day content calendar for an e-commerce brand based on an analysis of its customer base's cultural DNA. The goal is to create content that resonates deeply by timing it with relevant cultural moments.
 
@@ -94,5 +93,3 @@ export const generateContentCalendarFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

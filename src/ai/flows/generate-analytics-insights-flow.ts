@@ -97,7 +97,6 @@ export async function generateAnalyticsInsights(): Promise<GenerateAnalyticsInsi
 
 const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
-  input: { schema: z.object({ profiles: z.any() }) }, 
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a world-class, self-learning cultural sociologist, market intelligence analyst, and geo-context engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
@@ -131,7 +130,7 @@ Based on this entire dataset, perform the following analysis:
     *   **Cultural Sensitivity Score**: Calculate a score (0-100) that represents how well the brand's current appeal spans diverse cultural tastes. A high score indicates broad, sensitive appeal, while a low score suggests a narrow or potentially insensitive appeal.
 
 Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
-`,
+`
 });
 
 export const generateAnalyticsInsightsFlow = ai.defineFlow(
@@ -188,5 +187,3 @@ export const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
-
-    

@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, RefreshCw, AlertTriangle, AreaChart, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
@@ -85,6 +85,8 @@ export default function SegmentsPage() {
     useEffect(() => {
         if (status === 'authenticated') {
             fetchSegments();
+        } else if (status === 'unauthenticated') {
+            setLoading(false);
         }
     }, [status]);
 
@@ -113,7 +115,7 @@ export default function SegmentsPage() {
         if (!selectedSegment || actualROI === '') return;
         setIsSavingPerformance(true);
         try {
-            const response = await fetch(\`/api/customer-segments/\${selectedSegment._id}/performance\`, {
+            const response = await fetch(`/api/customer-segments/${selectedSegment._id}/performance`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ actualROI: Number(actualROI) }),
@@ -180,7 +182,7 @@ export default function SegmentsPage() {
 
             {loading ? <SegmentsLoadingSkeleton /> : (
                 <>
-                    {!error && result && result.segments && result.segments.length > 0 && (
+                    {!error && result && result.segments && result.segments.length > 0 ? (
                         <div className="mt-8 space-y-8">
                             
                             <Card className="bg-primary/5 border-primary/20">
@@ -247,7 +249,7 @@ export default function SegmentsPage() {
                                                             Track Performance
                                                         </Button>
                                                     </DialogTrigger>
-                                                    {selectedSegment && (
+                                                    {selectedSegment?._id === segment._id && (
                                                         <DialogContent>
                                                             <DialogHeader>
                                                                 <DialogTitle>Track Campaign Performance</DialogTitle>
@@ -312,8 +314,7 @@ export default function SegmentsPage() {
                                 </Card>
                             )}
                         </div>
-                    )}
-                    {!loading && !error && (!result || !result.segments || result.segments.length === 0) && (
+                    ) : (
                          <Alert className="mt-4">
                             <Zap className="h-4 w-4" />
                             <AlertTitle>No Segments Generated Yet</AlertTitle>

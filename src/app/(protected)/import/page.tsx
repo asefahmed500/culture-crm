@@ -9,10 +9,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucide-react';
+import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles, AlertCircle } from 'lucide-react';
 import { ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
-import { useSession } from 'next-auth/react';
 
 type CsvData = string[][];
 type Mapping = {
@@ -24,7 +23,6 @@ const importantField = 'purchase_categories';
 const UNMAPPED_VALUE = '--unmapped--';
 
 export default function CustomerImportPage() {
-  const { data: session, status } = useSession();
   const [file, setFile] = useState<File | null>(null);
   const [data, setData] = useState<CsvData>([]);
   const [headers, setHeaders] = useState<string[]>([]);
@@ -76,15 +74,19 @@ export default function CustomerImportPage() {
       const reader = new FileReader();
       reader.onload = () => {
         const text = reader.result as string;
-        const rows = text.split('\n').map(row => row.split(',').map(cell => cell.trim().replace(/"/g, '')));
+        const lines = text.split('\n').map(row => row.trim());
+        if (lines.length < 2) {
+          setError('CSV file must have a header row and at least one data row.');
+          return;
+        }
+
+        const headerRow = lines[0].split(',').map(cell => cell.trim().replace(/"/g, ''));
+        const dataRows = lines.slice(1).filter(line => line).map(line => line.split(',').map(cell => cell.trim().replace(/"/g, '')));
         
-        const validHeaders = rows[0].filter(header => header.trim() !== '');
-        const validData = rows.slice(1).filter(row => row.length === rows[0].length && row.some(cell => cell));
+        setHeaders(headerRow);
+        setData(dataRows);
 
-        setHeaders(validHeaders);
-        setData(validData);
-
-        handleSmartMap(validHeaders, validData);
+        handleSmartMap(headerRow, dataRows);
       };
       reader.readAsText(uploadedFile);
     } else {
@@ -198,7 +200,7 @@ export default function CustomerImportPage() {
                   </Button>
               </div>
           )}
-          {error && <Alert variant="destructive" className="mt-4"><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+          {error && <Alert variant="destructive" className="mt-4"><AlertCircle className="h-4 w-4"/><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
         </CardContent>
       </Card>
 
@@ -262,24 +264,26 @@ export default function CustomerImportPage() {
               <CardDescription>Showing the first 10 rows of your data.</CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    {headers.map(header => (
-                      <TableHead key={header}>{header}</TableHead>
-                    ))}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {data.slice(0, 10).map((row, i) => (
-                    <TableRow key={i}>
-                      {row.map((cell, j) => (
-                        <TableCell key={j}>{cell}</TableCell>
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      {headers.map(header => (
+                        <TableHead key={header}>{header}</TableHead>
                       ))}
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                  </TableHeader>
+                  <TableBody>
+                    {data.slice(0, 10).map((row, i) => (
+                      <TableRow key={i}>
+                        {row.map((cell, j) => (
+                          <TableCell key={j}>{cell}</TableCell>
+                        ))}
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
 
@@ -338,6 +342,7 @@ export default function CustomerImportPage() {
               <Card>
                   <CardHeader><CardTitle>Processed Data Preview</CardTitle><CardDescription>This is a preview of the first 5 records saved to the database.</CardDescription></CardHeader>
                   <CardContent>
+                    <div className="overflow-x-auto">
                       <Table>
                           <TableHeader>
                               <TableRow>
@@ -356,6 +361,7 @@ export default function CustomerImportPage() {
                               ))}
                           </TableBody>
                       </Table>
+                    </div>
                   </CardContent>
               </Card>
             )}

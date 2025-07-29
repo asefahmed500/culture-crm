@@ -28,8 +28,6 @@ export async function conversationalInsights(input: ConversationalInsightsInput)
 
 const conversationalPrompt = ai.definePrompt({
   name: 'conversationalInsightsPrompt',
-  input: { schema: z.object({ query: z.string() }) },
-  output: { schema: z.string() },
   tools: [getCustomerProfilesTool, getCustomerSegmentsTool],
   prompt: `You are a friendly and insightful AI Strategy Co-pilot for a Cultural Intelligence CRM. Your name is "Cultura." Your job is to answer a user's natural language questions about their customer data.
 
@@ -60,5 +58,3 @@ export const conversationalInsightsFlow = ai.defineFlow(
     return output as string;
   }
 );
-
-    

@@ -72,7 +72,6 @@ export async function generateCommunicationStrategy(input: GenerateCommunication
 
 const strategyPrompt = ai.definePrompt({
     name: 'communicationStrategyPrompt',
-    input: { schema: CulturalDnaInputSchema },
     output: { schema: GenerateCommunicationStrategyOutputSchema },
     prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile—which has been generated using taste correlation data from the Qloo Taste AI API—and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
 
