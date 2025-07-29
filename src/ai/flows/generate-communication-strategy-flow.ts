@@ -11,7 +11,6 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { ICulturalDNA } from '@/models/customer-profile';
 
 // The input is the Cultural DNA profile from the CustomerProfile model.
 // We can't import the Zod schema from the model directly due to server/client constraints,

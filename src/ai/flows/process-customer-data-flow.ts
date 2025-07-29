@@ -88,7 +88,7 @@ function parseCsv(csvText: string, mapping: Record<string, string>): Array<Recor
 
 
 // Define the Genkit flow
-const processCustomerDataFlow = ai.defineFlow(
+export const processCustomerDataFlow = ai.defineFlow(
   {
     name: 'processCustomerDataFlow',
     inputSchema: ProcessCustomerDataInputSchema,
@@ -135,8 +135,8 @@ const processCustomerDataFlow = ai.defineFlow(
     }
     
     if(customerDocsToSave.length > 0) {
-      // Clear existing profiles before importing new ones to prevent data duplication.
-      await CustomerProfile.deleteMany({});
+      // NOTE: We no longer clear existing profiles. This makes the import additive.
+      // await CustomerProfile.deleteMany({});
       const result = await CustomerProfile.insertMany(customerDocsToSave, { ordered: false }); // ordered:false to continue on errors
       recordsSaved = result.length;
     }
@@ -160,7 +160,7 @@ const processCustomerDataFlow = ai.defineFlow(
         completeness: isNaN(completeness) ? 0 : completeness,
       },
       processedData: parsedRecords, // Return the data that was actually processed and saved
-      summary: `${recordsSaved} of ${totalRecords} customer profiles were successfully imported and enriched.`,
+      summary: `${recordsSaved} of ${totalRecords} customer profiles were successfully imported and added to the database.`,
     };
   }
 );

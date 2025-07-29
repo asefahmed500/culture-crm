@@ -13,7 +13,6 @@ import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucid
 import { ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Header } from '@radix-ui/react-accordion';
 
 type CsvData = string[][];
 type Mapping = {
@@ -166,7 +165,7 @@ export default function CustomerImportPage() {
       <Card>
         <CardHeader>
           <CardTitle>Customer Data Import</CardTitle>
-          <CardDescription>Upload a CSV file to import and analyze customer data. This process will clear any existing customer profiles.</CardDescription>
+          <CardDescription>Upload a CSV file to import and analyze customer data. This process will add new profiles to your existing database.</CardDescription>
         </CardHeader>
         <CardContent>
           {!file ? (
