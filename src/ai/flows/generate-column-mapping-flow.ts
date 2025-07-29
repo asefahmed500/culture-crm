@@ -10,7 +10,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { generate } from 'genkit';
 import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
@@ -31,10 +30,15 @@ export async function generateColumnMapping(input: GenerateColumnMappingInput): 
   return generateColumnMappingFlow(input);
 }
 
-
-// This defines a function that builds the prompt dynamically.
-const mappingPromptFn = (input: GenerateColumnMappingInput) => {
-    const systemInstruction = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+export const generateColumnMappingFlow = ai.defineFlow(
+  {
+    name: 'generateColumnMappingFlow',
+    inputSchema: GenerateColumnMappingInputSchema,
+    outputSchema: GenerateColumnMappingOutputSchema,
+  },
+  async (input) => {
+    
+    const prompt = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
@@ -58,34 +62,17 @@ Example Response:
   "last_purchase_item": "purchase_categories",
   "visits_last_month": "interaction_frequency"
 }
-`;
 
-    const userMessage = `
 CSV Headers:
 ${JSON.stringify(input.headers)}
 
 CSV Data Preview (first 5 rows):
 ${JSON.stringify(input.previewData)}
 `;
-
-    return {
-        system: systemInstruction,
-        user: userMessage,
-    };
-};
-
-
-export const generateColumnMappingFlow = ai.defineFlow(
-  {
-    name: 'generateColumnMappingFlow',
-    inputSchema: GenerateColumnMappingInputSchema,
-    outputSchema: GenerateColumnMappingOutputSchema,
-  },
-  async (input) => {
     
     const { output } = await ai.generate({
-        model: gemini15Flash, // Using a powerful and free model for better data analysis
-        prompt: mappingPromptFn(input),
+        model: gemini15Flash,
+        prompt: prompt,
         config: {
             temperature: 0,
             response: {

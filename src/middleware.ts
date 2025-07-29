@@ -1,10 +1,39 @@
 
-// src/middleware.ts
-export { default } from "next-auth/middleware"
+import { withAuth } from 'next-auth/middleware';
+import { NextResponse } from 'next/server';
 
-export const config = { 
-    // The following routes are defined as public routes.
-    // Please note that this is a simplified regex and may need to be updated.
-    // For more information, see: https://nextjs.org/docs/app/building-your-application/routing/middleware#matcher
-    matcher: ['/((?!api/auth|login|signup|_next/static|_next/image|favicon.ico|$).*)']
+export default withAuth(
+  // `withAuth` augments your `Request` with the user's token.
+  function middleware(req) {
+    // This is a placeholder for any future logic that needs the user's session.
+    // For now, we can just return a NextResponse.next() to continue the request chain.
+    return NextResponse.next();
+  },
+  {
+    callbacks: {
+      authorized: ({ req, token }) => {
+        // This callback determines if the user is authorized.
+        // If there's a token, they are authorized.
+        return !!token;
+      },
+    },
+  }
+);
+
+// This config specifies which routes are protected by the middleware.
+export const config = {
+  // The matcher protects all routes except for the public ones specified.
+  matcher: [
+    // Protect all routes under these paths
+    '/dashboard/:path*',
+    '/import/:path*',
+    '/customers/:path*',
+    '/segments/:path*',
+    '/analytics/:path*',
+    '/export/:path*',
+    '/settings/:path*',
+    
+    // Protect all API routes except for the auth ones
+    '/api/((?!auth).*)',
+  ],
 };
