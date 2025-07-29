@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 
-export default function Home() {
+export default function RootPage() {
   const { status } = useSession();
   const router = useRouter();
 
@@ -19,8 +19,9 @@ export default function Home() {
   }, [status, router]);
 
   return (
-      <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Loading...</p>
       </div>
   );
 }

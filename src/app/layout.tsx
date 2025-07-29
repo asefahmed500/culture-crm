@@ -3,7 +3,6 @@ import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 import { Inter } from 'next/font/google';
-import AppShell from '@/components/app-shell';
 import Providers from './providers';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
@@ -22,9 +21,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.variable} font-sans antialiased`}>
         <Providers>
-            <AppShell>
-                {children}
-            </AppShell>
+            {children}
             <Toaster />
         </Providers>
       </body>

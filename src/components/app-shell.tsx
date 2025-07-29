@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Home, Settings, Users, LineChart, LogOut, LogIn, Upload, Milestone, Download, Zap, Loader2 } from 'lucide-react';
+import { Home, Settings, Users, LineChart, LogOut, LogIn, Upload, Milestone, Download, Zap } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -26,31 +26,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter, usePathname } from 'next/navigation';
-import { useEffect } from 'react';
 import Link from 'next/link';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const router = useRouter();
   const pathname = usePathname();
 
-  const isPublicPage = ['/login', '/signup', '/'].includes(pathname);
-
-  useEffect(() => {
-    if (status === 'unauthenticated' && !isPublicPage) {
-      router.replace('/login');
-    }
-  }, [status, isPublicPage, router, pathname]);
-
   const handleLogout = async () => {
-    await signOut({ redirect: false, callbackUrl: '/' });
-    router.push('/');
-  };
-
-  const handleLogin = () => {
+    await signOut({ redirect: false, callbackUrl: '/login' });
     router.push('/login');
   };
-  
+
   const menuItems = [
     { href: '/dashboard', icon: Home, label: 'Dashboard' },
     { href: '/import', icon: Upload, label: 'Customer Import' },
@@ -60,19 +47,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/export', icon: Download, label: 'Export Center' },
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]
-
-  if (isPublicPage) {
-    return <>{children}</>;
-  }
-
-  if (status === 'loading') {
-    return (
-      <div className="flex h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-4 text-muted-foreground">Loading session...</p>
-      </div>
-    );
-  }
   
   return (
     <SidebarProvider>
@@ -88,7 +62,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             <SidebarMenu>
               {menuItems.map((item) => (
                   <SidebarMenuItem key={item.href}>
-                      <SidebarMenuButton onClick={() => router.push(item.href)} isActive={pathname.startsWith(item.href)} tooltip={item.label}>
+                      <SidebarMenuButton onClick={() => router.push(item.href)} isActive={pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href))} tooltip={item.label}>
                           <item.icon />
                           <span>{item.label}</span>
                       </SidebarMenuButton>
@@ -97,7 +71,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
             </SidebarMenu>
           </SidebarContent>
           <SidebarFooter>
-            {session ? (
+            {session && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <div className="flex cursor-pointer items-center gap-3 rounded-md p-2 transition-colors hover:bg-sidebar-accent">
@@ -123,11 +97,6 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            ) : (
-               <Button onClick={handleLogin} variant="ghost" className="w-full justify-start">
-                  <LogIn className="mr-2 h-4 w-4" />
-                  Login
-              </Button>
             )}
           </SidebarFooter>
         </Sidebar>

@@ -18,6 +18,48 @@ import { ICustomerProfile } from '@/models/customer-profile';
 import { Segment } from '@/models/segment';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
+const KPISkeleton = () => (
+    <Card>
+        <CardHeader>
+             <Skeleton className="h-5 w-3/4 mb-1" />
+        </CardHeader>
+        <CardContent>
+             <Skeleton className="h-8 w-20" />
+        </CardContent>
+    </Card>
+)
+
+const LoadingState = () => (
+     <div className="space-y-6">
+        <Card className="bg-gradient-to-br from-primary/10 to-transparent">
+            <CardHeader>
+                <Skeleton className="h-9 w-1/2 mb-2" />
+                <Skeleton className="h-4 w-3/4" />
+            </CardHeader>
+        </Card>
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-6 w-1/2" />
+                <Skeleton className="h-4 w-2/3" />
+            </CardHeader>
+             <CardContent className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                <KPISkeleton />
+                <KPISkeleton />
+            </CardContent>
+        </Card>
+        <Card>
+            <CardHeader>
+                <Skeleton className="h-7 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full" />
+            </CardHeader>
+            <CardContent>
+                <Skeleton className="h-10 w-48" />
+            </CardContent>
+        </Card>
+     </div>
+);
+
+
 export default function Dashboard() {
     const router = useRouter();
     const { data: session, status } = useSession();
@@ -28,10 +70,8 @@ export default function Dashboard() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (status !== 'authenticated') {
-                setLoading(false);
-                return;
-            }
+            if (status !== 'authenticated') return;
+            
             try {
                 setLoading(true);
                 setError(null);
@@ -41,22 +81,12 @@ export default function Dashboard() {
                 ]);
                 
                 if (!profilesRes.ok) {
-                    const resText = await profilesRes.text();
-                    try {
-                        const errorData = JSON.parse(resText);
-                        throw new Error(errorData.message || 'Failed to fetch profiles');
-                    } catch (e) {
-                        throw new Error('Failed to fetch profiles. Server returned non-JSON response.');
-                    }
+                    const errorData = await profilesRes.json();
+                    throw new Error(errorData.message || 'Failed to fetch customer profiles');
                 }
                  if (!segmentsRes.ok) {
-                    const resText = await segmentsRes.text();
-                     try {
-                        const errorData = JSON.parse(resText);
-                        throw new Error(errorData.message || 'Failed to fetch segments');
-                    } catch (e) {
-                        throw new Error('Failed to fetch segments. Server returned non-JSON response.');
-                    }
+                    const errorData = await segmentsRes.json();
+                    throw new Error(errorData.message || 'Failed to fetch customer segments');
                 }
 
                 const profilesData = await profilesRes.json();
@@ -66,13 +96,13 @@ export default function Dashboard() {
                 setSegments(segmentsData.segments || []);
 
             } catch (err: any) {
-                setError(err.message || 'An unexpected error occurred.');
+                setError(err.message || 'An unexpected error occurred while loading dashboard data.');
             } finally {
                 setLoading(false);
             }
         };
 
-        if (status !== 'loading') {
+        if (status === 'authenticated') {
             fetchData();
         }
     }, [status]);
@@ -115,13 +145,12 @@ export default function Dashboard() {
                 <CardDescription className="flex items-center gap-2"><Icon className="h-4 w-4" />{title}</CardDescription>
             </CardHeader>
             <CardContent>
-                 {loading ? <Skeleton className="h-8 w-20" /> : (
-                     value !== null ? (
-                         <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
-                    ) : (
-                        <p className="text-sm text-muted-foreground">Not enough data</p>
-                    )
-                 )}
+                 {value !== null ? (
+                    <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
+                ) : (
+                    <p className="text-sm text-muted-foreground">Not enough data</p>
+                )
+                 }
             </CardContent>
         </Card>
     );
@@ -171,38 +200,20 @@ export default function Dashboard() {
             </CardContent>
         </Card>
     );
-    
-    const LoadingState = () => (
-         <div className="space-y-6">
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-8 w-1/2 mb-2" />
-                    <Skeleton className="h-4 w-3/4" />
-                </CardHeader>
-            </Card>
-            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <KpiCard key="accuracy" title="Cultural DNA Accuracy" value={null} unit="%" icon={Target} />
-                <KpiCard key="roi" title="Avg. Campaign ROI" value={null} unit="%" icon={Percent} />
-            </div>
-            <Card>
-                <CardHeader>
-                    <Skeleton className="h-7 w-3/4 mb-2" />
-                    <Skeleton className="h-4 w-full" />
-                </CardHeader>
-                <CardContent>
-                    <Skeleton className="h-10 w-48" />
-                </CardContent>
-            </Card>
-         </div>
+
+  if (loading || status === 'loading') {
+    return (
+         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
+            <LoadingState />
+         </main>
     );
+  }
 
   return (
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <WelcomeCard />
         
-        {(status === 'loading' || loading) ? (
-            <LoadingState />
-        ) : error ? (
+        {error ? (
             <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertTitle>Error Loading Dashboard</AlertTitle>
