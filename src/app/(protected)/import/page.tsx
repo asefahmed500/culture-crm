@@ -21,6 +21,7 @@ type Mapping = {
 
 const requiredFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
 const importantField = 'purchase_categories';
+const UNMAPPED_VALUE = '--unmapped--';
 
 export default function CustomerImportPage() {
   const { data: session, status } = useSession();
@@ -88,7 +89,7 @@ export default function CustomerImportPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'text/csv': ['.csv']} });
 
   const handleMappingChange = (csvHeader: string, systemField: string) => {
-    setMapping(prev => ({ ...prev, [csvHeader]: systemField }));
+    setMapping(prev => ({ ...prev, [csvHeader]: systemField === UNMAPPED_VALUE ? '' : systemField }));
   };
   
   const handleRemoveFile = () => {
@@ -104,8 +105,7 @@ export default function CustomerImportPage() {
   const handleProcess = async () => {
     const backendMapping: Mapping = {};
     for (const key in mapping) {
-        // Use an empty string for unmapped fields instead of the word 'unmapped'
-        if (mapping[key]) {
+        if (mapping[key] && mapping[key] !== UNMAPPED_VALUE) {
             backendMapping[key] = mapping[key];
         }
     }
@@ -224,12 +224,12 @@ export default function CustomerImportPage() {
                       <div key={header} className="space-y-2">
                           <p className="font-medium">{header}</p>
                           <div className="flex items-center gap-1">
-                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || ''}>
+                              <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || UNMAPPED_VALUE}>
                               <SelectTrigger>
                                   <SelectValue placeholder="- Unmapped -" />
                               </SelectTrigger>
                               <SelectContent>
-                                  <SelectItem value="">- Unmapped -</SelectItem>
+                                  <SelectItem value={UNMAPPED_VALUE}>- Unmapped -</SelectItem>
                                   {requiredFields.map(field => (
                                   <SelectItem key={field} value={field} className={field === importantField ? 'font-bold' : ''}>
                                       {field.replace(/_/g, ' ')}{field === importantField ? ' (AI Input)' : ''}
@@ -238,7 +238,7 @@ export default function CustomerImportPage() {
                               </SelectContent>
                               </Select>
                               {mapping[header] && mapping[header] !== '' && (
-                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, '')}>
+                                   <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, UNMAPPED_VALUE)}>
                                       <X className="h-4 w-4" />
                                   </Button>
                               )}
