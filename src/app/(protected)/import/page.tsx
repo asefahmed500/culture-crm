@@ -53,12 +53,12 @@ export default function CustomerImportPage() {
         const smartMapping = await response.json();
         const initialMapping: Mapping = {};
         headers.forEach(header => {
-            initialMapping[header] = smartMapping[header] || '';
+            initialMapping[header] = smartMapping[header] || UNMAPPED_VALUE;
         });
         setMapping(initialMapping);
 
     } catch (err: any) {
-        setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
+        setError(\`AI auto-mapping failed: \${err.message}. Please map columns manually.\`);
     } finally {
         setIsMappingLoading(false);
     }
@@ -93,7 +93,7 @@ export default function CustomerImportPage() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop, accept: {'text/csv': ['.csv']} });
 
   const handleMappingChange = (csvHeader: string, systemField: string) => {
-    setMapping(prev => ({ ...prev, [csvHeader]: systemField === UNMAPPED_VALUE ? '' : systemField }));
+    setMapping(prev => ({ ...prev, [csvHeader]: systemField }));
   };
   
   const handleRemoveFile = () => {
@@ -176,7 +176,7 @@ export default function CustomerImportPage() {
           {!file ? (
             <div
               {...getRootProps()}
-              className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary ${isDragActive ? 'border-primary bg-accent' : 'border-border'}`}
+              className={\`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary \${isDragActive ? 'border-primary bg-accent' : 'border-border'}\`}
             >
               <input {...getInputProps()} />
               <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
@@ -241,7 +241,7 @@ export default function CustomerImportPage() {
                                   ))}
                               </SelectContent>
                               </Select>
-                              {mapping[header] && mapping[header] !== '' && (
+                              {mapping[header] && mapping[header] !== UNMAPPED_VALUE && (
                                    <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0" onClick={() => handleMappingChange(header, UNMAPPED_VALUE)}>
                                       <X className="h-4 w-4" />
                                   </Button>
@@ -324,7 +324,7 @@ export default function CustomerImportPage() {
                   <CardContent><p className="text-2xl font-bold">{result.recordsProcessed}</p></CardContent>
               </Card>
                <Card>
-                  <CardHeader><CardTitle>Records Saved</CardTitle></CardHeader>
+                  <CardHeader><CardTitle>Records Added</CardTitle></CardHeader>
                   <CardContent><p className="text-2xl font-bold">{result.recordsSaved}</p></CardContent>
               </Card>
               <Card>

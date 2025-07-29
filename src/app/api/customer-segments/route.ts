@@ -5,25 +5,24 @@ import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-
 import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Segment from "@/models/segment";
+import Campaign from "@/models/campaign";
 
 // This function now fetches saved segments from the database
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
         const segments = await Segment.find({}).sort({ businessOpportunityRank: 'asc' }).lean();
+        const campaigns = await Campaign.find({}).sort({ createdAt: -1 }).limit(3).lean();
         
         let summary = "No segments have been generated yet.";
         if (segments && segments.length > 0) {
-            summary = `Found ${segments.length} saved segments. Displaying from database.`;
+            summary = \`Found \${segments.length} saved segments. Displaying from database.\`;
         }
 
-        // This is a stand-in for fetching top campaign ideas,
-        // which are not stored with individual segments.
-        // In a real app, these might be stored in a separate "Report" collection.
         const responsePayload = {
             segments: segments || [],
             summary: summary,
-            topCampaignIdeas: [], // This would need a more complex implementation to store/retrieve
+            topCampaignIdeas: campaigns || [],
         };
         
         return NextResponse.json(responsePayload, { status: 200 });
@@ -33,18 +32,3 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message: "Failed to fetch customer segments: " + error.message }, { status: 500 });
     }
 }
-
-
-// This function now triggers the generation and saving of new segments
-export async function POST(req: NextRequest) {
-    try {
-        const segmentsData = await generateCustomerSegments();
-        return NextResponse.json(segmentsData, { status: 200 });
-    } catch (error: any)
-        {
-        console.error("Failed to generate customer segments:", error);
-        // Ensure a consistent error structure
-        return NextResponse.json({ message: "Failed to generate customer segments.", error: error.message }, { status: 500 });
-    }
-}
-

@@ -113,7 +113,7 @@ export default function SegmentsPage() {
         if (!selectedSegment || actualROI === '') return;
         setIsSavingPerformance(true);
         try {
-            const response = await fetch(`/api/customer-segments/${selectedSegment._id}/performance`, {
+            const response = await fetch(\`/api/customer-segments/\${selectedSegment._id}/performance\`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ actualROI: Number(actualROI) }),
@@ -327,5 +327,3 @@ export default function SegmentsPage() {
         </main>
     );
 }
-
-    

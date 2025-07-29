@@ -13,4 +13,4 @@ import './flows/generate-column-mapping-flow';
 import './tools/business-metrics-tool';
 import './tools/customer-profiles-tool';
 import './tools/customer-segments-tool';
-    
+import '@/models/campaign';

@@ -127,7 +127,7 @@ export const processCustomerDataFlow = ai.defineFlow(
                   : undefined;
               customerDocsToSave.push({ ...behavioralData, culturalDNA });
           } catch (e: any) {
-              console.error(`Failed to generate cultural DNA for a record: ${e.message}. Saving record without DNA.`);
+              console.error(\`Failed to generate cultural DNA for a record: \${e.message}. Saving record without DNA.\`);
               // Save the record even if DNA generation fails to not lose data.
               customerDocsToSave.push(behavioralData);
           }
@@ -160,7 +160,7 @@ export const processCustomerDataFlow = ai.defineFlow(
         completeness: isNaN(completeness) ? 0 : completeness,
       },
       processedData: parsedRecords, // Return the data that was actually processed and saved
-      summary: `${recordsSaved} of ${totalRecords} new customer profiles were successfully added to the database.`,
+      summary: \`\${recordsSaved} of \${totalRecords} new customer profiles were successfully added to the database.\`,
     };
   }
 );
