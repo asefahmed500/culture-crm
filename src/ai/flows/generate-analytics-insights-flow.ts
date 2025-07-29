@@ -131,10 +131,10 @@ Based on this entire dataset, perform the following analysis:
     *   **Cultural Sensitivity Score**: Calculate a score (0-100) that represents how well the brand's current appeal spans diverse cultural tastes. A high score indicates broad, sensitive appeal, while a low score suggests a narrow or potentially insensitive appeal.
 
 Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
-`
+`,
 });
 
-const generateAnalyticsInsightsFlow = ai.defineFlow(
+export const generateAnalyticsInsightsFlow = ai.defineFlow(
   {
     name: 'generateAnalyticsInsightsFlow',
     outputSchema: GenerateAnalyticsInsightsOutputSchema,
@@ -188,5 +188,4 @@ const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
-
     

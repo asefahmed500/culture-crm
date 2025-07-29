@@ -84,7 +84,7 @@ Based on ALL this data, perform the following:
 Generate the output in the specified JSON format.`,
 });
 
-const generateCulturalDnaFlow = ai.defineFlow(
+export const generateCulturalDnaFlow = ai.defineFlow(
   {
     name: 'generateCulturalDnaFlow',
     inputSchema: GenerateCulturalDnaInputSchema,

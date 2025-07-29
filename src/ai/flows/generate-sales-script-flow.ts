@@ -64,7 +64,7 @@ Format the output in the specified JSON format.
 `,
 });
 
-const generateSalesScriptFlow = ai.defineFlow(
+export const generateSalesScriptFlow = ai.defineFlow(
   {
     name: 'generateSalesScriptFlow',
     inputSchema: GenerateSalesScriptInputSchema,
@@ -76,7 +76,7 @@ const generateSalesScriptFlow = ai.defineFlow(
     const segment = await Segment.findOne({ segmentName }).lean();
 
     if (!segment) {
-      throw new Error(`Segment "${segmentName}" not found. Please generate segments first.`);
+      throw new Error(\`Segment "\${segmentName}" not found. Please generate segments first.\`);
     }
 
     const { output } = await scriptPrompt({ segment });
