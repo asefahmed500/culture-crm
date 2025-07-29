@@ -103,7 +103,7 @@ Format the output as a JSON object that strictly adheres to the provided schema.
 `,
 });
 
-const generateCommunicationStrategyFlow = ai.defineFlow(
+export const generateCommunicationStrategyFlow = ai.defineFlow(
   {
     name: 'generateCommunicationStrategyFlow',
     inputSchema: CulturalDnaInputSchema,
