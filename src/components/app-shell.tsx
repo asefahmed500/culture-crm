@@ -35,7 +35,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
   const handleLogout = async () => {
-    await signOut({ redirect: false });
+    await signOut({ redirect: false, callbackUrl: '/' });
     router.push('/');
   };
 
