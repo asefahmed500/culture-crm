@@ -115,7 +115,7 @@ const generateCulturalDnaFlow = ai.defineFlow(
             fashion: { score: 0, preferences: [] },
             travel: { score: 0, preferences: [] },
             socialCauses: { score: 0, preferences: [] },
-            surpriseConnections: ["Could not retrieve correlations from the Qloo API. The service may be temporarily unavailable."],
+            surpriseConnections: ["Could not retrieve correlations from the Qloo API. The service may be temporarily unavailable or the input categories were too niche."],
             confidenceScore: 20,
         };
     }
