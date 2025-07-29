@@ -135,7 +135,8 @@ export const processCustomerDataFlow = ai.defineFlow(
     }
     
     if(customerDocsToSave.length > 0) {
-      // NOTE: We no longer clear existing profiles. This makes the import additive.
+      // NOTE: Data import is now ADDITIVE. We no longer clear existing profiles.
+      // This ensures data persistence across uploads.
       // await CustomerProfile.deleteMany({});
       const result = await CustomerProfile.insertMany(customerDocsToSave, { ordered: false }); // ordered:false to continue on errors
       recordsSaved = result.length;
@@ -160,7 +161,7 @@ export const processCustomerDataFlow = ai.defineFlow(
         completeness: isNaN(completeness) ? 0 : completeness,
       },
       processedData: parsedRecords, // Return the data that was actually processed and saved
-      summary: `${recordsSaved} of ${totalRecords} customer profiles were successfully imported and added to the database.`,
+      summary: `${recordsSaved} of ${totalRecords} new customer profiles were successfully added to the database.`,
     };
   }
 );

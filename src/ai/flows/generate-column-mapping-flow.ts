@@ -20,25 +20,19 @@ const GenerateColumnMappingInputSchema = z.object({
 
 export type GenerateColumnMappingInput = z.infer<typeof GenerateColumnMappingInputSchema>;
 
-// The output is a simple key-value mapping object.
-// The key is the original CSV header, and the value is the system field it maps to.
 const GenerateColumnMappingOutputSchema = z.record(z.string());
 export type GenerateColumnMappingOutput = z.infer<typeof GenerateColumnMappingOutputSchema>;
-
 
 export async function generateColumnMapping(input: GenerateColumnMappingInput): Promise<GenerateColumnMappingOutput> {
   return generateColumnMappingFlow(input);
 }
 
-export const generateColumnMappingFlow = ai.defineFlow(
-  {
-    name: 'generateColumnMappingFlow',
-    inputSchema: GenerateColumnMappingInputSchema,
-    outputSchema: GenerateColumnMappingOutputSchema,
-  },
-  async (input) => {
-    
-    const prompt = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+const mappingPrompt = ai.definePrompt(
+    {
+        name: 'columnMappingPrompt',
+        input: { schema: GenerateColumnMappingInputSchema },
+        output: { schema: GenerateColumnMappingOutputSchema },
+        prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
@@ -54,33 +48,25 @@ Instructions:
 
 Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or 'unmapped'.
 
-Example Response:
-{
-  "CustomerID": "unmapped",
-  "age": "age_range",
-  "total_spent": "spending_level",
-  "last_purchase_item": "purchase_categories",
-  "visits_last_month": "interaction_frequency"
-}
-
 CSV Headers:
-${JSON.stringify(input.headers)}
+{{{json headers}}}
 
 CSV Data Preview (first 5 rows):
-${JSON.stringify(input.previewData)}
-`;
+{{{json previewData}}}
+`
+    }
+);
+
+
+export const generateColumnMappingFlow = ai.defineFlow(
+  {
+    name: 'generateColumnMappingFlow',
+    inputSchema: GenerateColumnMappingInputSchema,
+    outputSchema: GenerateColumnMappingOutputSchema,
+  },
+  async (input) => {
     
-    const { output } = await ai.generate({
-        model: gemini15Flash,
-        prompt: prompt,
-        config: {
-            temperature: 0,
-            response: {
-                format: 'json',
-                schema: GenerateColumnMappingOutputSchema,
-            },
-        },
-    });
+    const { output } = await mappingPrompt(input);
 
     if (!output) {
       throw new Error('The AI model did not return a valid mapping.');
