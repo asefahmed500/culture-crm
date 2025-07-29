@@ -149,7 +149,7 @@ export default function AnalyticsPage() {
             setLoading(false);
         }
     };
-    
+
     return (
         <AppShell>
             <main className="flex-1 p-4 md:p-8">
