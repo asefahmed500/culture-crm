@@ -1,19 +1,13 @@
+
 'use server';
 
 import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-flow";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 import dbConnect from "@/lib/mongoose";
 import Segment from "@/models/segment";
 
 // This function now fetches saved segments from the database
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         await dbConnect();
         const segments = await Segment.find({}).sort({ businessOpportunityRank: 'asc' }).lean();
@@ -43,11 +37,6 @@ export async function GET(req: NextRequest) {
 
 // This function now triggers the generation and saving of new segments
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         const segmentsData = await generateCustomerSegments();
         return NextResponse.json(segmentsData, { status: 200 });
@@ -58,3 +47,4 @@ export async function POST(req: NextRequest) {
         return NextResponse.json({ message: "Failed to generate customer segments.", error: error.message }, { status: 500 });
     }
 }
+

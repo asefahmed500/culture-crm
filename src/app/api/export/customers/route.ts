@@ -3,8 +3,6 @@ import dbConnect from "@/lib/mongoose";
 import CustomerProfile from "@/models/customer-profile";
 import Segment from "@/models/segment";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 // Helper function to find which segment a profile belongs to.
 // This is computationally intensive and not ideal for production.
@@ -57,11 +55,6 @@ const getTopAffinities = (dna: any) => {
 
 
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         await dbConnect();
         

@@ -2,15 +2,8 @@
 import dbConnect from "@/lib/mongoose";
 import Settings from "@/models/settings";
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
 export async function GET(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         await dbConnect();
         // There should only be one settings document.
@@ -35,11 +28,6 @@ export async function GET(req: NextRequest) {
 
 
 export async function POST(req: NextRequest) {
-    const session = await getServerSession(authOptions);
-    if (!session) {
-        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
-    }
-
     try {
         const body = await req.json();
         await dbConnect();
