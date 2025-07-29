@@ -12,23 +12,6 @@ export const authOptions: AuthOptions = {
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-            async profile(profile) {
-                await dbConnect();
-                let user = await User.findOne({ email: profile.email });
-                if (!user) {
-                    user = await new User({
-                        email: profile.email,
-                        name: profile.name,
-                        // image is not part of the User model, but NextAuth can use it
-                    }).save();
-                }
-                return {
-                    id: user._id.toString(),
-                    name: user.name,
-                    email: user.email,
-                    image: profile.picture,
-                };
-            }
         }),
         CredentialsProvider({
             name: "credentials",
@@ -58,7 +41,11 @@ export const authOptions: AuthOptions = {
                     return null;
                 }
 
-                return user;
+                return {
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
+                };
             },
         }),
     ],
@@ -66,16 +53,39 @@ export const authOptions: AuthOptions = {
         strategy: "jwt",
     },
     callbacks: {
+        async signIn({ user, account, profile }) {
+            if (account?.provider === 'google') {
+                await dbConnect();
+                try {
+                    let existingUser = await User.findOne({ email: user.email });
+                    if (!existingUser) {
+                        await User.create({
+                            email: user.email,
+                            name: user.name,
+                            // Google provider doesn't return a password
+                        });
+                    }
+                    return true; // Continue sign in
+                } catch (error) {
+                    console.error('Error during Google sign-in user check/creation:', error);
+                    return false; // Stop sign in
+                }
+            }
+            return true; // For other providers or if already handled
+        },
         jwt: async ({ token, user }) => {
             if (user) {
-                // Persist the user id from the authorize function or signIn callback to the token
-                token.id = user.id;
+                // On sign-in, find the user in the DB to get the correct ID
+                 await dbConnect();
+                const dbUser = await User.findOne({ email: user.email });
+                if(dbUser) {
+                    token.id = dbUser._id.toString();
+                }
             }
             return token;
         },
         session: async ({ session, token }) => {
             if (session?.user) {
-                // The token now has the id, assign it to the session
                 session.user.id = token.id as string;
             }
             return session;
@@ -83,6 +93,7 @@ export const authOptions: AuthOptions = {
     },
     pages: {
         signIn: '/login',
+        error: '/login', // Redirect to login page on error
     }
 };
 
