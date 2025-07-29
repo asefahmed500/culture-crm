@@ -50,8 +50,6 @@ export default function CustomerImportPage() {
         }
 
         const smartMapping = await response.json();
-        // Ensure that any returned mapping values that are empty strings are converted
-        // to 'unmapped' for the Select component.
         const sanitizedMapping: Mapping = {};
         for(const key in smartMapping) {
             sanitizedMapping[key] = smartMapping[key] === '' ? 'unmapped' : smartMapping[key];
@@ -109,7 +107,6 @@ export default function CustomerImportPage() {
   };
 
   const handleProcess = async () => {
-    // Create a mapping to be sent to the backend, converting 'unmapped' back to empty strings.
     const backendMapping: Mapping = {};
     for (const key in mapping) {
         backendMapping[key] = mapping[key] === 'unmapped' ? '' : mapping[key];
