@@ -131,7 +131,7 @@ export default function CustomersPage() {
     
      const handleFeedback = async (profileId: string, feedback: number) => {
         try {
-            const response = await fetch(\`/api/customer-profiles/\${profileId}/feedback\`, {
+            const response = await fetch(`/api/customer-profiles/${profileId}/feedback`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ feedback }),
