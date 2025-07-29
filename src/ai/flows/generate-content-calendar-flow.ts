@@ -79,7 +79,9 @@ export const generateContentCalendarFlow = ai.defineFlow(
             } : {}
         }));
     } else {
-        profilesForPrompt = profiles;
+        profilesForPrompt = profiles.map(p => ({
+            culturalDNA: p.culturalDNA,
+        }));
     }
 
 
@@ -92,3 +94,5 @@ export const generateContentCalendarFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

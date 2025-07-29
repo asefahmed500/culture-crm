@@ -50,7 +50,7 @@ const CulturalEvolutionSchema = z.object({
     lifeStageShifts: z.array(z.string()).describe("A list of detected or inferred life stage transitions within the customer base (e.g., 'A significant portion of the 'Urban Explorer' segment appears to be entering parenthood, based on new purchasing patterns.')."),
     culturalDrift: z.array(z.string()).describe("Analysis of how customers are moving between different cultural segments over time. (e.g., 'Customers from the 'Casual Gamers' segment are showing increased interest in 'DIY Hobbies', suggesting a drift towards the 'Creative Homebodies' segment.')."),
     externalInfluenceMapping: z.array(z.string()).describe("Inferred mapping of how external events or macro-trends are influencing customer preferences (e.g., 'The recent global focus on wellness is likely driving the increased interest in 'Mindfulness Apps' across multiple segments.')."),
-    microTrends: z.array(z.string()).describe("Identification of nascent, micro-trends before they become mainstream (e.g., 'A small but growing cluster of high-value customers is showing interest in 'Analog Photography', a potential micro-trend to watch.').")
+    microTrends: z.array(z.string()).describe("Identification of nascent, micro-trends before they become mainstream. (e.g., 'A small but growing cluster of high-value customers is showing interest in 'Analog Photography', a potential micro-trend to watch.').")
 });
 
 const GlobalIntelligenceSchema = z.object({
@@ -188,3 +188,5 @@ export const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
+
+    

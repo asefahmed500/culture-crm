@@ -10,8 +10,6 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { generate } from 'genkit';
-import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 const GenerateColumnMappingInputSchema = z.object({
@@ -67,12 +65,6 @@ CSV Headers:
 CSV Data Preview (first 5 rows):
 {{{json previewData}}}
 `,
-    config: {
-        temperature: 0,
-        response: {
-            format: 'json',
-        },
-    }
 });
 
 
@@ -92,3 +84,5 @@ export const generateColumnMappingFlow = ai.defineFlow(
     return output;
   }
 );
+
+    
