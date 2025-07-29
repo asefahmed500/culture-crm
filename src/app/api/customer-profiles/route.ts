@@ -17,8 +17,8 @@ export async function GET(req: NextRequest) {
         const profiles = await CustomerProfile.find({}).sort({ createdAt: -1 });
 
         return NextResponse.json(profiles, { status: 200 });
-    } catch (error) {
+    } catch (error: any) {
         console.error("Failed to fetch customer profiles:", error);
-        return NextResponse.json({ message: "Internal server error" }, { status: 500 });
+        return NextResponse.json({ message: "Failed to fetch customer profiles.", error: error.message }, { status: 500 });
     }
 }

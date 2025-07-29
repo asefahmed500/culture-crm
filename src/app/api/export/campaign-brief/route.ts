@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(brief, { status: 200 });
     } catch (error: any) {
         console.error("Failed to generate campaign brief:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to generate campaign brief.", error: error.message }, { status: 500 });
     }
 }
 

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(calendar, { status: 200 });
     } catch (error: any) {
         console.error("Failed to generate content calendar:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to generate content calendar.", error: error.message }, { status: 500 });
     }
 }
 

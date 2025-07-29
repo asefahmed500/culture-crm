@@ -14,18 +14,18 @@ export const authOptions: AuthOptions = {
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
             async profile(profile) {
                 await dbConnect();
-                let dbUser = await User.findOne({ email: profile.email });
-                if (!dbUser) {
-                    dbUser = await User.create({
+                let user = await User.findOne({ email: profile.email });
+                if (!user) {
+                    user = await new User({
                         email: profile.email,
                         name: profile.name,
-                        // no password for google users
-                    });
+                        // image is not part of the User model, but NextAuth can use it
+                    }).save();
                 }
                 return {
-                    id: dbUser._id.toString(),
-                    name: dbUser.name,
-                    email: dbUser.email,
+                    id: user._id.toString(),
+                    name: user.name,
+                    email: user.email,
                     image: profile.picture,
                 };
             }

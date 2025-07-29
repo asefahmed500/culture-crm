@@ -30,7 +30,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error: any) {
         console.error("Failed to fetch customer segments:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to fetch customer segments.", error: error.message }, { status: 500 });
     }
 }
 
@@ -47,6 +47,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(segments, { status: 200 });
     } catch (error: any) {
         console.error("Failed to generate customer segments:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to generate customer segments.", error: error.message }, { status: 500 });
     }
 }

@@ -20,7 +20,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error: any) {
         console.error("Failed to fetch stories:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to fetch stories.", error: error.message }, { status: 500 });
     }
 }
 
@@ -36,6 +36,6 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(insights, { status: 200 });
     } catch (error: any) {
         console.error("Failed to generate analytics insights:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to generate analytics insights.", error: error.message }, { status: 500 });
     }
 }
