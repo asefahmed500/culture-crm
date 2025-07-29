@@ -119,10 +119,10 @@ export default function CustomerImportPage() {
     }
     
     const mappedColumns = Object.values(backendMapping);
-    const allRequiredFieldsMapped = requiredFields.every(field => mappedColumns.includes(field));
+    const unmappedRequiredFields = requiredFields.filter(field => !mappedColumns.includes(field));
 
-    if (!allRequiredFieldsMapped) {
-        setError('Please map all required fields: ' + requiredFields.map(f => f.replace(/_/g, ' ')).join(', '));
+    if (unmappedRequiredFields.length > 0) {
+        setError(`Please map all required fields. The following are missing: ${unmappedRequiredFields.map(f => f.replace(/_/g, ' ')).join(', ')}`);
         return;
     }
 
