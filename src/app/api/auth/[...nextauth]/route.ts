@@ -54,29 +54,22 @@ export const authOptions: AuthOptions = {
     },
     callbacks: {
         async signIn({ user, account, profile }) {
+            await dbConnect();
             if (account?.provider === 'google') {
-                await dbConnect();
-                try {
-                    let existingUser = await User.findOne({ email: user.email });
-                    if (!existingUser) {
-                        await User.create({
-                            email: user.email,
-                            name: user.name,
-                            // Google provider doesn't return a password
-                        });
-                    }
-                    return true; // Continue sign in
-                } catch (error) {
-                    console.error('Error during Google sign-in user check/creation:', error);
-                    return false; // Stop sign in
+                const existingUser = await User.findOne({ email: user.email });
+                if (!existingUser) {
+                    await new User({
+                        email: user.email,
+                        name: user.name,
+                        image: user.image,
+                    }).save();
                 }
             }
-            return true; // For other providers or if already handled
+            return true;
         },
-        jwt: async ({ token, user }) => {
-            if (user) {
-                // On sign-in, find the user in the DB to get the correct ID
-                 await dbConnect();
+        async jwt({ token, user, account }) {
+            if (account && user) {
+                await dbConnect();
                 const dbUser = await User.findOne({ email: user.email });
                 if(dbUser) {
                     token.id = dbUser._id.toString();
@@ -84,7 +77,7 @@ export const authOptions: AuthOptions = {
             }
             return token;
         },
-        session: async ({ session, token }) => {
+        async session({ session, token }) {
             if (session?.user) {
                 session.user.id = token.id as string;
             }
@@ -93,8 +86,8 @@ export const authOptions: AuthOptions = {
     },
     pages: {
         signIn: '/login',
-        error: '/login', // Redirect to login page on error
-    }
+    },
+    secret: process.env.NEXTAUTH_SECRET,
 };
 
 const handler = NextAuth(authOptions);
