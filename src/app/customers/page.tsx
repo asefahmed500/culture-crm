@@ -71,25 +71,25 @@ export default function CustomersPage() {
     const [strategy, setStrategy] = useState<GenerateCommunicationStrategyOutput | null>(null);
     const { toast } = useToast();
 
-    useEffect(() => {
-        const fetchProfiles = async () => {
-            try {
-                setLoading(true);
-                setError(null);
-                const response = await fetch('/api/customer-profiles');
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.message || 'Failed to fetch customer profiles');
-                }
-                const data = await response.json();
-                setProfiles(data);
-            } catch (err: any) {
-                setError(err.message || 'An unexpected error occurred.');
-            } finally {
-                setLoading(false);
+    const fetchProfiles = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const response = await fetch('/api/customer-profiles');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch customer profiles');
             }
-        };
-
+            const data = await response.json();
+            setProfiles(data);
+        } catch (err: any) {
+            setError(err.message || 'An unexpected error occurred.');
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    useEffect(() => {
         if (status === 'authenticated') {
             fetchProfiles();
         } else if (status === 'unauthenticated') {
@@ -136,22 +136,23 @@ export default function CustomersPage() {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ feedback }),
             });
-            if (!response.ok) throw new Error('Failed to submit feedback');
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to submit feedback');
+            }
             
-            // Optimistically update UI
-            setProfiles(prevProfiles =>
-                prevProfiles.map(p =>
-                    p._id === profileId ? { ...p, accuracyFeedback: feedback } : p
-                )
-            );
             toast({
                 title: 'Feedback Submitted',
                 description: 'Thank you for helping us improve!',
             });
-        } catch (err) {
+            
+            // Refetch profiles to ensure the UI is in sync with the database
+            await fetchProfiles();
+
+        } catch (err: any) {
             toast({
                 title: 'Error',
-                description: 'Could not submit feedback.',
+                description: err.message || 'Could not submit feedback.',
                 variant: 'destructive',
             });
         }

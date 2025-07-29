@@ -36,6 +36,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         return NextResponse.json(updatedProfile, { status: 200 });
     } catch (error: any) {
         console.error("Failed to save feedback:", error);
-        return NextResponse.json({ message: "Internal server error", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to save feedback.", error: error.message }, { status: 500 });
     }
 }
