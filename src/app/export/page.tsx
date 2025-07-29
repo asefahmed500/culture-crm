@@ -80,6 +80,7 @@ export default function ExportPage() {
         setIsBriefLoading(true);
         setBriefError(null);
         setCampaignBrief(null);
+        // Clear other results
         setSalesScript(null);
         setContentCalendar(null);
         setCoPilotResponse(null);
@@ -106,6 +107,7 @@ export default function ExportPage() {
         setIsCalendarLoading(true);
         setCalendarError(null);
         setContentCalendar(null);
+        // Clear other results
         setCampaignBrief(null);
         setSalesScript(null);
         setCoPilotResponse(null);
@@ -134,6 +136,7 @@ export default function ExportPage() {
         setIsScriptLoading(true);
         setScriptError(null);
         setSalesScript(null);
+        // Clear other results
         setCampaignBrief(null);
         setContentCalendar(null);
         setCoPilotResponse(null);
@@ -195,6 +198,7 @@ export default function ExportPage() {
         setIsCoPilotLoading(true);
         setCoPilotError(null);
         setCoPilotResponse(null);
+        // Clear other results
         setCampaignBrief(null);
         setSalesScript(null);
         setContentCalendar(null);
