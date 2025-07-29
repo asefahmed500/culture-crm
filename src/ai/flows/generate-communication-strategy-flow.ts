@@ -77,25 +77,25 @@ const strategyPrompt = ai.definePrompt({
     name: 'communicationStrategyPrompt',
     input: { schema: CulturalDnaInputSchema },
     output: { schema: GenerateCommunicationStrategyOutputSchema },
-    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile—now powered by real data from the Qloo Taste AI API—and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
+    prompt: `You are an expert marketing strategist and cultural analyst for a modern e-commerce brand. Your task is to analyze a customer's "Cultural DNA" profile—which has been generated using taste correlation data from the Qloo Taste AI API—and generate a complete, actionable communication playbook for them. This playbook should eliminate guesswork for the marketing team.
 
-Cultural DNA Profile (from Qloo API data):
-- Music Affinity: {{music.score}}% (Preferences: {{json music.preferences}})
-- Entertainment Affinity: {{entertainment.score}}% (Preferences: {{json entertainment.preferences}})
-- Dining Affinity: {{dining.score}}% (Preferences: {{json dining.preferences}})
-- Fashion Affinity: {{fashion.score}}% (Preferences: {{json fashion.preferences}})
-- Travel Affinity: {{travel.score}}% (Preferences: {{json travel.preferences}})
-- Social Causes Affinity: {{socialCauses.score}}% (Preferences: {{json socialCauses.preferences}})
+The user's Cultural DNA Profile, derived from Qloo API data, is as follows:
+- Music Affinity Score: {{music.score}}/100 (Preferences: {{json music.preferences}})
+- Entertainment Affinity Score: {{entertainment.score}}/100 (Preferences: {{json entertainment.preferences}})
+- Dining Affinity Score: {{dining.score}}/100 (Preferences: {{json dining.preferences}})
+- Fashion Affinity Score: {{fashion.score}}/100 (Preferences: {{json fashion.preferences}})
+- Travel Affinity Score: {{travel.score}}/100 (Preferences: {{json travel.preferences}})
+- Social Causes Affinity Score: {{socialCauses.score}}/100 (Preferences: {{json socialCauses.preferences}})
 
-Based on this rich, data-driven profile, generate a detailed playbook with the following sections:
-1.  **Email Marketing Optimization**: Fully localize the approach. Define the tone, language style (e.g., formal, casual, witty), and provide three compelling subject line examples optimized for open rates.
-2.  **Social Media Content Strategy**: Recommend the best platforms, content types, and a specific posting style. How can we engage them authentically?
-3.  **Visual Content Optimization**: Describe the visual branding elements, color palettes, and imagery that will resonate most strongly with this cultural profile.
+Based *specifically* on this rich, data-driven profile, generate a detailed playbook with the following sections:
+1.  **Email Marketing Optimization**: Fully localize the approach. Define the tone, language style (e.g., formal, casual, witty), and provide three compelling subject line examples optimized for open rates for this specific profile.
+2.  **Social Media Content Strategy**: Recommend the best platforms, content types, and a specific posting style that aligns with their tastes.
+3.  **Visual Content Optimization**: Describe the visual branding elements, color palettes, and imagery that will resonate most strongly.
 4.  **E-commerce & Service**: 
     -   Outline the best strategy for recommending products (e.g., story-telling, highlighting features, focusing on lifestyle alignment).
     -   Define the ideal communication style for customer service.
 5.  **Cultural Guardrails (Taboo Detection System)**: This is the most critical part. To eliminate guesswork and prevent brand-damaging missteps:
-    -   **DO's**: List specific cultural references, values, or trends to emphasize in communications to build rapport.
+    -   **DO's**: List specific cultural references, values, or trends from their profile to emphasize in communications.
     -   **DON'Ts**: Crucially, list what topics, tones, imagery, or approaches to AVOID. This is the taboo detection system. Be specific (e.g., 'Avoid overtly political humor,' 'Steer clear of luxury-focused language as it may seem inauthentic.').
 6.  **Predicted ROI**: Provide a single, high-level sentence estimating the potential ROI for using this strategy (e.g., "Adopting this strategy could lead to a 15-20% increase in engagement and conversion.").
 

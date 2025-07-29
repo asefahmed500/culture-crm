@@ -44,38 +44,43 @@ export async function processCustomerData(input: ProcessCustomerDataInput): Prom
   return await processCustomerDataFlow(input);
 }
 
-// Define the Genkit prompt
-const customerDataPrompt = ai.definePrompt({
-  name: 'customerDataPrompt',
-  input: { schema: ProcessCustomerDataInputSchema },
-  output: { schema: ProcessCustomerDataOutputSchema.omit({ recordsSaved: true }) },
-  prompt: `You are a data processing expert for a Cultural Intelligence CRM. Your task is to process raw customer data from a CSV file, enrich it, and prepare it for analysis, ensuring all Personally Identifiable Information (PII) is removed.
+// A simple helper to parse CSV text
+function parseCsv(csvText: string, mapping: Record<string, string>): Array<Record<string, any>> {
+    const lines = csvText.trim().split('\n');
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    const records = lines.slice(1);
+    
+    const requiredSystemFields = ['age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'];
+    
+    const reverseMapping: Record<string, string> = {};
+    for (const key in mapping) {
+        if (mapping[key]) {
+            reverseMapping[mapping[key]] = key;
+        }
+    }
 
-Here is the raw CSV data:
-\`\`\`csv
-{{{csvData}}}
-\`\`\`
+    return records.map(line => {
+        const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        const record: Record<string, any> = {};
 
-Here is the column mapping provided by the user. The key is the original CSV header, and the value is the system field it maps to.
-\`\`\`json
-{{{json columnMapping}}}
-\`\`\`
+        for (const field of requiredSystemFields) {
+            const csvHeader = reverseMapping[field];
+            if (csvHeader) {
+                const headerIndex = headers.indexOf(csvHeader);
+                if (headerIndex !== -1) {
+                    const value = values[headerIndex];
+                    if (field === 'purchase_categories' && typeof value === 'string') {
+                        record[field] = value.split(/[;|]/).map(item => item.trim()).filter(Boolean);
+                    } else {
+                        record[field] = value;
+                    }
+                }
+            }
+        }
+        return record;
+    });
+}
 
-Follow these steps precisely:
-1.  **Parse the CSV Data**: Read the provided CSV string. The first row is the header.
-2.  **Apply Column Mapping**: Use the \`columnMapping\` to identify the data for the required fields: 'age_range', 'spending_level', 'purchase_categories', 'interaction_frequency'.
-3.  **PII Removal**: Absolutely ensure that any fields NOT in the mapping are completely discarded. Do not include any potential PII like names, emails, addresses, etc., in the output.
-4.  **Data Standardization & Cleaning**:
-    -   **age_range**: Standardize values into brackets like '18-24', '25-34', '35-44', '45-54', '55+'.
-    -   **spending_level**: Standardize into 'Low', 'Medium', 'High'.
-    -   **purchase_categories**: Clean up and standardize categories. This should be an array of strings. If the value is a single string, try to split it by common delimiters like ';' or '|'.
-    -   **interaction_frequency**: Standardize into 'Low', 'Medium', 'High', 'Very High'.
-    -   For any missing or un-parseable required data, leave the field as an empty string or empty array.
-5.  **Calculate Metrics**:
-    -   Count the total number of data rows processed (excluding the header).
-    -   Calculate the data completeness: For each record, count how many of the 4 required fields have a non-empty value. The final completeness score should be the average completeness percentage across all records.
-6.  **Generate Output**: Create a JSON object matching the defined output schema. The \`processedData\` array should contain one object per processed customer row, containing only the standardized, non-PII fields.`,
-});
 
 // Define the Genkit flow
 const processCustomerDataFlow = ai.defineFlow(
@@ -85,11 +90,11 @@ const processCustomerDataFlow = ai.defineFlow(
     outputSchema: ProcessCustomerDataOutputSchema,
   },
   async (input) => {
-    // 1. Call the AI model to process the data
-    const { output } = await customerDataPrompt(input);
+    // 1. Manually parse the CSV data first for reliability.
+    const parsedRecords = parseCsv(input.csvData, input.columnMapping);
 
-    if (!output) {
-      throw new Error('The AI model did not return a valid output.');
+    if (!parsedRecords || parsedRecords.length === 0) {
+      throw new Error('Could not parse any valid records from the CSV file.');
     }
 
     // 2. Connect to the database
@@ -97,46 +102,60 @@ const processCustomerDataFlow = ai.defineFlow(
 
     // 3. Enrich and save the processed data to MongoDB
     let recordsSaved = 0;
-    if (output.processedData && output.processedData.length > 0) {
-      
-      const customerDocsToSave = [];
+    const customerDocsToSave = [];
 
-      for (const record of output.processedData) {
-        const behavioralData = {
-            ageRange: record.age_range as string,
-            spendingLevel: record.spending_level as string,
-            purchaseCategories: record.purchase_categories as string[],
-            interactionFrequency: record.interaction_frequency as string,
-        };
+    for (const record of parsedRecords) {
+      const behavioralData = {
+          ageRange: record.age_range as string || '',
+          spendingLevel: record.spending_level as string || '',
+          purchaseCategories: record.purchase_categories as string[] || [],
+          interactionFrequency: record.interaction_frequency as string || '',
+      };
 
-        const hasAnyData = behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency || (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0);
+      const hasAnyData = behavioralData.ageRange || behavioralData.spendingLevel || behavioralData.interactionFrequency || (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0);
 
-        if (hasAnyData) {
-            try {
-                // Generate DNA only if purchase categories are available, as it's the primary input.
-                const culturalDNA = (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0)
-                    ? await generateCulturalDna(behavioralData)
-                    : undefined;
-                customerDocsToSave.push({ ...behavioralData, culturalDNA });
-            } catch (e) {
-                console.error("Failed to generate cultural DNA for a record, saving without it.", e);
-                customerDocsToSave.push(behavioralData);
-            }
-        }
-      }
-      
-      if(customerDocsToSave.length > 0) {
-        // Clear existing profiles before importing new ones
-        await CustomerProfile.deleteMany({});
-        const result = await CustomerProfile.insertMany(customerDocsToSave);
-        recordsSaved = result.length;
+      if (hasAnyData) {
+          try {
+              // Generate DNA only if purchase categories are available, as it's the primary input for Qloo.
+              const culturalDNA = (behavioralData.purchaseCategories && behavioralData.purchaseCategories.length > 0)
+                  ? await generateCulturalDna(behavioralData)
+                  : undefined;
+              customerDocsToSave.push({ ...behavioralData, culturalDNA });
+          } catch (e) {
+              console.error("Failed to generate cultural DNA for a record, saving without it.", e);
+              // Save the record even if DNA generation fails to not lose data.
+              customerDocsToSave.push(behavioralData);
+          }
       }
     }
     
-    // 4. Return the final output including the count of saved records
+    if(customerDocsToSave.length > 0) {
+      // Clear existing profiles before importing new ones to prevent data duplication.
+      await CustomerProfile.deleteMany({});
+      const result = await CustomerProfile.insertMany(customerDocsToSave);
+      recordsSaved = result.length;
+    }
+
+    // 4. Calculate final metrics
+    const totalRecords = parsedRecords.length;
+    const completedFields = parsedRecords.reduce((acc, record) => {
+        if (record.age_range) acc++;
+        if (record.spending_level) acc++;
+        if (record.purchase_categories && record.purchase_categories.length > 0) acc++;
+        if (record.interaction_frequency) acc++;
+        return acc;
+    }, 0);
+    const completeness = totalRecords > 0 ? (completedFields / (totalRecords * 4)) * 100 : 0;
+    
+    // 5. Return the final output
     return {
-      ...output,
+      recordsProcessed: totalRecords,
       recordsSaved,
+      dataQuality: {
+        completeness: completeness,
+      },
+      processedData: parsedRecords, // Return the data that was actually processed and saved
+      summary: `${recordsSaved} of ${totalRecords} customer profiles were successfully imported and enriched.`,
     };
   }
 );
