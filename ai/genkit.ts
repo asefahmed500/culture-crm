@@ -8,7 +8,7 @@ import {googleAI} from '@genkit-ai/googleai';
 // Disabling tracing to prevent conflicts with Next.js server environment.
 // Explicitly pass the API key to the plugin.
 export const ai = genkit({
-  plugins: [googleAI({apiKey: process.env.GEMINI_API_KEY})],
+  plugins: [googleAI({apiKey: process.env.GOOGLE_API_KEY})],
   logLevel: 'debug',
   enableTracing: false,
 });
