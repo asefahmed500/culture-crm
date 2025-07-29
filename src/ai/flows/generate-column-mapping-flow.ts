@@ -10,6 +10,7 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { generate } from 'genkit';
 import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
@@ -20,6 +21,8 @@ const GenerateColumnMappingInputSchema = z.object({
 
 export type GenerateColumnMappingInput = z.infer<typeof GenerateColumnMappingInputSchema>;
 
+// The output is a simple key-value mapping object.
+// The key is the original CSV header, and the value is the system field it maps to.
 const GenerateColumnMappingOutputSchema = z.record(z.string());
 export type GenerateColumnMappingOutput = z.infer<typeof GenerateColumnMappingOutputSchema>;
 
@@ -28,16 +31,10 @@ export async function generateColumnMapping(input: GenerateColumnMappingInput): 
   return generateColumnMappingFlow(input);
 }
 
-export const generateColumnMappingFlow = ai.defineFlow(
-  {
-    name: 'generateColumnMappingFlow',
-    inputSchema: GenerateColumnMappingInputSchema,
-    outputSchema: GenerateColumnMappingOutputSchema,
-  },
-  async (input) => {
-    
-    // Construct a single prompt string as required by the Gemini API via Genkit.
-    const prompt = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+
+// This defines a function that builds the prompt dynamically.
+const mappingPromptFn = (input: GenerateColumnMappingInput) => {
+    const systemInstruction = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
@@ -48,22 +45,22 @@ The required system fields are:
 Instructions:
 1. Analyze both the headers and the data in each column.
 2. For each CSV header, determine which of the four system fields it best corresponds to.
-3. If a column does not seem to match any of the system fields, map it to an empty string ('').
+3. If a column does not seem to match any of the system fields, map it to 'unmapped'.
 4. It is possible for multiple CSV columns to map to the same system field, but try to find the best, primary match for each system field. For example, if both 'Product' and 'LifetimeValueUSD' columns exist, 'Product' should map to 'purchase_categories' and 'LifetimeValueUSD' should map to 'spending_level'.
 
-Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or an empty string.
+Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or 'unmapped'.
 
 Example Response:
 {
-  "CustomerID": "",
+  "CustomerID": "unmapped",
   "age": "age_range",
   "total_spent": "spending_level",
   "last_purchase_item": "purchase_categories",
   "visits_last_month": "interaction_frequency"
 }
+`;
 
----
-
+    const userMessage = `
 CSV Headers:
 ${JSON.stringify(input.headers)}
 
@@ -71,9 +68,24 @@ CSV Data Preview (first 5 rows):
 ${JSON.stringify(input.previewData)}
 `;
 
+    return {
+        system: systemInstruction,
+        user: userMessage,
+    };
+};
+
+
+export const generateColumnMappingFlow = ai.defineFlow(
+  {
+    name: 'generateColumnMappingFlow',
+    inputSchema: GenerateColumnMappingInputSchema,
+    outputSchema: GenerateColumnMappingOutputSchema,
+  },
+  async (input) => {
+    
     const { output } = await ai.generate({
-        model: gemini15Flash,
-        prompt: prompt,
+        model: gemini15Flash, // Using a powerful and free model for better data analysis
+        prompt: mappingPromptFn(input),
         config: {
             temperature: 0,
             response: {
