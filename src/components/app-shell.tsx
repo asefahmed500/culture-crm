@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Home, Settings, Users, LineChart, LogOut, LogIn, Upload, Milestone, Download, Zap } from 'lucide-react';
+import { Home, Settings, Users, LineChart, LogOut, LogIn, Upload, Milestone, Download, Zap, Loader2 } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -34,6 +34,14 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
+  const isPublicPage = ['/login', '/signup', '/'].includes(pathname);
+
+  useEffect(() => {
+    if (status === 'unauthenticated' && !isPublicPage) {
+      router.replace('/login');
+    }
+  }, [status, isPublicPage, router, pathname]);
+
   const handleLogout = async () => {
     await signOut({ redirect: false, callbackUrl: '/' });
     router.push('/');
@@ -53,26 +61,17 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     { href: '/settings', icon: Settings, label: 'Settings' },
   ]
 
-  useEffect(() => {
-    // If not authenticated and trying to access a protected page, redirect to login
-    if (status === 'unauthenticated' && !['/login', '/signup', '/'].includes(pathname)) {
-      router.replace('/login');
-    }
-  }, [status, pathname, router]);
+  if (isPublicPage) {
+    return <>{children}</>;
+  }
 
   if (status === 'loading') {
-    return <div className="flex h-screen items-center justify-center">Loading session...</div>;
-  }
-  
-  // For public pages, render children without the shell
-  if (['/login', '/signup', '/'].includes(pathname)) {
-      return <>{children}</>;
-  }
-
-  // If we are on a protected page but not authenticated, show a loading state
-  // while the useEffect above handles the redirect.
-  if (status === 'unauthenticated') {
-      return <div className="flex h-screen items-center justify-center">Redirecting to login...</div>;
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        <p className="ml-4 text-muted-foreground">Loading session...</p>
+      </div>
+    );
   }
   
   return (

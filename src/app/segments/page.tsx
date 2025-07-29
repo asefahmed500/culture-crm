@@ -70,13 +70,8 @@ export default function SegmentsPage() {
         try {
             const response = await fetch('/api/customer-segments');
             if (!response.ok) {
-                const resText = await response.text();
-                try {
-                    const errorData = JSON.parse(resText);
-                    throw new Error(errorData.message || 'Failed to fetch existing segments');
-                } catch (e) {
-                     throw new Error(`Failed to fetch segments. Server returned non-JSON response: ${resText.substring(0, 100)}`);
-                }
+                const errorData = await response.json();
+                throw new Error(errorData.message || 'Failed to fetch existing segments');
             }
             const data = await response.json();
             setResult(data);
@@ -92,6 +87,7 @@ export default function SegmentsPage() {
             fetchSegments();
         } else if (status === 'unauthenticated') {
             setLoading(false);
+            setError("You must be logged in to view this page.");
         }
     }, [status]);
 
@@ -173,19 +169,19 @@ export default function SegmentsPage() {
                             </Button>
                         </div>
                     </CardHeader>
-                    <CardContent>
-                         {error && (
-                             <Alert variant="destructive" className="mt-4">
-                                <AlertTitle>Error</AlertTitle>
-                                <AlertDescription>{error}</AlertDescription>
+                    {error && (
+                        <CardContent>
+                            <Alert variant="destructive" className="mt-4">
+                            <AlertTitle>An Error Occurred</AlertTitle>
+                            <AlertDescription>{error}</AlertDescription>
                             </Alert>
-                        )}
-                    </CardContent>
+                        </CardContent>
+                    )}
                 </Card>
 
                 {loading && <SegmentsLoadingSkeleton />}
 
-                {!loading && result && result.segments.length > 0 && (
+                {!loading && !error && result && result.segments.length > 0 && (
                     <div className="mt-8 space-y-8">
                         
                         <Card className="bg-primary/5 border-primary/20">
@@ -318,7 +314,7 @@ export default function SegmentsPage() {
 
                     </div>
                 )}
-                 { !loading && result && result.segments.length === 0 && (
+                 { !loading && !error && result && result.segments.length === 0 && (
                      <Alert className="mt-4">
                         <Zap className="h-4 w-4" />
                         <AlertTitle>No Segments Found</AlertTitle>

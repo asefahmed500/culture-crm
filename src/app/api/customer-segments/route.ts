@@ -1,4 +1,6 @@
 
+'use server';
+
 import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-flow";
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
@@ -30,7 +32,7 @@ export async function GET(req: NextRequest) {
 
     } catch (error: any) {
         console.error("Failed to fetch customer segments:", error);
-        return NextResponse.json({ message: "Failed to fetch customer segments.", error: error.message }, { status: 500 });
+        return NextResponse.json({ message: "Failed to fetch customer segments: " + error.message }, { status: 500 });
     }
 }
 
@@ -45,8 +47,10 @@ export async function POST(req: NextRequest) {
     try {
         const segments = await generateCustomerSegments();
         return NextResponse.json(segments, { status: 200 });
-    } catch (error: any) {
+    } catch (error: any)
+        {
         console.error("Failed to generate customer segments:", error);
+        // Ensure a consistent error structure
         return NextResponse.json({ message: "Failed to generate customer segments.", error: error.message }, { status: 500 });
     }
 }
