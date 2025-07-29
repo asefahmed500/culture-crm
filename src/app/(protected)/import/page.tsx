@@ -32,10 +32,33 @@ export default function CustomerImportPage() {
   const [progress, setProgress] = useState(0);
   const [result, setResult] = useState<ProcessCustomerDataOutput | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [manualMappingSuggestion, setManualMappingSuggestion] = useState<string | null>(null);
+
+
+  const applyFallbackMapping = (headers: string[]) => {
+      const fallbackMapping: Mapping = {};
+      headers.forEach(header => {
+          const lowerHeader = header.toLowerCase();
+          if (lowerHeader.includes('age') || lowerHeader.includes('birth')) {
+              fallbackMapping[header] = 'age_range';
+          } else if (lowerHeader.includes('spent') || lowerHeader.includes('spending') || lowerHeader.includes('ltv') || lowerHeader.includes('value')) {
+              fallbackMapping[header] = 'spending_level';
+          } else if (lowerHeader.includes('category') || lowerHeader.includes('product') || lowerHeader.includes('item') || lowerHeader.includes('purchase')) {
+              fallbackMapping[header] = 'purchase_categories';
+          } else if (lowerHeader.includes('interaction') || lowerHeader.includes('visit') || lowerHeader.includes('frequency')) {
+              fallbackMapping[header] = 'interaction_frequency';
+          } else {
+              fallbackMapping[header] = UNMAPPED_VALUE;
+          }
+      });
+      setMapping(fallbackMapping);
+  };
+
 
   const handleSmartMap = useCallback(async (headers: string[], data: CsvData) => {
     setIsMappingLoading(true);
     setError(null);
+    setManualMappingSuggestion(null);
     try {
         const response = await fetch('/api/genkit/flow/generateColumnMapping', {
             method: 'POST',
@@ -52,13 +75,14 @@ export default function CustomerImportPage() {
         const initialMapping: Mapping = {};
         headers.forEach(header => {
             const mappedField = smartMapping[header];
-            // Ensure the mapped field is one of the allowed system fields, otherwise default to unmapped.
             initialMapping[header] = requiredFields.includes(mappedField) ? mappedField : UNMAPPED_VALUE;
         });
         setMapping(initialMapping);
 
     } catch (err: any) {
-        setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
+        setError(`AI auto-mapping failed. Please map columns manually.`);
+        setManualMappingSuggestion("We've applied a basic keyword-based mapping to get you started.");
+        applyFallbackMapping(headers);
     } finally {
         setIsMappingLoading(false);
     }
@@ -108,6 +132,7 @@ export default function CustomerImportPage() {
     setResult(null);
     setError(null);
     setProgress(0);
+    setManualMappingSuggestion(null);
   };
 
   const handleProcess = async () => {
@@ -200,7 +225,7 @@ export default function CustomerImportPage() {
                   </Button>
               </div>
           )}
-          {error && <Alert variant="destructive" className="mt-4"><AlertCircle className="h-4 w-4"/><AlertTitle>Error</AlertTitle><AlertDescription>{error}</AlertDescription></Alert>}
+          {error && <Alert variant="destructive" className="mt-4"><AlertCircle className="h-4 w-4"/><AlertTitle>{error}</AlertTitle>{manualMappingSuggestion && <AlertDescription>{manualMappingSuggestion}</AlertDescription>}</Alert>}
         </CardContent>
       </Card>
 

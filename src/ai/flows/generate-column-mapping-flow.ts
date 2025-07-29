@@ -19,16 +19,12 @@ const GenerateColumnMappingInputSchema = z.object({
 
 export type GenerateColumnMappingInput = z.infer<typeof GenerateColumnMappingInputSchema>;
 
-// The output is a simple key-value mapping object.
-// The key is the original CSV header, and the value is the system field it maps to.
 const GenerateColumnMappingOutputSchema = z.record(z.string());
 export type GenerateColumnMappingOutput = z.infer<typeof GenerateColumnMappingOutputSchema>;
-
 
 export async function generateColumnMapping(input: GenerateColumnMappingInput): Promise<GenerateColumnMappingOutput> {
   return generateColumnMappingFlow(input);
 }
-
 
 const mappingPrompt = ai.definePrompt({
     name: 'columnMappingPrompt',
@@ -67,7 +63,6 @@ CSV Data Preview (first 5 rows):
 `,
 });
 
-
 export const generateColumnMappingFlow = ai.defineFlow(
   {
     name: 'generateColumnMappingFlow',
@@ -82,10 +77,9 @@ export const generateColumnMappingFlow = ai.defineFlow(
       throw new Error('The AI model did not return a valid mapping.');
     }
     
-    // Ensure the output conforms to the schema, particularly that all headers are present.
     const finalMapping: Record<string, string> = {};
     input.headers.forEach(header => {
-        finalMapping[header] = output[header] || ''; // Default to empty string if a header was missed by the AI
+        finalMapping[header] = output[header] || '';
     });
     
     return finalMapping;
