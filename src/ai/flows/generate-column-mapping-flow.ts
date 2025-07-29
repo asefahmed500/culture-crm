@@ -10,6 +10,8 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { generate } from 'genkit/ai';
+import { gemini15Pro } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 const GenerateColumnMappingInputSchema = z.object({
@@ -29,14 +31,10 @@ export async function generateColumnMapping(input: GenerateColumnMappingInput): 
   return generateColumnMappingFlow(input);
 }
 
-const mappingPrompt = ai.definePrompt({
-  name: 'columnMappingPrompt',
-  input: { schema: GenerateColumnMappingInputSchema },
-  output: { schema: GenerateColumnMappingOutputSchema },
-  config: {
-    temperature: 0, // Lower temperature for more deterministic, structured output
-  },
-  prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+
+// This defines a function that builds the prompt dynamically.
+const mappingPromptFn = (input: GenerateColumnMappingInput) => {
+    const systemInstruction = `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
@@ -44,19 +42,13 @@ The required system fields are:
 - 'purchase_categories': Represents the types of products or services the customer has bought. This is the most important field. Look for columns with product names, categories, or descriptions.
 - 'interaction_frequency': Represents how often the customer interacts with the brand (e.g., 'Low', 'Medium', 'High', 'Weekly'). Look for columns with visit counts or interaction descriptions.
 
-CSV Headers:
-{{{json headers}}}
-
-CSV Data Preview (first 5 rows):
-{{{json previewData}}}
-
 Instructions:
 1. Analyze both the headers and the data in each column.
 2. For each CSV header, determine which of the four system fields it best corresponds to.
 3. If a column does not seem to match any of the system fields, map it to an empty string ('').
 4. It is possible for multiple CSV columns to map to the same system field, but try to find the best, primary match for each system field. For example, if both 'Product' and 'LifetimeValueUSD' columns exist, 'Product' should map to 'purchase_categories' and 'LifetimeValueUSD' should map to 'spending_level'.
 
-Your response must be a JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or an empty string.
+Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or an empty string.
 
 Example Response:
 {
@@ -66,17 +58,43 @@ Example Response:
   "last_purchase_item": "purchase_categories",
   "visits_last_month": "interaction_frequency"
 }
-`,
-});
+`;
 
-const generateColumnMappingFlow = ai.defineFlow(
+    const userMessage = `
+CSV Headers:
+${JSON.stringify(input.headers)}
+
+CSV Data Preview (first 5 rows):
+${JSON.stringify(input.previewData)}
+`;
+
+    return {
+        system: systemInstruction,
+        user: userMessage,
+    };
+};
+
+
+export const generateColumnMappingFlow = ai.defineFlow(
   {
     name: 'generateColumnMappingFlow',
     inputSchema: GenerateColumnMappingInputSchema,
     outputSchema: GenerateColumnMappingOutputSchema,
   },
   async (input) => {
-    const { output } = await mappingPrompt(input);
+    
+    const { output } = await generate({
+        model: gemini15Pro, // Using a more powerful model for better data analysis
+        prompt: mappingPromptFn(input),
+        config: {
+            temperature: 0,
+            response: {
+                format: 'json',
+                schema: GenerateColumnMappingOutputSchema,
+            },
+        },
+    });
+
     if (!output) {
       throw new Error('The AI model did not return a valid mapping.');
     }
