@@ -94,19 +94,19 @@ export const generateCampaignBriefFlow = ai.defineFlow(
     // Find the segment definition
     const segment = await Segment.findOne({ segmentName }).lean();
     if (!segment) {
-        throw new Error(\`Segment "\${segmentName}" not found. Please generate segments on the Segments page first.\`);
+        throw new Error(`Segment "${segmentName}" not found. Please generate segments on the Segments page first.`);
     }
 
     // Create a rich context summary for the AI from the segment data itself.
     const segmentContext = {
       name: segment.segmentName,
-      description: \`A segment of \${segment.segmentSize} customers, ranked #\${segment.businessOpportunityRank} for business opportunity. They have a \${segment.potentialLifetimeValue.toLowerCase()} potential LTV and an average customer value of '\${segment.averageCustomerValue}'.\`,
+      description: `A segment of ${segment.segmentSize} customers, ranked #${segment.businessOpportunityRank} for business opportunity. They have a ${segment.potentialLifetimeValue.toLowerCase()} potential LTV and an average customer value of '${segment.averageCustomerValue}'.`,
       communicationPreferences: segment.communicationPreferences,
       lovedProductCategories: segment.lovedProductCategories,
       bestMarketingChannels: segment.bestMarketingChannels,
       topCulturalCharacteristics: segment.topCulturalCharacteristics,
       sampleMessaging: segment.sampleMessaging,
-      note: \`This campaign brief is for the '\${segment.segmentName}' segment. Use the provided data to inform the analysis.\`,
+      note: `This campaign brief is for the '${segment.segmentName}' segment. Use the provided data to inform the analysis.`,
     };
 
     const { output } = await briefPrompt({ segmentContext });

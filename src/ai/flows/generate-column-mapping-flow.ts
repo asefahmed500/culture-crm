@@ -47,14 +47,14 @@ The required system fields are:
 Instructions:
 1. Analyze both the headers and the data in each column.
 2. For each CSV header, determine which of the four system fields it best corresponds to.
-3. If a column does not seem to match any of the system fields, map it to an empty string ('').
+3. If a column does not seem to match any of the system fields, map it to '--unmapped--'.
 4. It is possible for multiple CSV columns to map to the same system field, but try to find the best, primary match for each system field. For example, if both 'Product' and 'LifetimeValueUSD' columns exist, 'Product' should map to 'purchase_categories' and 'LifetimeValueUSD' should map to 'spending_level'.
 
-Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or an empty string.
+Your response must be a valid JSON object where each key is a CSV header and the value is the corresponding system field ('age_range', 'spending_level', 'purchase_categories', 'interaction_frequency') or '--unmapped--'.
 
 Example Response:
 {
-  "CustomerID": "",
+  "CustomerID": "--unmapped--",
   "age": "age_range",
   "total_spent": "spending_level",
   "last_purchase_item": "purchase_categories",

@@ -1,11 +1,10 @@
 
 'use server';
 
-import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-flow";
-import { NextRequest, NextResponse } from "next/server";
 import dbConnect from "@/lib/mongoose";
 import Segment from "@/models/segment";
 import Campaign from "@/models/campaign";
+import { NextRequest, NextResponse } from "next/server";
 
 // This function now fetches saved segments from the database
 export async function GET(req: NextRequest) {
@@ -16,7 +15,7 @@ export async function GET(req: NextRequest) {
         
         let summary = "No segments have been generated yet.";
         if (segments && segments.length > 0) {
-            summary = \`Found \${segments.length} saved segments. Displaying from database.\`;
+            summary = `Found ${segments.length} saved segments. Displaying from database.`;
         }
 
         const responsePayload = {

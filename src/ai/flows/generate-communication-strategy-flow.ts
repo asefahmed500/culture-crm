@@ -107,6 +107,7 @@ export const generateCommunicationStrategyFlow = ai.defineFlow(
     outputSchema: GenerateCommunicationStrategyOutputSchema,
   },
   async (input) => {
+    // The input to this flow now comes from a profile already enriched by Qloo data.
     const { output } = await strategyPrompt(input);
     if (!output) {
       throw new Error('The AI model did not return a valid communication strategy.');

@@ -13,6 +13,7 @@ import { z } from 'zod';
 import dbConnect from '@/lib/mongoose';
 import CustomerProfile from '@/models/customer-profile';
 import Segment from '@/models/segment';
+import Campaign from '@/models/campaign';
 
 
 const SegmentSchema = z.object({
@@ -132,9 +133,12 @@ export const generateCustomerSegmentsFlow = ai.defineFlow(
     // Sort segments by rank before saving
     output.segments.sort((a, b) => a.businessOpportunityRank - b.businessOpportunityRank);
 
-    // Clear existing segments and save the new ones
+    // Clear existing data and save the new ones
     await Segment.deleteMany({});
+    await Campaign.deleteMany({});
+
     await Segment.insertMany(output.segments);
+    await Campaign.insertMany(output.topCampaignIdeas);
     
     return output;
   }

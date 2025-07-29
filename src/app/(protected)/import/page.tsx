@@ -58,7 +58,7 @@ export default function CustomerImportPage() {
         setMapping(initialMapping);
 
     } catch (err: any) {
-        setError(\`AI auto-mapping failed: \${err.message}. Please map columns manually.\`);
+        setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
     } finally {
         setIsMappingLoading(false);
     }
@@ -176,7 +176,7 @@ export default function CustomerImportPage() {
           {!file ? (
             <div
               {...getRootProps()}
-              className={\`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary \${isDragActive ? 'border-primary bg-accent' : 'border-border'}\`}
+              className={`border-2 border-dashed rounded-lg p-12 text-center cursor-pointer hover:border-primary ${isDragActive ? 'border-primary bg-accent' : 'border-border'}`}
             >
               <input {...getInputProps()} />
               <Upload className="mx-auto h-12 w-12 text-muted-foreground" />
