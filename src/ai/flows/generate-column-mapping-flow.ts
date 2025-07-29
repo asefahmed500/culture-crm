@@ -10,6 +10,8 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { generate } from 'genkit';
+import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
 const GenerateColumnMappingInputSchema = z.object({

@@ -188,4 +188,3 @@ export const generateAnalyticsInsightsFlow = ai.defineFlow(
     return output;
   }
 );
-    
