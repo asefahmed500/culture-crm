@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, RefreshCw, AlertTriangle, AreaChart, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import type { GenerateCustomerSegmentsOutput } from '../../../../ai/flows/generate-customer-segments-flow';
+import type { GenerateCustomerSegmentsOutput } from 'ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Segment } from '@/models/segment';
@@ -15,6 +16,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useSession } from 'next-auth/react';
 import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const SegmentsLoadingSkeleton = () => (
     <div className="mt-8 space-y-8">
@@ -91,10 +93,14 @@ export default function SegmentsPage() {
         setError(null);
 
         try {
-            const response = await fetch('/api/genkit/flow/generateCustomerSegmentsFlow', { method: 'POST' });
+            const response = await fetch('/api/genkit/flow/generateCustomerSegmentsFlow', { 
+                method: 'POST',
+                body: JSON.stringify({}),
+                headers: { 'Content-Type': 'application/json' },
+            });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate segments');
+                throw new Error(errorData.error.message || 'Failed to generate segments');
             }
             const data = await response.json();
             setResult(data);
@@ -309,12 +315,12 @@ export default function SegmentsPage() {
                             )}
                         </div>
                     )}
-                    {!error && result && result.segments.length === 0 && (
+                    {!loading && !error && (!result || result.segments.length === 0) && (
                          <Alert className="mt-4">
                             <Zap className="h-4 w-4" />
-                            <AlertTitle>No Segments Found</AlertTitle>
+                            <AlertTitle>No Segments Generated Yet</AlertTitle>
                             <AlertDescription>
-                                No segments are currently saved in the database. Click the "Generate Segments" button to analyze your customers and create new segments.
+                                You haven't generated any customer segments. You must first <Link href="/import" className="text-primary underline font-semibold">import customer data</Link> before you can generate segments.
                             </AlertDescription>
                         </Alert>
                     )}

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useCallback } from 'react';
@@ -9,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucide-react';
-import { ProcessCustomerDataOutput } from '../../../../ai/flows/process-customer-data-flow';
+import { ProcessCustomerDataOutput } from 'ai/flows/process-customer-data-flow';
 import Link from 'next/link';
 
 type CsvData = string[][];
@@ -43,7 +44,7 @@ export default function CustomerImportPage() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'AI mapping failed');
+            throw new Error(errorData.error.message || 'AI mapping failed');
         }
 
         const smartMapping = await response.json();
@@ -139,7 +140,7 @@ export default function CustomerImportPage() {
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.message || 'An error occurred during processing.');
+            throw new Error(errorData.error.message || 'An error occurred during processing.');
         }
 
         const responseData = await response.json();

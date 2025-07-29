@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -15,8 +16,9 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCommunicationStrategyOutput } from '../../../../ai/flows/generate-communication-strategy-flow';
+import type { GenerateCommunicationStrategyOutput } from 'ai/flows/generate-communication-strategy-flow';
 import { useSession } from 'next-auth/react';
+import Link from 'next/link';
 
 
 interface ICulturalDNA {
@@ -111,7 +113,7 @@ export default function CustomersPage() {
 
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate strategy');
+                throw new Error(errorData.error.message || 'Failed to generate strategy');
             }
 
             const data = await response.json();
@@ -408,7 +410,7 @@ export default function CustomersPage() {
                                 ) : (
                                     <TableRow>
                                         <TableCell colSpan={7} className="text-center h-24">
-                                            No customer profiles found. You can import data from the Customer Import page.
+                                            No customer profiles found. You can import data from the <Link href="/import" className="text-primary underline">Customer Import page</Link>.
                                         </TableCell>
                                     </TableRow>
                                 )

@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect } from 'react';
@@ -7,9 +8,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot, Mic } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCampaignBriefOutput } from '../../../../ai/flows/generate-campaign-brief-flow';
-import type { GenerateContentCalendarOutput } from '../../../../ai/flows/generate-content-calendar-flow';
-import type { GenerateSalesScriptOutput } from '../../../../ai/flows/generate-sales-script-flow';
+import type { GenerateCampaignBriefOutput } from 'ai/flows/generate-campaign-brief-flow';
+import type { GenerateContentCalendarOutput } from 'ai/flows/generate-content-calendar-flow';
+import type { GenerateSalesScriptOutput } from 'ai/flows/generate-sales-script-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -78,7 +79,6 @@ export default function ExportPage() {
         setIsBriefLoading(true);
         setBriefError(null);
         setCampaignBrief(null);
-        // Clear other results
         setSalesScript(null);
         setContentCalendar(null);
         setCoPilotResponse(null);
@@ -90,7 +90,7 @@ export default function ExportPage() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate campaign brief');
+                throw new Error(errorData.error.message || 'Failed to generate campaign brief');
             }
             const data = await response.json();
             setCampaignBrief(data);
@@ -105,17 +105,18 @@ export default function ExportPage() {
         setIsCalendarLoading(true);
         setCalendarError(null);
         setContentCalendar(null);
-        // Clear other results
         setCampaignBrief(null);
         setSalesScript(null);
         setCoPilotResponse(null);
         try {
             const response = await fetch('/api/genkit/flow/generateContentCalendarFlow', {
                 method: 'POST',
+                body: JSON.stringify({}),
+                headers: { 'Content-Type': 'application/json' },
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate content calendar');
+                throw new Error(errorData.error.message || 'Failed to generate content calendar');
             }
             const data = await response.json();
             setContentCalendar(data);
@@ -134,7 +135,6 @@ export default function ExportPage() {
         setIsScriptLoading(true);
         setScriptError(null);
         setSalesScript(null);
-        // Clear other results
         setCampaignBrief(null);
         setContentCalendar(null);
         setCoPilotResponse(null);
@@ -146,7 +146,7 @@ export default function ExportPage() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to generate sales script');
+                throw new Error(errorData.error.message || 'Failed to generate sales script');
             }
             const data = await response.json();
             setSalesScript(data);
@@ -196,7 +196,6 @@ export default function ExportPage() {
         setIsCoPilotLoading(true);
         setCoPilotError(null);
         setCoPilotResponse(null);
-        // Clear other results
         setCampaignBrief(null);
         setSalesScript(null);
         setContentCalendar(null);
@@ -208,7 +207,7 @@ export default function ExportPage() {
             });
             if (!response.ok) {
                 const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to get insight from Co-pilot');
+                throw new Error(errorData.error.message || 'Failed to get insight from Co-pilot');
             }
             const data = await response.json();
             setCoPilotResponse(data);
