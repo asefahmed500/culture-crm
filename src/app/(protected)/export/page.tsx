@@ -7,9 +7,9 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Download, FileText, CalendarDays, Users, Rocket, Target, Lightbulb, TrendingUp, CheckCircle, Wallet, AreaChart, MessageSquare, Mail, Video, Bot, Mic } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCampaignBriefOutput } from '@/ai/flows/generate-campaign-brief-flow';
-import type { GenerateContentCalendarOutput } from '@/ai/flows/generate-content-calendar-flow';
-import type { GenerateSalesScriptOutput } from '@/ai/flows/generate-sales-script-flow';
+import type { GenerateCampaignBriefOutput } from '../../../../ai/flows/generate-campaign-brief-flow';
+import type { GenerateContentCalendarOutput } from '../../../../ai/flows/generate-content-calendar-flow';
+import type { GenerateSalesScriptOutput } from '../../../../ai/flows/generate-sales-script-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -83,7 +83,7 @@ export default function ExportPage() {
         setContentCalendar(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/export/campaign-brief', {
+            const response = await fetch('/api/genkit/flow/generateCampaignBriefFlow', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ segmentName: selectedSegment }),
@@ -110,7 +110,7 @@ export default function ExportPage() {
         setSalesScript(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/export/content-calendar', {
+            const response = await fetch('/api/genkit/flow/generateContentCalendarFlow', {
                 method: 'POST',
             });
             if (!response.ok) {
@@ -139,7 +139,7 @@ export default function ExportPage() {
         setContentCalendar(null);
         setCoPilotResponse(null);
         try {
-            const response = await fetch('/api/export/sales-script', {
+            const response = await fetch('/api/genkit/flow/generateSalesScriptFlow', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ segmentName: selectedSegment }),
@@ -201,7 +201,7 @@ export default function ExportPage() {
         setSalesScript(null);
         setContentCalendar(null);
         try {
-            const response = await fetch('/api/conversational-insights', {
+            const response = await fetch('/api/genkit/flow/conversationalInsightsFlow', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ query: coPilotQuery }),
@@ -211,7 +211,7 @@ export default function ExportPage() {
                 throw new Error(errorData.message || 'Failed to get insight from Co-pilot');
             }
             const data = await response.json();
-            setCoPilotResponse(data.response);
+            setCoPilotResponse(data);
         } catch (err: any) {
             setCoPilotError(err.message);
         } finally {

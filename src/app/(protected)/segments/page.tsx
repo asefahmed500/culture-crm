@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, Zap, Users, Trophy, Lightbulb, Target, MessageSquare, ShoppingBag, BarChart, RefreshCw, AlertTriangle, AreaChart, AlertCircle } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import type { GenerateCustomerSegmentsOutput } from '@/ai/flows/generate-customer-segments-flow';
+import type { GenerateCustomerSegmentsOutput } from '../../../../ai/flows/generate-customer-segments-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Segment } from '@/models/segment';
@@ -91,7 +91,7 @@ export default function SegmentsPage() {
         setError(null);
 
         try {
-            const response = await fetch('/api/customer-segments', { method: 'POST' });
+            const response = await fetch('/api/genkit/flow/generateCustomerSegmentsFlow', { method: 'POST' });
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.message || 'Failed to generate segments');

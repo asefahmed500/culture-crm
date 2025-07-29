@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucide-react';
-import { processCustomerData, ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
+import { ProcessCustomerDataOutput } from '../../../../ai/flows/process-customer-data-flow';
 import Link from 'next/link';
 
 type CsvData = string[][];
@@ -35,7 +35,7 @@ export default function CustomerImportPage() {
     setIsMappingLoading(true);
     setError(null);
     try {
-        const response = await fetch('/api/smart-map-columns', {
+        const response = await fetch('/api/genkit/flow/generateColumnMappingFlow', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ headers, previewData: data.slice(0, 5) }),
@@ -128,11 +128,22 @@ export default function CustomerImportPage() {
     }, 500);
 
     try {
-        const response = await processCustomerData({
-            csvData: fileContent,
-            columnMapping: mapping
+        const response = await fetch('/api/genkit/flow/processCustomerDataFlow', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                csvData: fileContent,
+                columnMapping: mapping
+            })
         });
-        setResult(response);
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'An error occurred during processing.');
+        }
+
+        const responseData = await response.json();
+        setResult(responseData);
     } catch (e: any) {
         setError(e.message || 'An error occurred during processing.');
     } finally {

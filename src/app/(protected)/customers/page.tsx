@@ -15,7 +15,7 @@ import type { ChartConfig } from "@/components/ui/chart";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import type { GenerateCommunicationStrategyOutput } from '@/ai/flows/generate-communication-strategy-flow';
+import type { GenerateCommunicationStrategyOutput } from '../../../../ai/flows/generate-communication-strategy-flow';
 import { useSession } from 'next-auth/react';
 
 
@@ -103,7 +103,7 @@ export default function CustomersPage() {
         setStrategy(null);
 
         try {
-            const response = await fetch('/api/communication-strategy', {
+            const response = await fetch('/api/genkit/flow/generateCommunicationStrategyFlow', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(profile.culturalDNA),
