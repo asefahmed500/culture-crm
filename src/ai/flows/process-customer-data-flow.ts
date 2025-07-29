@@ -47,6 +47,8 @@ export async function processCustomerData(input: ProcessCustomerDataInput): Prom
 // A simple helper to parse CSV text
 function parseCsv(csvText: string, mapping: Record<string, string>): Array<Record<string, any>> {
     const lines = csvText.trim().split('\n');
+    if (lines.length < 2) return []; // Not enough data to process
+
     const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
     const records = lines.slice(1);
     
@@ -61,16 +63,19 @@ function parseCsv(csvText: string, mapping: Record<string, string>): Array<Recor
 
     return records.map(line => {
         const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+        if (values.length !== headers.length) return null; // Skip malformed rows
+        
         const record: Record<string, any> = {};
 
         for (const field of requiredSystemFields) {
             const csvHeader = reverseMapping[field];
             if (csvHeader) {
                 const headerIndex = headers.indexOf(csvHeader);
-                if (headerIndex !== -1) {
+                if (headerIndex !== -1 && values[headerIndex]) {
                     const value = values[headerIndex];
                     if (field === 'purchase_categories' && typeof value === 'string') {
-                        record[field] = value.split(/[;|]/).map(item => item.trim()).filter(Boolean);
+                        // Split by comma or semicolon for more flexibility
+                        record[field] = value.split(/[;,|]/).map(item => item.trim()).filter(Boolean);
                     } else {
                         record[field] = value;
                     }
@@ -78,7 +83,7 @@ function parseCsv(csvText: string, mapping: Record<string, string>): Array<Recor
             }
         }
         return record;
-    });
+    }).filter(record => record !== null) as Array<Record<string, any>>;
 }
 
 
@@ -94,7 +99,7 @@ const processCustomerDataFlow = ai.defineFlow(
     const parsedRecords = parseCsv(input.csvData, input.columnMapping);
 
     if (!parsedRecords || parsedRecords.length === 0) {
-      throw new Error('Could not parse any valid records from the CSV file.');
+      throw new Error('Could not parse any valid records from the CSV file. Please check the file format.');
     }
 
     // 2. Connect to the database
@@ -121,8 +126,8 @@ const processCustomerDataFlow = ai.defineFlow(
                   ? await generateCulturalDna(behavioralData)
                   : undefined;
               customerDocsToSave.push({ ...behavioralData, culturalDNA });
-          } catch (e) {
-              console.error("Failed to generate cultural DNA for a record, saving without it.", e);
+          } catch (e: any) {
+              console.error(`Failed to generate cultural DNA for a record: ${e.message}. Saving record without DNA.`);
               // Save the record even if DNA generation fails to not lose data.
               customerDocsToSave.push(behavioralData);
           }
@@ -132,7 +137,7 @@ const processCustomerDataFlow = ai.defineFlow(
     if(customerDocsToSave.length > 0) {
       // Clear existing profiles before importing new ones to prevent data duplication.
       await CustomerProfile.deleteMany({});
-      const result = await CustomerProfile.insertMany(customerDocsToSave);
+      const result = await CustomerProfile.insertMany(customerDocsToSave, { ordered: false }); // ordered:false to continue on errors
       recordsSaved = result.length;
     }
 
@@ -152,7 +157,7 @@ const processCustomerDataFlow = ai.defineFlow(
       recordsProcessed: totalRecords,
       recordsSaved,
       dataQuality: {
-        completeness: completeness,
+        completeness: isNaN(completeness) ? 0 : completeness,
       },
       processedData: parsedRecords, // Return the data that was actually processed and saved
       summary: `${recordsSaved} of ${totalRecords} customer profiles were successfully imported and enriched.`,
