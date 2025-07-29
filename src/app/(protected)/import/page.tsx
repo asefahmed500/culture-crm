@@ -13,6 +13,7 @@ import { Upload, FileText, X, CheckCircle, Info, Loader2, Sparkles } from 'lucid
 import { ProcessCustomerDataOutput } from '@/ai/flows/process-customer-data-flow';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
+import { Header } from '@radix-ui/react-accordion';
 
 type CsvData = string[][];
 type Mapping = {
@@ -289,7 +290,7 @@ export default function CustomerImportPage() {
               <CardHeader>
                   <CardTitle>Processing Data...</CardTitle>
                   <CardDescription>The AI is analyzing, cleaning, and saving your data. Please wait.</CardDescription>
-              </Header>
+              </CardHeader>
               <CardContent>
                   <Progress value={progress} className="w-full" />
                   <p className="text-center mt-2 text-sm text-muted-foreground">{progress}% complete</p>
