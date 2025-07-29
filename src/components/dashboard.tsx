@@ -1,4 +1,3 @@
-
 'use client';
 
 import {
@@ -70,7 +69,13 @@ export default function Dashboard() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (status !== 'authenticated') return;
+            if (status !== 'authenticated') {
+                // If the session status is still loading, we shouldn't do anything yet.
+                // If it's unauthenticated, the user will be redirected by the layout.
+                if (status === 'loading') return; 
+                setLoading(false);
+                return;
+            };
             
             try {
                 setLoading(true);
@@ -102,9 +107,7 @@ export default function Dashboard() {
             }
         };
 
-        if (status === 'authenticated') {
-            fetchData();
-        }
+        fetchData();
     }, [status]);
     
     const accuracyScore = useMemo(() => {

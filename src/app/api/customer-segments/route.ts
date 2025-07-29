@@ -1,4 +1,3 @@
-
 'use server';
 
 import { generateCustomerSegments } from "@/ai/flows/generate-customer-segments-flow";
@@ -17,14 +16,19 @@ export async function GET(req: NextRequest) {
 
     try {
         await dbConnect();
-        const segments = await Segment.find({}).sort({ businessOpportunityRank: 'asc' });
+        const segments = await Segment.find({}).sort({ businessOpportunityRank: 'asc' }).lean();
         
-        // This is a stand-in for fetching top campaign ideas and summary,
+        let summary = "No segments have been generated yet.";
+        if (segments && segments.length > 0) {
+            summary = `Found ${segments.length} saved segments. Displaying from database.`;
+        }
+
+        // This is a stand-in for fetching top campaign ideas,
         // which are not stored with individual segments.
         // In a real app, these might be stored in a separate "Report" collection.
         const responsePayload = {
             segments: segments || [],
-            summary: segments && segments.length > 0 ? `Found ${segments.length} saved segments. Displaying from database.` : "No segments have been generated yet.",
+            summary: summary,
             topCampaignIdeas: [], // This would need a more complex implementation to store/retrieve
         };
         
@@ -45,8 +49,8 @@ export async function POST(req: NextRequest) {
     }
 
     try {
-        const segments = await generateCustomerSegments();
-        return NextResponse.json(segments, { status: 200 });
+        const segmentsData = await generateCustomerSegments();
+        return NextResponse.json(segmentsData, { status: 200 });
     } catch (error: any)
         {
         console.error("Failed to generate customer segments:", error);
