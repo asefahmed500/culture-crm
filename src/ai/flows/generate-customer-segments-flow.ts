@@ -88,7 +88,7 @@ const generateCustomerSegmentsFlow = ai.defineFlow(
     await dbConnect();
     const profiles = await CustomerProfile.find({}).lean();
     if (profiles.length === 0) {
-      throw new Error("No customer profiles found in the database. Please import data first.");
+      throw new Error("No customer profiles found in the database. Please import data on the Customer Import page before generating segments.");
     }
 
     const MAX_PROFILES_FOR_ANALYSIS = 100;
