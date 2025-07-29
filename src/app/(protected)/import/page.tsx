@@ -53,7 +53,9 @@ export default function CustomerImportPage() {
         const smartMapping = await response.json();
         const initialMapping: Mapping = {};
         headers.forEach(header => {
-            initialMapping[header] = smartMapping[header] || UNMAPPED_VALUE;
+            const mappedField = smartMapping[header];
+            // Ensure the mapped field is one of the allowed system fields, otherwise default to unmapped.
+            initialMapping[header] = requiredFields.includes(mappedField) ? mappedField : UNMAPPED_VALUE;
         });
         setMapping(initialMapping);
 
@@ -226,7 +228,7 @@ export default function CustomerImportPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       {headers.map(header => (
                       <div key={header} className="space-y-2">
-                          <p className="font-medium">{header}</p>
+                          <p className="font-medium truncate" title={header}>{header}</p>
                           <div className="flex items-center gap-1">
                               <Select onValueChange={value => handleMappingChange(header, value)} value={mapping[header] || UNMAPPED_VALUE}>
                               <SelectTrigger>

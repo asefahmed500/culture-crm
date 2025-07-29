@@ -52,7 +52,7 @@ export async function generateCustomerSegments(): Promise<GenerateCustomerSegmen
 
 const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
-  input: { schema: z.object({ profiles: z.any() }) },
+  input: { schema: z.object({ profiles: z.any() }) }, 
   output: { schema: GenerateCustomerSegmentsOutputSchema },
   prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" profile derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
 
@@ -99,7 +99,7 @@ export const generateCustomerSegmentsFlow = ai.defineFlow(
         // If there are too many profiles, summarize them to avoid exceeding the context window.
         // This creates a more concise representation of each profile.
         profilesForPrompt = profiles.map(p => ({
-            id: p._id.toString(), // Keep an ID for reference if needed
+            id: (p._id as any).toString(), // Keep an ID for reference if needed
             // Summarize the DNA to its most essential parts: the scores. Preferences are too verbose.
             culturalDNA: p.culturalDNA ? {
                 music: p.culturalDNA.music.score,
@@ -116,7 +116,7 @@ export const generateCustomerSegmentsFlow = ai.defineFlow(
     } else {
         // If the number of profiles is manageable, use the full data.
         profilesForPrompt = profiles.map(p => ({
-            id: p._id.toString(),
+            id: (p._id as any).toString(),
             culturalDNA: p.culturalDNA,
             spendingLevel: p.spendingLevel,
             interactionFrequency: p.interactionFrequency,
@@ -143,5 +143,3 @@ export const generateCustomerSegmentsFlow = ai.defineFlow(
     return output;
   }
 );
-
-    
