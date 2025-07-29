@@ -50,11 +50,7 @@ export default function CustomerImportPage() {
         }
 
         const smartMapping = await response.json();
-        const sanitizedMapping: Mapping = {};
-        for(const key in smartMapping) {
-            sanitizedMapping[key] = smartMapping[key] === '' ? 'unmapped' : smartMapping[key];
-        }
-        setMapping(sanitizedMapping);
+        setMapping(smartMapping);
 
     } catch (err: any) {
         setError(`AI auto-mapping failed: ${err.message}. Please map columns manually.`);
