@@ -10,7 +10,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { generate } from 'genkit/ai';
+import { generate } from 'genkit';
 import { gemini15Flash } from '@genkit-ai/googleai';
 import { z } from 'zod';
 
@@ -84,7 +84,7 @@ export const generateColumnMappingFlow = ai.defineFlow(
   async (input) => {
     
     const { output } = await generate({
-        model: gemini15Flash, // Using a more powerful model for better data analysis
+        model: gemini15Flash, // Using a powerful and free model for better data analysis
         prompt: mappingPromptFn(input),
         config: {
             temperature: 0,
