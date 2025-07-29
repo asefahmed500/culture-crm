@@ -14,8 +14,8 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState, useMemo } from 'react';
 import { ArrowRight, Upload, Users, Milestone, LineChart, Target, Percent, AlertCircle } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
-import type { ICustomerProfile } from '@/models/customer-profile';
-import type { Segment } from '@/models/segment';
+import { ICustomerProfile } from '@/models/customer-profile';
+import { Segment } from '@/models/segment';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 
 export default function Dashboard() {
@@ -28,6 +28,9 @@ export default function Dashboard() {
 
     useEffect(() => {
         const fetchData = async () => {
+            if (status !== 'authenticated') {
+                return; // Don't fetch if not authenticated
+            }
             try {
                 setLoading(true);
                 setError(null);
@@ -37,12 +40,23 @@ export default function Dashboard() {
                 ]);
                 
                 if (!profilesRes.ok) {
-                    const errorData = await profilesRes.json();
-                    throw new Error(errorData.message || 'Failed to fetch profiles');
+                    // Check if response is not JSON before parsing
+                    const resText = await profilesRes.text();
+                    try {
+                        const errorData = JSON.parse(resText);
+                        throw new Error(errorData.message || 'Failed to fetch profiles');
+                    } catch (e) {
+                        throw new Error('Failed to fetch profiles. Server returned non-JSON response.');
+                    }
                 }
                  if (!segmentsRes.ok) {
-                    const errorData = await segmentsRes.json();
-                    throw new Error(errorData.message || 'Failed to fetch segments');
+                    const resText = await segmentsRes.text();
+                     try {
+                        const errorData = JSON.parse(resText);
+                        throw new Error(errorData.message || 'Failed to fetch segments');
+                    } catch (e) {
+                        throw new Error('Failed to fetch segments. Server returned non-JSON response.');
+                    }
                 }
 
                 const profilesData = await profilesRes.json();
@@ -58,14 +72,13 @@ export default function Dashboard() {
             }
         };
 
-        if (status === 'authenticated') {
+        if (status !== 'loading') {
             fetchData();
-        } else if (status === 'unauthenticated') {
-            setLoading(false);
         }
     }, [status]);
     
     const accuracyScore = useMemo(() => {
+        if (!profiles) return null;
         const feedbackGiven = profiles.filter(p => p.accuracyFeedback !== 0 && p.accuracyFeedback !== undefined && p.accuracyFeedback !== null);
         if (feedbackGiven.length === 0) return null;
 
@@ -74,6 +87,7 @@ export default function Dashboard() {
     }, [profiles]);
 
     const averageROI = useMemo(() => {
+        if (!segments) return null;
         const segmentsWithRoi = segments.filter(s => typeof s.actualROI === 'number');
         if (segmentsWithRoi.length === 0) return null;
 
@@ -101,7 +115,7 @@ export default function Dashboard() {
                 <CardDescription className="flex items-center gap-2"><Icon className="h-4 w-4" />{title}</CardDescription>
             </CardHeader>
             <CardContent>
-                 {loading ? <Skeleton className="h-8 w-20" /> : (
+                 {(status === 'loading' || loading) ? <Skeleton className="h-8 w-20" /> : (
                      value !== null ? (
                          <p className="text-3xl font-bold">{value.toFixed(1)}<span className="text-xl font-normal">{unit}</span></p>
                     ) : (
@@ -167,8 +181,8 @@ export default function Dashboard() {
                 </CardHeader>
             </Card>
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-                <Card><CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent></Card>
-                <Card><CardContent className="p-6"><Skeleton className="h-24 w-full" /></CardContent></Card>
+                <KpiCard key="accuracy" title="Cultural DNA Accuracy" value={null} unit="%" icon={Target} />
+                <KpiCard key="roi" title="Avg. Campaign ROI" value={null} unit="%" icon={Percent} />
             </div>
             <Card>
                 <CardHeader>
@@ -186,7 +200,7 @@ export default function Dashboard() {
       <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-8">
         <WelcomeCard />
         
-        {loading ? (
+        {(status === 'loading' || loading) ? (
             <LoadingState />
         ) : error ? (
             <Alert variant="destructive">
