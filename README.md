@@ -1,5 +1,7 @@
 
 
+
+
 # Cultural Intelligence CRM
 
 A web-based Customer Relationship Management system that enriches traditional customer data with cultural intelligence, providing businesses with deeper insights into customer preferences, behaviors, and communication strategies without using any personal identifying information.
