@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck, PlayCircle } from 'lucide-react';
+import { Loader2, Zap, TrendingUp, TrendingDown, Lightbulb, Briefcase, Sparkles, Users, Activity, AlertTriangle, BrainCircuit, Star, HeartCrack, ArrowUpRight, CalendarClock, ChevronsRight, Footprints, Wind, Telescope, Globe, Puzzle, TestTube, ShieldCheck, PlayCircle, Goal } from 'lucide-react';
 import type { GenerateAnalyticsInsightsOutput } from '@/ai/flows/generate-analytics-insights-flow';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
@@ -159,14 +159,14 @@ export default function AnalyticsPage() {
                         <div>
                             <CardTitle>Cultural Trend & Analytics Engine</CardTitle>
                             <CardDescription>
-                                Generate a real-time report by analyzing all customer profiles. This self-learning AI processes the entire dataset to discover patterns, detect anomalies, and find opportunities.
+                                Deploy a team of AI agents to analyze all customer profiles. They will discover patterns, detect anomalies, find opportunities, and generate a full strategic report.
                             </CardDescription>
                         </div>
                         <Button onClick={handleGenerateInsights} disabled={loading} size="lg">
                             {loading ? (
                                 <>
                                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Generating Report...
+                                    Agents are Analyzing...
                                 </>
                             ) : (
                                  <>
@@ -192,11 +192,16 @@ export default function AnalyticsPage() {
 
             {insights && (
                 <div className="mt-8 space-y-8">
-                    {insights.dataShiftAlert && (
+                    {insights.dataShiftAlert && insights.dataShiftAlert.isAnomaly && (
                         <Alert variant="destructive" className="border-2 border-amber-500/50">
                             <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Cultural Anomaly Detected! (Automation Trigger)</AlertTitle>
-                            <AlertDescription>{insights.dataShiftAlert}</AlertDescription>
+                            <AlertTitle>Cultural Anomaly Detected! (Agent Alert)</AlertTitle>
+                            <AlertDescription>
+                                <p className="font-semibold">{insights.dataShiftAlert.description}</p>
+                                <Separator className="my-2" />
+                                <p><strong className="text-amber-600">Potential Cause:</strong> {insights.dataShiftAlert.potentialCause}</p>
+                                <p><strong className="text-green-600">Suggested Action:</strong> {insights.dataShiftAlert.suggestedAction}</p>
+                            </AlertDescription>
                         </Alert>
                     )}
 
@@ -325,13 +330,21 @@ export default function AnalyticsPage() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                             <Card>
                                 <CardHeader>
-                                    <CardTitle className="flex items-center gap-2"><Briefcase /> Cultural Gap Analysis</CardTitle>
-                                    <CardDescription>Actionable ideas for new product development based on unmet cultural needs.</CardDescription>
+                                    <CardTitle className="flex items-center gap-2"><Briefcase /> Cultural Gap Analysis & Product Ideas</CardTitle>
+                                    <CardDescription>Actionable ideas for new product development from our Product Advisor Agent.</CardDescription>
                                 </CardHeader>
-                                <CardContent>
-                                    <ul className="space-y-3 list-disc list-inside text-muted-foreground">
-                                        {insights.marketOpportunityGaps.map((gap, i) => <li key={i}>{gap}</li>)}
-                                    </ul>
+                                <CardContent className="space-y-4">
+                                    {insights.marketOpportunityGaps.map((gap, i) => (
+                                        <div key={i} className="p-4 border rounded-lg bg-accent/20">
+                                            <h3 className="font-semibold">{gap.gapDescription}</h3>
+                                            <p className="text-sm text-muted-foreground mt-1"><strong>Product Idea:</strong> {gap.productIdea}</p>
+                                            <Separator className="my-2" />
+                                            <h4 className="text-xs font-semibold flex items-center gap-1.5"><Goal className="h-3 w-3" /> Target Features:</h4>
+                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                {gap.targetFeatures.map((feature, idx) => <Badge key={idx} variant="outline">{feature}</Badge>)}
+                                            </div>
+                                        </div>
+                                    ))}
                                 </CardContent>
                             </Card>
                             <Card>
@@ -385,5 +398,3 @@ export default function AnalyticsPage() {
         </main>
     );
 }
-
-    

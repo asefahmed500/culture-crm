@@ -68,6 +68,12 @@ const GlobalIntelligenceSchema = z.object({
     culturalSensitivityScore: z.number().min(0).max(100).describe("An overall score (0-100) representing the brand's current cultural sensitivity based on the diversity of tastes in its customer base. A high score means the brand appeals to a wide variety of cultural preferences and is less likely to cause offense."),
 });
 
+const AnomalyAnalysisSchema = z.object({
+    isAnomaly: z.boolean().describe("Whether a significant, actionable anomaly was detected."),
+    description: z.string().describe("A concise description of the anomaly if one is detected. This is the content for the 'dataShiftAlert'. If no anomaly, this will be an empty string."),
+    potentialCause: z.string().optional().describe("A hypothesis about the potential cause of the anomaly."),
+    suggestedAction: z.string().optional().describe("A high-level strategic action to capitalize on or mitigate the anomaly."),
+});
 
 const GenerateAnalyticsInsightsOutputSchema = z.object({
   overallSummary: z.string().describe("A high-level summary of the most important findings from the analysis."),
@@ -81,9 +87,13 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   topEmergingInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 emerging cultural interests gaining popularity."),
   topDecliningInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 declining cultural interests losing engagement."),
   seasonalForecasts: z.array(SeasonalForecastSchema).describe("2-3 seasonal behavior forecasts for key customer segments."),
-  marketOpportunityGaps: z.array(z.string()).describe("A cultural gap analysis. Identify 2-3 potential market opportunity gaps based on unmet or underserved cultural preferences. These should be actionable ideas for new product development."),
+  marketOpportunityGaps: z.array(z.object({
+      gapDescription: z.string().describe("A description of the unmet or underserved cultural preference."),
+      productIdea: z.string().describe("A high-level concept for a new product or feature to fill this gap."),
+      targetFeatures: z.array(z.string()).describe("A list of key features this new product should have to appeal to the target culture."),
+  })).describe("A cultural gap analysis presented as a list of actionable product ideas."),
   competitiveIntelligence: z.string().describe("A brief analysis of the competitive landscape from a cultural perspective. Using world knowledge, infer potential competitors and analyze their cultural positioning. Identify cultural threats (e.g., competitors targeting your key segments) and opportunities (e.g., underserved cultural segments)."),
-  dataShiftAlert: z.string().optional().describe("An alert for cultural anomaly detection. Populate this with a concise message if a significant, rapid shift in customer data patterns is detected (e.g., a trend rapidly growing to affect >15% of the base). This is the trigger for an event-driven campaign."),
+  dataShiftAlert: AnomalyAnalysisSchema.describe("An analysis from the cultural anomaly detection agent. This agent determines if a significant shift has occurred and provides analysis and recommended actions."),
   culturalShiftStory: CulturalShiftStorySchema.describe("A narrative story about the single most important cultural shift detected in the data. This is the AI's automated hypothesis generation at work."),
   culturalEvolution: CulturalEvolutionSchema.describe("Insights into how customer culture is changing over time."),
   globalIntelligence: GlobalIntelligenceSchema.describe("Insights into how cultural trends may differ across geographic markets, providing guidance for global marketing efforts."),
@@ -98,39 +108,36 @@ export async function generateAnalyticsInsights(): Promise<GenerateAnalyticsInsi
 const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
-  prompt: `You are a world-class, self-learning cultural sociologist, market intelligence analyst, and geo-context engine. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
+  prompt: `You are a team of AI agents working together: a cultural sociologist, a market intelligence analyst, a geo-context engine, a product development advisor, and an anomaly detection specialist. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
 Analyze the following customer profiles, fully simulating a multi-modal analysis by inferring rich context (e.g., social media sentiment, product review language, browsing behavior, purchase timing patterns, and email engagement) from the provided Cultural DNA and behavioral data:
 {{{json profiles}}}
 
-Based on this entire dataset, perform the following analysis:
-1.  **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
-2.  **Cultural Pattern Discovery (Self-Learning)**: Synthesize all real and inferred multi-modal signals to find 3-5 of the most significant recurring cultural patterns that a human might miss. This is a key self-learning function.
-3.  **Predictive Cultural Journey Mapping & Automation Triggers**: This is a critical section. Analyze the customer base to model their cultural evolution. For each prediction (Purchase, Churn, Advocacy, Upsell), you must:
-    *   **Model the Cultural Lifecycle**: Frame the prediction as a point in the customer's cultural journey (e.g., "This segment is evolving towards...").
-    *   **Identify Automation Triggers**: The 'recommendation' for each prediction must be a specific, direct instruction for a marketing automation system. For example: "Trigger the 'At-Risk Customer' workflow," or "Add to the 'Luxury Upgrade' email sequence."
-    *   **Predict Cultural Churn**: The 'churnRisk' prediction must specifically identify when a segment's cultural evolution might lead them to outgrow the brand and why. The recommendation should be an automation trigger to prevent it.
-    *   **Find Cultural Upsell Opportunities**: The 'upsellOpportunity' prediction must suggest products that align with a segment's *evolving* cultural identity. The recommendation should be a trigger to an upsell workflow.
-4.  **Cultural Trend Monitoring**: Identify the top 5 emerging and declining cultural interests.
-5.  **Dynamic Cultural Evolution Tracking**:
-    *   **Life Stage Transitions**: Infer life stage transitions from changes in purchase patterns.
-    *   **Cultural Drift**: Analyze how individuals or groups might be moving between different cultural segments over time.
-    *   **Influence Mapping**: Hypothesize how external events might be influencing the observed cultural shifts.
-    *   **Micro-trend Identification**: Spot nascent, niche trends before they become mainstream.
-6.  **Seasonal Behavior Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons.
-7.  **Competitive & Market Intelligence**:
-    *   **Cultural Gap Analysis**: For the 'marketOpportunityGaps' field, conduct a cultural gap analysis. Identify 2-3 specific, unmet, or underserved cultural preferences in the data that could inspire new product development or identify competitive white space.
-    *   **Competitive Cultural Intelligence**: For the 'competitiveIntelligence' field, use your world knowledge to analyze the competitive landscape from a cultural perspective. Do not just state trends; provide strategic analysis. For example, 'The rise in eco-conscious values is a threat, as competitor X is already well-positioned as a sustainable brand. To counter, focus on the 'artisan-made' aspect of sustainability, which they currently ignore.' Identify cultural threats and opportunities.
-8.  **Cultural Anomaly Detection (Event-Driven Automation Trigger)**: Determine if there are any recent, significant, and rapid shifts in the overall data patterns. If so, generate a concise alert message for the 'dataShiftAlert' field. This alert serves as a trigger for an event-driven campaign workflow.
-9.  **Automated Hypothesis Generation (Self-Learning)**: Synthesize all findings to identify the SINGLE most significant cultural shift. For the 'culturalShiftStory' field, create a compelling narrative story about it. This is an automated hypothesis generated by the AI for the user to test.
-10. **Global Intelligence Analysis**: Using your "world knowledge," act as a geo-context engine. Even though there is no explicit location data, infer how the cultural trends in the dataset might map to different global regions.
-    *   **Regional Cultural Mapping**: Based on the tastes present in the data, map them to major global regions (e.g., North America, Western Europe, Southeast Asia, etc.) where they might be prevalent.
-    *   **Cultural Collision Detection**: Identify 2-3 potential "cultural collision hotspots" (e.g., humor, symbolism) where a global campaign might fail in a local context.
-    *   **Cross-Cultural Campaign Optimization**: Provide actionable advice for adapting marketing messages for different cultural contexts.
-    *   **Cultural Sensitivity Score**: Calculate a score (0-100) that represents how well the brand's current appeal spans diverse cultural tastes. A high score indicates broad, sensitive appeal, while a low score suggests a narrow or potentially insensitive appeal.
+Based on this entire dataset, each agent will perform its analysis:
 
-Synthesize all of this into the specified JSON format to power a trend monitoring dashboard.
-`
+1.  **Cultural Sociology Agent**:
+    *   **Overall Summary**: Provide a high-level summary of the most critical insights a marketing director would need to know.
+    *   **Pattern Discovery**: Find 3-5 of the most significant recurring cultural patterns that a human might miss.
+    *   **Cultural Trend Monitoring**: Identify the top 5 emerging and declining cultural interests.
+    *   **Dynamic Cultural Evolution Tracking**: Analyze life stage transitions, cultural drift between segments, external influences, and nascent micro-trends.
+    *   **Automated Hypothesis Generation**: Identify the single most significant cultural shift and write a compelling narrative 'Cultural Shift Story' about it.
+
+2.  **Market Intelligence Agent**:
+    *   **Predictive Journey Mapping**: Model the cultural evolution for Purchase, Churn, Advocacy, and Upsell predictions. Each 'recommendation' must be a specific, direct instruction for a marketing automation system (e.g., "Trigger the 'At-Risk Customer' workflow").
+    *   **Competitive Intelligence**: Analyze the competitive landscape from a cultural perspective. Provide strategic analysis (e.g., 'The rise in eco-conscious values is a threat, as competitor X is well-positioned. To counter, focus on the 'artisan-made' aspect of sustainability, which they ignore.').
+    *   **Seasonal Forecasts**: Predict behavior for 2-3 key segments during upcoming seasons.
+
+3.  **Product Advisor Agent**:
+    *   **Cultural Gap Analysis**: For 'marketOpportunityGaps', don't just list gaps. Frame each as an actionable product idea, including a concept and a list of target features that would appeal to the underserved cultural need.
+
+4.  **Anomaly Detection Agent**:
+    *   **Event-Driven Automation**: For the 'dataShiftAlert' field, determine if a significant, rapid shift in data patterns exists. If so, set 'isAnomaly' to true, describe the anomaly, hypothesize its cause, and suggest a strategic action. If not, set 'isAnomaly' to false.
+
+5.  **Geo-Context Engine**:
+    *   **Global Intelligence**: Even without explicit location data, infer how cultural trends might map to global regions. Identify potential "cultural collision hotspots," provide cross-cultural campaign advice, and calculate a "Cultural Sensitivity Score" based on the diversity of tastes.
+
+Synthesize all agent findings into the single, specified JSON output format to power a comprehensive analytics dashboard.
+`,
 });
 
 export const generateAnalyticsInsightsFlow = ai.defineFlow(
