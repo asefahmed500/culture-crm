@@ -88,7 +88,7 @@ const GenerateAnalyticsInsightsOutputSchema = z.object({
   topDecliningInterests: z.array(InterestTrendSchema).length(5).describe("A ranked list of the top 5 declining cultural interests losing engagement."),
   seasonalForecasts: z.array(SeasonalForecastSchema).describe("2-3 seasonal behavior forecasts for key customer segments."),
   marketOpportunityGaps: z.array(z.object({
-      gapDescription: z.string().describe("A description of the unmet or underserved cultural preference."),
+      gapDescription: z.string().describe("An description of the unmet or underserved cultural preference."),
       productIdea: z.string().describe("A high-level concept for a new product or feature to fill this gap."),
       targetFeatures: z.array(z.string()).describe("A list of key features this new product should have to appeal to the target culture."),
   })).describe("A cultural gap analysis presented as a list of actionable product ideas."),
@@ -110,7 +110,7 @@ const analyticsPrompt = ai.definePrompt({
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a team of AI agents working together: a cultural sociologist, a market intelligence analyst, a geo-context engine, a product development advisor, and an anomaly detection specialist. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
-Analyze the following customer profiles, fully simulating a multi-modal analysis by inferring rich context (e.g., social media sentiment, product review language, browsing behavior, purchase timing patterns, and email engagement) from the provided Cultural DNA and behavioral data:
+Analyze the following customer profiles, which now contain rich, real-world taste data derived from the Qloo Taste AI API:
 {{{json profiles}}}
 
 Based on this entire dataset, each agent will perform its analysis:
@@ -153,11 +153,12 @@ export const generateAnalyticsInsightsFlow = ai.defineFlow(
       throw new Error("No customer profiles found in the database. Please import data on the Customer Import page before generating analytics.");
     }
 
+    // To prevent exceeding context window limits, we'll summarize a sample of profiles.
     const MAX_PROFILES_FOR_ANALYSIS = 100;
     let profilesForPrompt;
     if (profiles.length > MAX_PROFILES_FOR_ANALYSIS) {
         // Create a summary of profiles if there are too many
-        profilesForPrompt = profiles.map(p => ({
+        profilesForPrompt = profiles.slice(0, MAX_PROFILES_FOR_ANALYSIS).map(p => ({
             ageRange: p.ageRange,
             spendingLevel: p.spendingLevel,
             interactionFrequency: p.interactionFrequency,

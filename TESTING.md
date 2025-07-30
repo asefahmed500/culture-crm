@@ -1,3 +1,4 @@
+
 # End-to-End QA Testing Suite
 
 This document provides a comprehensive checklist and test prompts to validate every module of the Cultural Intelligence CRM. Use these manual and AI-driven tests to ensure functionality, UI integrity, and the proper flow of the data pipeline.
