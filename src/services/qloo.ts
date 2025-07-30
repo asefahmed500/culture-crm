@@ -14,10 +14,10 @@ if (!QLOO_API_URL || !QLOO_API_KEY) {
  * @returns A promise that resolves to the correlation data from the Qloo API.
  */
 export async function getCorrelations(interests: string[]): Promise<any> {
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
+    try {
         const response = await fetch(`${QLOO_API_URL}/v2/users/tastes/correlations`, {
             method: 'POST',
             headers: {
@@ -55,11 +55,13 @@ export async function getCorrelations(interests: string[]): Promise<any> {
 
     } catch (error: any) {
         if (error.name === 'AbortError') {
-             console.error('Qloo API request timed out.');
-             throw new Error('The request to the Qloo API timed out. Please try again later.');
+             console.error('Qloo API request timed out after 10 seconds.');
+             throw new Error('The request to the Qloo API timed out. The service may be temporarily unavailable. Please try again later.');
         }
         console.error('Failed to fetch correlations from Qloo API:', error);
-        // Allow the flow to continue gracefully by returning null, which is handled in the calling flow.
-        return null;
+        // Re-throw the error so the calling flow can handle it, ensuring issues are not silently ignored.
+        throw error;
+    } finally {
+        clearTimeout(timeoutId);
     }
 }
