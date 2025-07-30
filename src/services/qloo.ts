@@ -18,7 +18,7 @@ export async function getCorrelations(interests: string[]): Promise<any> {
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10-second timeout
 
     try {
-        const response = await fetch(`${QLOO_API_URL}/v2/users/tastes/correlations`, {
+        const response = await fetch(`${QLOO_API_URL}/v2/taste-correlations`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
