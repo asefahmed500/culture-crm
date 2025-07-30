@@ -30,7 +30,7 @@ const mappingPrompt = ai.definePrompt({
     name: 'columnMappingPrompt',
     input: { schema: GenerateColumnMappingInputSchema },
     output: { schema: GenerateColumnMappingOutputSchema },
-    prompt: `You are a data mapping expert. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
+    prompt: `You are a data mapping expert agent. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 
 The required system fields are:
 - 'age_range': Represents the age bracket of the customer (e.g., '25-34', '45-54'). Look for columns with ages or birth years.
