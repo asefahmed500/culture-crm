@@ -1,4 +1,6 @@
 
+'use server';
+
 import dbConnect from "@/lib/mongoose";
 import Settings from "@/models/settings";
 import { NextRequest, NextResponse } from "next/server";
@@ -6,12 +8,11 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(req: NextRequest) {
     try {
         await dbConnect();
-        // There should only be one settings document.
-        const settings = await Settings.findOne({ singleton: true });
+        // There should only ever be one settings document.
+        const settings = await Settings.findOne({ singleton: true }).lean();
         
         if (!settings) {
-            // Return default values if no settings found, but with a 200 status
-            // so the frontend can display them without showing an error.
+            // Return default values if no settings found.
             return NextResponse.json({
                 averageLTV: 0,
                 averageConversionRate: 0,
@@ -39,9 +40,9 @@ export async function POST(req: NextRequest) {
         const updatedSettings = await Settings.findOneAndUpdate(
             { singleton: true },
             { 
-                averageLTV,
-                averageConversionRate,
-                averageCPA,
+                averageLTV: Number(averageLTV) || 0,
+                averageConversionRate: Number(averageConversionRate) || 0,
+                averageCPA: Number(averageCPA) || 0,
                 singleton: true // ensure this field is set on creation
             },
             { new: true, upsert: true, setDefaultsOnInsert: true }
