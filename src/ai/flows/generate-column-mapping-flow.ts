@@ -77,6 +77,8 @@ export const generateColumnMappingFlow = ai.defineFlow(
       throw new Error('The AI model did not return a valid mapping.');
     }
     
+    // Ensure all headers from the original input are present in the final mapping.
+    // The AI might occasionally omit headers it maps to an empty string.
     const finalMapping: Record<string, string> = {};
     input.headers.forEach(header => {
         finalMapping[header] = output[header] || '';
