@@ -107,8 +107,8 @@ export async function generateAnalyticsInsights(): Promise<GenerateAnalyticsInsi
 
 const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
-  inputSchema: z.any(), // The input is a direct array of profiles
-  outputSchema: GenerateAnalyticsInsightsOutputSchema,
+  input: { schema: z.any() }, // The input is a direct array of profiles
+  output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a team of AI agents working together: a cultural sociologist, a market intelligence analyst, a geo-context engine, a product development advisor, and an anomaly detection specialist. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
 Analyze the following customer profiles, which now contain rich, real-world taste data derived from the Qloo Taste AI API:

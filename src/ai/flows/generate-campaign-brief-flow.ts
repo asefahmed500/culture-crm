@@ -52,6 +52,7 @@ export async function generateCampaignBrief(input: GenerateCampaignBriefInput): 
 
 const briefPrompt = ai.definePrompt({
   name: 'campaignBriefPrompt',
+  input: { schema: z.object({ segmentContext: z.any() }) },
   output: { schema: GenerateCampaignBriefOutputSchema },
   tools: [getBusinessMetricsTool],
   prompt: `You are a world-class marketing campaign strategist and financial analyst. Your task is to create a comprehensive campaign brief for a specific customer segment based on their detailed profile.

@@ -44,6 +44,7 @@ export async function generateSalesScript(input: GenerateSalesScriptInput): Prom
 
 const scriptPrompt = ai.definePrompt({
   name: 'salesScriptPrompt',
+  input: { schema: z.object({ segment: z.any() }) },
   output: { schema: GenerateSalesScriptOutputSchema },
   prompt: `You are a world-class sales trainer specializing in cultural psychology. Your task is to create a detailed, actionable sales script for a specific customer segment based on their cultural profile.
 

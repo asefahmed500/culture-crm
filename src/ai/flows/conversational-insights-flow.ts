@@ -29,6 +29,8 @@ export async function conversationalInsights(input: ConversationalInsightsInput)
 const conversationalPrompt = ai.definePrompt({
   name: 'conversationalInsightsPrompt',
   tools: [getCustomerProfilesTool, getCustomerSegmentsTool],
+  input: { schema: ConversationalInsightsInputSchema },
+  output: { schema: z.string() },
   prompt: `You are an AI Strategy Co-pilot agent named "Cultura." Your primary function is to act as an intelligent partner to the user, helping them understand their customer data and formulate marketing strategies.
 
 Your capabilities:
