@@ -52,12 +52,12 @@ export async function generateCustomerSegments(): Promise<GenerateCustomerSegmen
 
 const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
-  input: { schema: z.any() }, // The input is a direct array of profiles
+  input: { schema: z.object({ profiles: z.any() }) },
   output: { schema: GenerateCustomerSegmentsOutputSchema },
   prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" profile derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
 
 Analyze the following customer profiles, which now contain rich, real-world taste data:
-{{{json input}}}
+{{{json profiles}}}
 
 Based on similarities in their Cultural DNA, perform the following actions:
 1.  **Cluster Customers**: Group the customers into 8-12 meaningful, distinct segments. Go beyond simple taste clusters; create personas that feel real. For example, instead of "Likes Rock Music", create "The Weekend Warrior" who buys durable outdoor gear and listens to classic rock.
@@ -123,7 +123,7 @@ export const generateCustomerSegmentsFlow = ai.defineFlow(
         }));
     }
 
-    const { output } = await segmentationPrompt(profilesForPrompt);
+    const { output } = await segmentationPrompt({profiles: profilesForPrompt});
 
     if (!output) {
       throw new Error('The AI model did not return a valid segmentation report.');

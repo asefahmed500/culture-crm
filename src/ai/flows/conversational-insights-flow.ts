@@ -55,8 +55,8 @@ export const conversationalInsightsFlow = ai.defineFlow(
     inputSchema: ConversationalInsightsInputSchema,
     outputSchema: z.string(),
   },
-  async ({ query }) => {
-    const { output } = await conversationalPrompt({ query });
+  async (input) => {
+    const { output } = await conversationalPrompt(input);
     if (!output) {
       throw new Error('The AI model did not return a valid response.');
     }
