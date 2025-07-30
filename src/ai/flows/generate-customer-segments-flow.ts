@@ -52,7 +52,7 @@ export async function generateCustomerSegments(): Promise<GenerateCustomerSegmen
 
 const segmentationPrompt = ai.definePrompt({
   name: 'customerSegmentationPrompt',
-  input: { schema: z.object({ profiles: z.any() }) },
+  inputSchema: z.object({ profiles: z.any() }),
   output: { schema: GenerateCustomerSegmentsOutputSchema },
   prompt: `You are a world-class market research analyst and product development strategist with a strong commitment to ethical AI. Your task is to analyze a database of customer profiles, each with a "Cultural DNA" profile derived from the Qloo Taste AI API, and create 8-12 distinct cultural segments.
 

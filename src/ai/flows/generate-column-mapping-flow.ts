@@ -28,7 +28,7 @@ export async function generateColumnMapping(input: GenerateColumnMappingInput): 
 
 const mappingPrompt = ai.definePrompt({
     name: 'columnMappingPrompt',
-    input: { schema: GenerateColumnMappingInputSchema },
+    inputSchema: GenerateColumnMappingInputSchema,
     output: { schema: GenerateColumnMappingOutputSchema },
     prompt: `You are a data mapping expert agent. Your task is to analyze the headers and preview data from a user's CSV file and map them to a predefined set of system fields.
 

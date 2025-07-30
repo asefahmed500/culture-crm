@@ -61,6 +61,7 @@ export async function generateCulturalDna(input: GenerateCulturalDnaInput): Prom
 
 const dnaSummarizationPrompt = ai.definePrompt({
     name: 'dnaSummarizationPrompt',
+    inputSchema: z.object({ qlooData: z.any(), originalInputs: GenerateCulturalDnaInputSchema }),
     output: { schema: GenerateCulturalDnaOutputSchema },
     prompt: `You are a cultural intelligence expert. Your task is to synthesize correlation data from the Qloo API into a rich "Cultural DNA" profile. The Qloo data provides correlations for a user based on their purchase history.
 

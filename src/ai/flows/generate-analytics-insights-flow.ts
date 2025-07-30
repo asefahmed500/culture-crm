@@ -107,7 +107,7 @@ export async function generateAnalyticsInsights(): Promise<GenerateAnalyticsInsi
 
 const analyticsPrompt = ai.definePrompt({
   name: 'analyticsInsightsPrompt',
-  input: { schema: z.object({ profiles: z.any() }) },
+  inputSchema: z.object({ profiles: z.any() }),
   output: { schema: GenerateAnalyticsInsightsOutputSchema },
   prompt: `You are a team of AI agents working together: a cultural sociologist, a market intelligence analyst, a geo-context engine, a product development advisor, and an anomaly detection specialist. Your task is to analyze a database of anonymized customer cultural profiles to generate a comprehensive trend report and predictive analysis. Assume the data is chronological, with the latest data appearing at the end of the array.
 
